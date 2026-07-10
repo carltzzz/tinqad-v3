@@ -1,0 +1,17 @@
+# Virtual environments
+venv/
+.venv/
+
+# Python
+__pycache__/
+*.py[cod]
+
+# macOS
+.DS_Store
+
+# Logs
+*.log
+nohup.out
+
+# Environment variables
+.env
