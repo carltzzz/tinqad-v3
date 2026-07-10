@@ -17,7 +17,7 @@ Python 3.12
 1. Clone the repository
 
 ```bash
-git clone ...
+git clone git@github.com:carltzzz/tinqad-v3.git
 ```
 
 2. Change directory to the project folder**
