@@ -5,7 +5,6 @@ from dash import callback_context
 import dash
 from dash.exceptions import PreventUpdate
 import pandas as pd
-import hashlib
 
 from apps import commonmodules as cm
 from app import app
@@ -132,14 +131,6 @@ def save_profile_changes(save_btn, cancel_btn, confirm_btn, current_userid, fnam
                          confirm_pw, confirm_condition):
     
     
-    def hash_password(password): 
-        if not password:
-            return None
-        password_bytes = password.encode('utf-8')
-        # Generate the hashed password
-        hashed_password = hashlib.sha256(password_bytes).hexdigest()
-        return hashed_password
-
     ctx = dash.callback_context
     
     if not ctx.triggered:
@@ -199,7 +190,7 @@ def save_profile_changes(save_btn, cancel_btn, confirm_btn, current_userid, fnam
 
         if pw and pw == cpw:
             # we have a non‐empty password match => hash & update it
-            hashed = hash_password(pw)
+            hashed = db.hash_new_password(pw)
             sql = """
             UPDATE maindashboard.users
             SET user_fname = %s, user_mname = %s, user_sname = %s, user_suffixname = %s, user_id_num = %s,

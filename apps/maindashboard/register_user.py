@@ -11,18 +11,9 @@ from app import app
 from apps import dbconnect as db
 
 from datetime import datetime
-import hashlib
 import re
 
 from urllib.parse import urlparse, parse_qs
-
-
-
-def hash_password(password): 
-    password_bytes = password.encode('utf-8')
-    # Generate the hashed password
-    hashed_password = hashlib.sha256(password_bytes).hexdigest()
-    return hashed_password
 
 
 
@@ -752,7 +743,7 @@ def register_user(submitbtn, cancelbtn, confirmbtn, removerecord,
                     %s, %s, %s, %s, %s
                 )
             """
-            hashed_password = hash_password(password)
+            hashed_password = db.hash_new_password(password)
             values = (
                 fname, mname, sname, livedname, 
                 bday, phone_num, id_num, 

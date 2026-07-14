@@ -8,8 +8,6 @@ from apps import commonmodules as cm
 from app import app
 from apps import dbconnect as db 
 
-import hashlib
-
 
 
 password_header = html.Div(

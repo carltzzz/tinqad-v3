@@ -31,15 +31,25 @@ python3.12 -m venv venv
 source venv/bin/activate
 ```
 
-4. Install the dependencies
+4. Set up environment variables
+
+```bash
+cp .env.example .env
+Edit .env and set your database credentials and a unique FLASK_SECRET_KEY.
+Generate a secret key with:
+python -c "import secrets; print(secrets.token_hex(32))"
+```
+
+5. Install the dependencies
 ```bash
 pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
-5. Run the project
+6. Run the project
 ```bash
 python index.py
 ```
+
 
 ## Tech Stack
