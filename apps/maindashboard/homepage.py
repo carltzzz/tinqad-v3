@@ -4,6 +4,7 @@ from dash import dash, html, dcc, Input, Output, State
 from dash.dependencies import MATCH
 from dash.exceptions import PreventUpdate
 import pandas as pd
+from flask import session
 
 from apps import commonmodules as cm
 from app import app
@@ -169,6 +170,9 @@ announcement_footer = html.Div(
     ],
 )
 def fetch_announcements(pathname, trigger_add, trigger_del, current_user_id):
+    sess_uid = session.get('user_id')
+    if sess_uid is None:
+        raise PreventUpdate
     if pathname != "/homepage":
         raise PreventUpdate
 
@@ -264,6 +268,9 @@ def handle_team_message(
     footer_clicks, edit_clicks, cancel_clicks, post_clicks,
     header, content, user_id, edit_id, trigger_count
 ):
+    sess_uid = session.get('user_id')
+    if sess_uid is None:
+        raise PreventUpdate
     ctx = callback_context
     if not ctx.triggered:
         raise PreventUpdate
@@ -875,6 +882,9 @@ def update_time_date(n):
      Input("currentuserid", "data")]  
 )
 def fetch_team_messages(pathname, delete_trigger, added_trigger, current_user_id):
+    sess_uid = session.get('user_id')
+    if sess_uid is None:
+        raise PreventUpdate
     if pathname != "/homepage":
         raise PreventUpdate
 
@@ -1011,6 +1021,9 @@ def handle_team_message(
     footer_clicks, edit_clicks, cancel_clicks, post_clicks,
     content, user_id, edit_id, trigger_count
 ):
+    sess_uid = session.get('user_id')
+    if sess_uid is None:
+        raise PreventUpdate
     ctx = callback_context
     if not ctx.triggered:
         raise PreventUpdate

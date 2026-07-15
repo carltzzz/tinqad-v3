@@ -5,6 +5,7 @@ from dash import callback_context
 import dash
 from dash.exceptions import PreventUpdate
 import pandas as pd
+from flask import session
 
 from apps import commonmodules as cm
 from app import app
@@ -130,6 +131,9 @@ def update_profile_header(pathname, current_userid):
 def save_profile_changes(save_btn, cancel_btn, confirm_btn, current_userid, fname, mname, sname, suffixname, id_num, livedname, pronouns, bday, placeofbirth, bloodtype, phone_num, position, email, password,
                          confirm_pw, confirm_condition):
     
+    sess_uid = session.get('user_id')
+    if sess_uid is None:
+        raise PreventUpdate
     
     ctx = dash.callback_context
     

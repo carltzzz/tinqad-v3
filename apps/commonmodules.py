@@ -4,6 +4,7 @@ import dash
 from dash.exceptions import PreventUpdate
 from dash.dependencies import Input, Output, State
 import os
+from flask import session
 
 from app import app
 from apps import dbconnect as db
@@ -130,6 +131,10 @@ def navbarlinks(pathname, user_id):
     [State('currentuserid', 'data')]
 )
 def generate_navbar(pathname, access_type, user_id):
+    sess_uid = session.get('user_id')
+    if sess_uid is None:
+        if user_id != -1:
+            raise PreventUpdate
     if user_id != -1:
         sidebar = [
             html.A(html.B('Home'), href='/homepage', className="nav-link"),  

@@ -3,6 +3,7 @@ from dash import callback_context, dcc, html
 import dash_bootstrap_components as dbc
 from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
+from flask import session
 
 from app import app
 from apps import dbconnect as db
@@ -12,11 +13,6 @@ layout = dbc.Row(
         dbc.Col(
             html.Div(
                 [
-                    html.Div(
-                        [
-                            dcc.Store(id='user_id_store', storage_type='session', data=0),
-                        ]
-                    ),
                     html.Div(
                         [
                             html.Img(
@@ -245,17 +241,23 @@ def loginprocess(loginbtn, useremail, password, currentuserid, pathname):
                         user_id = df['user_id'][0]
                         if db.verify_password(user_id, password):
                             currentuserid = user_id
-                            accesstype = df['user_access_type'][0] 
+                            accesstype = df['user_access_type'][0]
+                            session['user_id'] = int(user_id)
+                            session['access_type'] = int(accesstype)
                             pathname = '/homepage'
                         else:
                             currentuserid = -1
                             accesstype = 0
+                            session.pop('user_id', None)
+                            session.pop('access_type', None)
                             alert_color = 'danger'
                             alert_text = 'Incorrect username or password.'
                             alert_open = True
                     else:
                         currentuserid = -1
                         accesstype = 0
+                        session.pop('user_id', None)
+                        session.pop('access_type', None)
                         alert_color = 'danger'
                         alert_text = 'Incorrect username or password.'
                         alert_open = True
