@@ -183,7 +183,7 @@ def populate_accordion():
 
     return html.Div(dbc.Accordion(accordion_items))
 
-expensetypes = populate_accordion()
+
 
 
 
@@ -223,7 +223,7 @@ layout = html.Div(
                             [
                                 dbc.CardHeader(html.H3("Expense Types", className="mb-0")),
                                 dbc.CardBody(
-                                    expensetypes,
+                                    html.Div(id='expensetypes_accordion'),
                                 )
                             ]
                         ),
@@ -261,7 +261,8 @@ layout = html.Div(
 
 @app.callback(
     [Output('charts_mainexp', 'children'),
-     Output('charts_subexp', 'children')],
+     Output('charts_subexp', 'children'),
+     Output('expensetypes_accordion', 'children')],
     [Input('admindashboard_toload', 'modified_timestamp')],
     [State('admindashboard_toload', 'data')]
 )
@@ -269,7 +270,8 @@ def update_charts(timestamp, toload):
     if toload:
         main_exp_charts = charts_mainexp()
         sub_exp_charts = charts_subexp()
-        return main_exp_charts, sub_exp_charts
+        expensetypes = populate_accordion()
+        return main_exp_charts, sub_exp_charts, expensetypes
     else:
         raise PreventUpdate
     
