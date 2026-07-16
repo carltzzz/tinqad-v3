@@ -17,7 +17,7 @@ def getdblocation():
         host='localhost',
         database='TINQAD_Database',
         user='postgres',
-        port=5433,
+        port=5432,
         password='postgres'
     )
 
@@ -311,8 +311,14 @@ def get_office_info(office_id):
     db.close()
     return office_name
 
-
-
+def get_pob_info(pob_id):
+    db = getdblocation()
+    cursor = db.cursor()
+    # cursor.execute("SELECT municipality_name FROM public.municipalities WHERE municipality_id = %s", (pob_id,))
+    cursor.execute("SELECT CONCAT(mun.municipality_name, ', ', prov.province_name )as label, mun.municipality_id  as value FROM public.municipalities AS mun INNER JOIN public.provinces AS prov ON mun.province_id=prov.province_id WHERE mun.municipality_id = %s", (pob_id,))
+    pob_name = cursor.fetchone()[0]
+    db.close()
+    return pob_name
 
 def verify_password(user_id, password):
     try:

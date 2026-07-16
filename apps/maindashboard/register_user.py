@@ -33,7 +33,9 @@ form = dbc.Form(
             
             dbc.Row(
                 [
-                    dbc.Label("First Name ", width=3),
+                    dbc.Label(["First Name ", 
+                              html.Span("*", style={"color": "#F8B237"})],
+                              width=3),
                     dbc.Col(
                         dbc.Input(type="text", id='user_fname', value='', disabled=False),
                         width=6,
@@ -43,7 +45,9 @@ form = dbc.Form(
             ),
             dbc.Row(
                 [
-                    dbc.Label("Middle Name ", width=3),
+                    dbc.Label(["Middle Name ", 
+                              html.Span("*", style={"color": "#F8B237"})],
+                              width=3),
                     dbc.Col(
                         dbc.Input(type="text", id='user_mname', disabled=False),
                         width=6,
@@ -53,7 +57,9 @@ form = dbc.Form(
             ),
             dbc.Row(
                 [
-                    dbc.Label("Surname ", width=3),
+                    dbc.Label(["Surname ", 
+                              html.Span("*", style={"color": "#F8B237"})],
+                              width=3),
                     dbc.Col(
                         dbc.Input(type="text", id='user_sname', disabled=False),
                         width=6,
@@ -84,7 +90,9 @@ form = dbc.Form(
             
             dbc.Row(
                 [
-                    dbc.Label("Birthday ", width=3),
+                    dbc.Label(["Birthday ", 
+                              html.Span("*", style={"color": "#F8B237"})],
+                              width=3),
                     dbc.Col(
                         dbc.Input(type="date", id='user_bday', disabled=False),
                         width=4,
@@ -94,7 +102,9 @@ form = dbc.Form(
             ),
             dbc.Row(
                 [
-                    dbc.Label("Sex at Birth", width=3),
+                    dbc.Label(["Sex at Birth", 
+                              html.Span("*", style={"color": "#F8B237"})],
+                              width=3),
                     dbc.Col(
                         dbc.Select(
                             id='user_sexatbirth',
@@ -110,16 +120,27 @@ form = dbc.Form(
                 ],
                 className="mb-2",
             ),
+
             dbc.Row(
                 [
-                    dbc.Label("Place of Birth", width=3),
+                    dbc.Label(["Place of Birth", 
+                        html.Span("*", style={"color": "#F8B237"})],
+                        width=3),
                     dbc.Col(
-                        dbc.Input(type="text", id='user_placeofbirth', disabled=False),
+                        dcc.Dropdown(
+                            id="user_placeofbirth",
+                            options=[],
+                            placeholder="Search for City/Municipality",
+                            persistence=True,
+                            className="mb-2",
+                            # style={"width": "100%"}
+                        ),
                         width=4,
                     ),
                 ],
                 className="mb-2",
             ),
+
             dbc.Row(
                 [
                     dbc.Label("Blood Type", width=3),
@@ -142,7 +163,9 @@ form = dbc.Form(
             ),
             dbc.Row(
                 [
-                    dbc.Label("Phone Number ", width=3),
+                    dbc.Label(["Phone Number ", 
+                              html.Span("*", style={"color": "#F8B237"})],
+                              width=3),
                     dbc.Col(
                         dbc.Input(type="text", id='user_phone_num',  
                                   placeholder="0000-000-0000", maxLength=13, disabled=False),
@@ -153,7 +176,9 @@ form = dbc.Form(
             ),
             dbc.Row(
                 [
-                    dbc.Label("ID Number ", width=3),
+                    dbc.Label(["ID Number ", 
+                              html.Span("*", style={"color": "#F8B237"})],
+                              width=3),
                     dbc.Col(
                         dbc.Input(type="text", id='user_id_num', 
                                   placeholder="0000-00000", maxLength=13, disabled=False),
@@ -322,7 +347,6 @@ def toggle_password_visibility(checked_values):
     else:
         return 'password', 'password'
 
-
 layout = html.Div(
     [
         dbc.Row(
@@ -426,8 +450,7 @@ layout = html.Div(
         ),
         html.Div(id='dummy-div', style={'display': 'none'})
     ]
-)
-
+) 
 
 # Callback to populate Office dropdown and determine mode (add/edit)
 @app.callback(
@@ -463,6 +486,30 @@ def registeruser_loaddropdown(pathname, search):
         raise PreventUpdate
     return [office_options, to_load, removediv_style]
 
+# Place of Birth
+#municipality dropdown
+@app.callback(
+    Output('user_placeofbirth', 'options'),
+    Input('user_placeofbirth', 'search_value')
+)
+def update_POB(search_value):
+    try: 
+        sql = """
+        SELECT 
+            CONCAT(mun.municipality_name, ', ', prov.province_name )as label, 
+            mun.municipality_id  as value
+        FROM public.municipalities AS mun
+        INNER JOIN public.provinces AS prov ON mun.province_id=prov.province_id
+        """
+        values = [search_value]
+        cols = ['label', 'value']
+        df = db.querydatafromdatabase(sql, values, cols)
+        
+        municipality_options = df.to_dict('records')
+        return municipality_options
+    
+    except Exception as e: 
+        return []
 
 @app.callback(
     Output('user_qao_team_id_div', 'style'),
@@ -608,7 +655,7 @@ def register_user(submitbtn, cancelbtn, confirmbtn, removerecord,
     user_bday_class = ''
     user_sexatbirth_class = ''
     user_placeofbirth_class = ''
-    user_bloodtype_class = ''
+    user_bloodtype_class = '' #7/14: made non-essential
     user_phone_num_class = ''
     user_id_num_class = ''
     user_qao_team_id_class = ''
@@ -630,7 +677,7 @@ def register_user(submitbtn, cancelbtn, confirmbtn, removerecord,
     if eventid == 'registeruser_save_button' and submitbtn:
         if create_mode == 'add':
             if qao_team_required_info == 1:
-                required_fields = [fname, mname, sname, bday, sexatbirth, placeofbirth, bloodtype, phone_num, id_num, user_qao_team_id, 
+                required_fields = [fname, mname, sname, bday, sexatbirth, placeofbirth, phone_num, id_num, user_qao_team_id, 
                                 position, email, password, confirm_password, user_access_type]
                 if not all(required_fields) and not removerecord:
                     alert_open = True
@@ -642,7 +689,6 @@ def register_user(submitbtn, cancelbtn, confirmbtn, removerecord,
                     user_sname_class= get_input_class(sname)
                     user_sexatbirth_class= get_input_class(sexatbirth)
                     user_placeofbirth_class= get_input_class(placeofbirth)
-                    user_bloodtype_class= get_input_class(bloodtype)
                     user_phone_num_class= get_input_class(phone_num)
                     user_id_num_class= get_input_class(id_num)
                     user_qao_team_id_class= get_input_class(user_qao_team_id)
@@ -656,18 +702,17 @@ def register_user(submitbtn, cancelbtn, confirmbtn, removerecord,
                     alert_open = True
                     alert_color = 'danger'
                     alert_text = 'Password and Confirm Password do not match.'
-                    user_fname_class= get_input_class(fname)
-                    user_mname_class= get_input_class(mname)
-                    user_sname_class= get_input_class(sname)
-                    user_sexatbirth_class= get_input_class(sexatbirth)
-                    user_placeofbirth_class= get_input_class(placeofbirth)
-                    user_bloodtype_class= get_input_class(bloodtype)
-                    user_phone_num_class= get_input_class(phone_num)
-                    user_id_num_class= get_input_class(id_num)
-                    user_qao_team_id_class= get_input_class(user_qao_team_id)
-                    user_position_class= get_input_class(position)
-                    user_email_class= get_input_class(email)
-                    user_access_type_class= get_input_class(user_access_type)
+                    # user_fname_class= get_input_class(fname)
+                    # user_mname_class= get_input_class(mname)
+                    # user_sname_class= get_input_class(sname)
+                    # user_sexatbirth_class= get_input_class(sexatbirth)
+                    # user_placeofbirth_class= get_input_class(placeofbirth)
+                    # user_phone_num_class= get_input_class(phone_num)
+                    # user_id_num_class= get_input_class(id_num)
+                    # user_qao_team_id_class= get_input_class(user_qao_team_id)
+                    # user_position_class= get_input_class(position)
+                    # user_email_class= get_input_class(email)
+                    # user_access_type_class= get_input_class(user_access_type)
                     user_password_class= 'red-border'
                     user_confirm_password_class= 'red-border'
                 else:
@@ -689,9 +734,9 @@ def register_user(submitbtn, cancelbtn, confirmbtn, removerecord,
                     alert_open = True
                     alert_color = 'danger'
                     alert_text = 'Password and Confirm Password do not match.'
-                    user_position_class= get_input_class(position)
-                    user_email_class= get_input_class(email)
-                    user_access_type_class= get_input_class(user_access_type)
+                    # user_position_class= get_input_class(position)
+                    # user_email_class= get_input_class(email)
+                    # user_access_type_class= get_input_class(user_access_type)
                     user_password_class= 'red-border'
                     user_confirm_password_class= 'red-border'
                 else: 
@@ -731,8 +776,8 @@ def register_user(submitbtn, cancelbtn, confirmbtn, removerecord,
                 initial_modal_open = False
                 final_modal_open = False
                 return [alert_open, alert_color, alert_text, initial_modal_open, initial_message, confirm_btn_color, final_modal_open, final_header,
-                    user_fname_class, user_mname_class, user_sname_class, user_bday_class, user_sexatbirth_class, user_placeofbirth_class,
-                    user_bloodtype_class, user_phone_num_class, user_id_num_class, user_qao_team_id_class, user_position_class, user_email_class,
+                    user_fname_class, user_mname_class, user_sname_class, user_bday_class, user_sexatbirth_class, user_placeofbirth_class, user_bloodtype_class,
+                    user_phone_num_class, user_id_num_class, user_qao_team_id_class, user_position_class, user_email_class,
                     user_password_class, user_confirm_password_class, user_access_type_class, user_office_class]  
 
             # add user to database
@@ -785,8 +830,8 @@ def register_user(submitbtn, cancelbtn, confirmbtn, removerecord,
                 initial_modal_open = False
                 final_modal_open = False
                 return [alert_open, alert_color, alert_text, initial_modal_open, initial_message, confirm_btn_color, final_modal_open, final_header,
-                    user_fname_class, user_mname_class, user_sname_class, user_bday_class, user_sexatbirth_class, user_placeofbirth_class,
-                    user_bloodtype_class, user_phone_num_class, user_id_num_class, user_qao_team_id_class, user_position_class, user_email_class,
+                    user_fname_class, user_mname_class, user_sname_class, user_bday_class, user_sexatbirth_class, user_placeofbirth_class, user_bloodtype_class,
+                    user_phone_num_class, user_id_num_class, user_qao_team_id_class, user_position_class, user_email_class,
                     user_password_class, user_confirm_password_class, user_access_type_class, user_office_class]  
 
             # Update existing user record (include new fields)
@@ -825,8 +870,8 @@ def register_user(submitbtn, cancelbtn, confirmbtn, removerecord,
     else:
         raise PreventUpdate
     return [alert_open, alert_color, alert_text, initial_modal_open, initial_message, confirm_btn_color, final_modal_open, final_header,
-            user_fname_class, user_mname_class, user_sname_class, user_bday_class, user_sexatbirth_class, user_placeofbirth_class,
-            user_bloodtype_class, user_phone_num_class, user_id_num_class, user_qao_team_id_class, user_position_class, user_email_class,
+            user_fname_class, user_mname_class, user_sname_class, user_bday_class, user_sexatbirth_class, user_placeofbirth_class, user_bloodtype_class,
+            user_phone_num_class, user_id_num_class, user_qao_team_id_class, user_position_class, user_email_class,
             user_password_class, user_confirm_password_class, user_access_type_class, user_office_class]  
 
 # Callback to load profile data in edit mode
