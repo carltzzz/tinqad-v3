@@ -265,33 +265,6 @@ def update_subexpenses_options(selected_main_expense):
         return [] 
 
 @app.callback(
-    Output("tabs-content", "children"),
-    [Input("tabs", "active_tab")],
-)
-def switch_tab(tab):
-    if tab == "current":
-        return [
-            html.Div(
-                id='recordexpenses_list', 
-                style={
-                    'marginTop': '20px',
-                    'overflowX': 'auto'  # This CSS property adds a horizontal scrollbar
-                }
-            )
-        ]
-    elif tab == "view_all":
-        return [
-            html.Div(
-                id='recordexpenses_list', 
-                style={
-                    'marginTop': '20px',
-                    'overflowX': 'auto'  # This CSS property adds a horizontal scrollbar
-                }
-            )
-        ]
-    return html.Div("No Tab Selected")
-
-@app.callback(
     Output('recordexpenses_list', 'children'),
     [
         Input('url', 'pathname'),   
@@ -386,7 +359,6 @@ def recordexpenses_loadlist(pathname, searchterm, status, main_expense, sub_expe
                     exp_del_ind IS FALSE
             """
             values = []
-            sql += " ORDER BY exp_timestamp DESC"
             
             cols = ['ID', 'Date', 'Payee Name', 'Main Expense Type', 
                     'Sub Expense Type', 'Particulars', 'Amount', 'Status',
@@ -413,6 +385,8 @@ def recordexpenses_loadlist(pathname, searchterm, status, main_expense, sub_expe
                 sql += """ AND exp_bur_no ILIKE %s"""
                 burno_like_pattern = f"%{bur_no}%"
                 values.append(burno_like_pattern)
+
+            sql += " ORDER BY exp_timestamp DESC"
 
         df = db.querydatafromdatabase(sql, values, cols)
  
