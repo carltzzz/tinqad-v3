@@ -158,3 +158,17 @@
 .nav-link.active {
     background-color: #FEE8C6; 
 }
+
+* {
+    font-family: Arial, "Trebuchet MS", Tahoma, Verdana, sans-serif;
+}
+
+.team-card-link {
+    text-decoration: none;
+    color: inherit;
+}
+
+.team-card-link:hover {
+    text-decoration: underline;
+    text-decoration-color: #000000;
+}

@@ -64,11 +64,11 @@ team_messages_content = html.Div(
                 dbc.Row(
                     [
                         dbc.Col(
-                            dbc.Button("Post", id="teammsgspost_button", color="success", className="mt-2"),
+                            dbc.Button("Post", id="teammsgspost_button", color="", className="mt-2 border border-dark"),
                             width="auto",
                         ),
                         dbc.Col(
-                            dbc.Button("Cancel", id="teammsgscancel_button", color="warning", className="mt-2"),
+                            dbc.Button("Cancel", id="teammsgscancel_button", color="", className="mt-2 border border-dark"),
                             width="auto",
                         ),
                     ],
@@ -86,8 +86,8 @@ team_messages_footer = html.Div(
         dbc.Button(
             "Add Message",
             id="teammsgs_footer_button",
-            className="mt-2",
-            color="success",
+            className="mt-2 border border-dark",
+            color="",
             n_clicks = 0
         ),
     ],
@@ -128,11 +128,11 @@ announcement_content = html.Div(
                 dbc.Row(
                     [
                         dbc.Col(
-                            dbc.Button("Post", id="anmsgspost_button", color="primary", className="mt-2"),
+                            dbc.Button("Post", id="anmsgspost_button", color="", className="mt-2 border border-dark"),
                             width="auto",
                         ),
                         dbc.Col(
-                            dbc.Button("Cancel", id="anmsgscancel_button", color="secondary", className="mt-2"),
+                            dbc.Button("Cancel", id="anmsgscancel_button", color="", className="mt-2 border border-dark"),
                             width="auto",
                         ),
                     ],
@@ -150,8 +150,8 @@ announcement_footer = html.Div(
         dbc.Button(
             "Add Message",
             id="anmsgs_footer_button",
-            className="mt-2",
-            color="success",
+            className="mt-2 border border-dark",
+            color="",
             n_clicks = 0
         ),
     ],
@@ -579,15 +579,18 @@ layout = html.Div(
                             [
                                 dbc.Alert(id = 'greeting_alert', color = 'dark'),
                                 dbc.Alert(id="new_homeannouncement_alert", is_open=False, duration=3000, color="info"),
-                            ]
-                        )
+                            ],
+                            className="m-0 p-0"
+                        ),
+                        className="mb-1"
                     ),
-                    html.Br(),
+                    #  html.Br(),
 
                     dbc.Row(
                         dbc.Col(
                             card, width=12
-                        )
+                        ),
+                        className="mt-0"
                     ),
                     html.Br(),
 
@@ -604,7 +607,7 @@ layout = html.Div(
                                                         dbc.Col(html.Img(src=app.get_asset_url("icons/admin_icon.png"), style={"height": "100px"})),
                                                         dbc.Col(
                                                             [
-                                                                html.Div(style={'background-color': '#31356E', 'width': '100%', 'height': '20px'}),  # Rectangle
+                                                                # html.Div(style={'background-color': '#31356E', 'width': '100%', 'height': '20px'}),  # Rectangle
                                                                 html.H5("Administration Team", className="card-title fw-bold text-dark", style={"text-align": "right",'text-decoration': 'none'})
                                                             ]
                                                         )
@@ -616,7 +619,8 @@ layout = html.Div(
                                         className="mb-3",
                                         style={"backgroundColor": "#FFFFFF"}
                                     ),
-                                    href='/administration_dashboard'
+                                    href='/administration_dashboard',
+                                    className="team-card-link"
                                     ),
                                     width={"size": 6, "md": 12, "sm": 12},
                                 ),
@@ -630,7 +634,7 @@ layout = html.Div(
                                                         dbc.Col(html.Img(src=app.get_asset_url("icons/eqa_icon.png"), style={"height": "100px"})),
                                                         dbc.Col(
                                                             [
-                                                                html.Div(style={'background-color': '#F8B237', 'width': '100%', 'height': '20px'}),  # Rectangle
+                                                                #  html.Div(style={'background-color': '#F8B237', 'width': '100%', 'height': '20px'}),  # Rectangle
                                                                 html.H5("External Quality Assurance Team", className="card-title fw-bold text-dark", style={"text-align": "right",'text-decoration': 'none'})
                                                             ]
                                                         )
@@ -642,7 +646,8 @@ layout = html.Div(
                                         className="mb-3",
                                         style={"backgroundColor": "#FFFFFF"}
                                     ),
-                                    href='/eqa_dashboard'
+                                    href='/eqa_dashboard',
+                                    className="team-card-link"
                                     ),
                                     width={"size": 6, "md": 12, "sm": 12},
                                 ),
@@ -661,7 +666,7 @@ layout = html.Div(
                                                         dbc.Col(html.Img(src=app.get_asset_url("icons/iqa_icon.png"), style={"height": "100px"})),
                                                         dbc.Col(
                                                             [
-                                                                html.Div(style={'background-color': '#D37157', 'width': '100%', 'height': '20px'}),  # Rectangle
+                                                                # html.Div(style={'background-color': '#D37157', 'width': '100%', 'height': '20px'}),  # Rectangle
                                                                 html.H5("Internal Quality Assurance Team", className="card-title fw-bold text-dark", style={"text-align": "right",'text-decoration': 'none'})
                                                             ]
                                                         )
@@ -673,7 +678,8 @@ layout = html.Div(
                                         className="mb-3",
                                         style={"backgroundColor": "#FFFFFF"}
                                     ),
-                                    href='/iqa_dashboard'
+                                    href='/iqa_dashboard',
+                                    className="team-card-link"
                                     ),
                                     width={"size": 6, "md": 12, "sm": 12},
                                 ),
@@ -687,7 +693,7 @@ layout = html.Div(
                                                         dbc.Col(html.Img(src=app.get_asset_url("icons/km_icon.png"), style={"height": "100px"})),
                                                         dbc.Col(
                                                             [
-                                                                html.Div(style={'background-color': '#39B54A', 'width': '100%', 'height': '20px'}),  # Rectangle
+                                                                # html.Div(style={'background-color': '#39B54A', 'width': '100%', 'height': '20px'}),  # Rectangle
                                                                 html.H5("Knowledge Management Team", className="card-title fw-bold text-dark", style={"text-align": "right",'text-decoration': 'none'})
                                                             ]
                                                         )
@@ -699,7 +705,8 @@ layout = html.Div(
                                         className="mb-3",
                                         style={"backgroundColor": "#FFFFFF"}
                                     ),
-                                    href='/km_dashboard'
+                                    href='/km_dashboard',
+                                    className="team-card-link"
                                     ),
                                     width={"size": 6, "md": 12, "sm": 12},
                                 ),
@@ -830,23 +837,23 @@ def generate_greeting(pathname, user_id):
         
         if df.empty or (df.isnull().all().all()) or (df['livedname'].str.strip().eq("").all() and df['fname'].str.strip().eq("").all()):
             text = html.H5(html.B("?? Welcome!"))
-            color = '#F9B236'  # Set default color
+            # color = '#F9B236'  # Set default color
         else:
             name = df['livedname'][0] if df['livedname'][0] else df['fname'][0]
             time = datetime.now(pytz.timezone('Asia/Manila')).hour
 
             if time >= 0 and time < 12:
                 text = html.H5(html.B("Good morning, %s!" % name))
-                color = '#F9B236'    
+                #color = '#8a1538'    
             elif time >= 12 and time < 18:
                 text = html.H5(html.B("Good afternoon, %s!" % name))
-                color = '#D37157'
+                #color = '#D37157'
             elif time >= 18 and time < 22:
                 text = html.H5(html.B("Good evening, %s!" % name))
-                color = '#A09DCB'
+                #color = '#A09DCB'
             else:
                 text = html.H5(html.B("Good night, %s!" % name))
-                color = '#7EADE4'
+                #color = '#7EADE4'
 
         return [text, color]
     else: 

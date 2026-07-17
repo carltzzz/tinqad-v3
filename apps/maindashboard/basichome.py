@@ -330,7 +330,7 @@ layout = html.Div(
                 cm.sidebar,
                 dbc.Col(
                     [
-                        html.H1(html.B("👋 Welcome!")), 
+                        html.H1(html.B("Welcome!")), 
                         html.Br(), 
                         dbc.Alert(
                                 id="basic_kmann_alert", 

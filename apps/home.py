@@ -23,7 +23,7 @@ layout = dbc.Row(
                                     'display': 'block'  # Display as block element
                                 },
                             ),
-                            html.H5("Total Integrated Network for Quality Assurance and Development", className="fw-bolder text-center"),
+                            html.H5("Total Integrated Network for Quality Assurance and Development", className="fw-bolder text-center fs-4"),
                             html.P("Copyright (c) 2024. Quality Assurance Office, University of the Philippines", className="text-center"),
                             dbc.Row(
                                 [
