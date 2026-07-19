@@ -4,6 +4,7 @@ from dash import dash, html, dcc, Input, Output, State
 from dash.exceptions import PreventUpdate
 import pandas as pd
 import os
+import re
 
 from apps import commonmodules as cm
 from app import app
@@ -163,7 +164,7 @@ def staffprofiles_loaduserlist(pathname, name_filter, po_no_filter):
 
         if not df.empty: 
             df["Unit Cost"] = df["Unit Cost"].apply(
-                lambda x: f"₱{float(str(x).lstrip('?₱ ').replace(',', '')):,.2f}"
+                lambda x: f"₱{float(re.sub(r'[^\d.]', '', str(x))):,.2f}" if re.sub(r'[^\d.]', '', str(x)) else "₱0.00"
             )
 
             df["View"] = df["ID"].apply(

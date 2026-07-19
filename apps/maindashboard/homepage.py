@@ -64,11 +64,11 @@ team_messages_content = html.Div(
                 dbc.Row(
                     [
                         dbc.Col(
-                            dbc.Button("Post", id="teammsgspost_button", color="", className="mt-2 border border-dark"),
+                            dbc.Button("Post", id="teammsgspost_button", className="border-0 mt-2 rounded-0", color="success", outline='True',),
                             width="auto",
                         ),
                         dbc.Col(
-                            dbc.Button("Cancel", id="teammsgscancel_button", color="", className="mt-2 border border-dark"),
+                            dbc.Button("Cancel", id="teammsgscancel_button", className="border-0 mt-2 rounded-0", color="danger", outline='True',),
                             width="auto",
                         ),
                     ],
@@ -86,8 +86,9 @@ team_messages_footer = html.Div(
         dbc.Button(
             "Add Message",
             id="teammsgs_footer_button",
-            className="mt-2 border border-dark",
-            color="",
+            className="border-0 rounded-0",
+            color="primary",
+            outline='True',
             n_clicks = 0
         ),
     ],
@@ -128,11 +129,11 @@ announcement_content = html.Div(
                 dbc.Row(
                     [
                         dbc.Col(
-                            dbc.Button("Post", id="anmsgspost_button", color="", className="mt-2 border border-dark"),
+                            dbc.Button("Post", id="anmsgspost_button", className="border-0 mt-2 rounded-0", color="success", outline='True',),
                             width="auto",
                         ),
                         dbc.Col(
-                            dbc.Button("Cancel", id="anmsgscancel_button", color="", className="mt-2 border border-dark"),
+                            dbc.Button("Cancel", id="anmsgscancel_button", className="border-0 mt-2 rounded-0", color="danger", outline='True',),
                             width="auto",
                         ),
                     ],
@@ -150,8 +151,9 @@ announcement_footer = html.Div(
         dbc.Button(
             "Add Message",
             id="anmsgs_footer_button",
-            className="mt-2 border border-dark",
-            color="",
+            className="border-0 rounded-0",
+            color="primary",
+            outline='True',
             n_clicks = 0
         ),
     ],
@@ -220,7 +222,7 @@ def fetch_announcements(pathname, trigger_add, trigger_del, current_user_id):
                     html.Span(
                         "delete",
                         id={'type': 'an-delete-link', 'index': aid},
-                        style={"cursor": "pointer", "fontWeight": "bold", "color": "#ff4d4d"}
+                        style={"cursor": "pointer", "fontWeight": "", "color": "#ff4d4d"}
                     ),
                 ],
                 style={
@@ -764,11 +766,11 @@ layout = html.Div(
                 ),
                 dbc.Modal(
                     [
-                        dbc.ModalHeader(html.H3("Confirm deletion"), className="bg-primary"),
+                        dbc.ModalHeader(html.H5("Confirm deletion", className="fw-bold"), className=""),
                         dbc.ModalBody(html.H5("Are you sure you want to delete this message? This action cannot be undone.")),
                         dbc.ModalFooter([
-                            dbc.Button("Cancel", id="delete-cancel", color="secondary", className="me-2"),
-                            dbc.Button("Delete", id="delete-confirm", color="danger")
+                            dbc.Button("Cancel", id="delete-cancel", className="border-0 rounded-0", color="secondary", outline='True',),
+                            dbc.Button("Delete", id="delete-confirm", className="border-0 rounded-0", color="danger", outline='True',)
                         ]),
                     ],
                     id="delete-modal",
@@ -777,11 +779,11 @@ layout = html.Div(
                 ),
                 dbc.Modal(
                     [
-                        dbc.ModalHeader(html.H3("Confirm deletion"), className="bg-primary"),
+                        dbc.ModalHeader(html.H5("Confirm deletion", className="fw-bold"), className=""),
                         dbc.ModalBody(html.H5("Are you sure you want to delete this announcement?")),
                         dbc.ModalFooter([
-                            dbc.Button("Cancel", id="an-delete-cancel", color="secondary", className="me-2"),
-                            dbc.Button("Delete", id="an-delete-confirm", color="danger")
+                            dbc.Button("Cancel", id="an-delete-cancel", className="border-0 rounded-0", color="secondary", outline='True'),
+                            dbc.Button("Delete", id="an-delete-confirm", className="border-0 rounded-0", color="danger", outline='True')
                         ]),
                     ],
                     id="an-delete-modal",
@@ -933,7 +935,7 @@ def fetch_team_messages(pathname, delete_trigger, added_trigger, current_user_id
                         html.Span(
                             "delete",
                             id={'type': 'delete-link', 'index': mid},
-                            style={"cursor": "pointer", "fontWeight": "bold", "color": "#ff4d4d"}
+                            style={"cursor": "pointer", "fontWeight": "", "color": "#ff4d4d"}
                         ),
                     ],
                     style={

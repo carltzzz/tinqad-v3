@@ -246,11 +246,6 @@ layout = dbc.Container(
                         className="mb-0"
                     ),
                     html.Hr(),
-                    html.Div(  
-                            [
-                                dcc.Store(id='inventory_eval_toload', storage_type='memory', data=0),
-                            ]
-                        ),
                     form, 
                     html.Div(
                             dbc.Row(
@@ -583,21 +578,21 @@ def save_inventory(submit_button, confirm, cancel, removerecord, name, item_imag
                 alert_text = error
 
             sql = """
-                SET lc_monetary = 'en_PH.UTF-8';
-
                 INSERT INTO adminteam.inventory_tracker (
                     item_name, 
                     item_image_path, item_image_name, item_image_type, item_image_size,
                     item_barcode_number, item_brand, item_qa_initial_property_no, item_qa_updated_property_no,
                     item_description, item_supplier, item_po_number, item_unit_cost, item_staff_responsibile, item_assigned_to,
-                    item_company_name, item_company_contact_number, item_company_email
+                    item_company_name, item_company_contact_number, item_company_email,
+                    item_del_ind, item_timestamp
                 )
                 VALUES (
                     %s,
                     %s, %s, %s, %s,
                     %s, %s, %s, %s,
                     %s, %s, %s, %s, %s, %s,
-                    %s, %s, %s
+                    %s, %s, %s,
+                    FALSE, CURRENT_TIMESTAMP
                 )
             """
 
@@ -626,6 +621,7 @@ def save_inventory(submit_button, confirm, cancel, removerecord, name, item_imag
             update_fields = [
                 "item_name = %s",
                 "item_barcode_number = %s",
+                "item_brand = %s",
                 "item_qa_initial_property_no = %s",
                 "item_qa_updated_property_no = %s",
                 "item_description = %s",
@@ -639,7 +635,7 @@ def save_inventory(submit_button, confirm, cancel, removerecord, name, item_imag
                 "item_company_email = %s"            
             ]
             values = [
-                name, barcode, initial_property_no, updated_property_no, description, supplier, po_number, unit_cost, staff_responsible, assigned_to, company_name, contact_number, email
+                name, barcode, brand, initial_property_no, updated_property_no, description, supplier, po_number, unit_cost, staff_responsible, assigned_to, company_name, contact_number, email
             ]
 
             # Now, conditionally add file upload updates:
