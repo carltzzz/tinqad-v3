@@ -75,6 +75,10 @@ allowed_layout = html.Div(
                             ],
                             style={"marginBottom": "-10px"}
                         ),
+                        html.Div(
+                            id="landing_period"
+                        ),
+
                         html.Hr(),
 
                         dbc.Row(
@@ -130,7 +134,10 @@ allowed_layout = html.Div(
 )
 
 @app.callback(
-    Output('eval_list', 'children'),
+    [
+        Output('eval_list', 'children'),
+        Output('landing_period', 'children')
+    ],
     [
         Input('url', 'pathname'),
         Input('eval_name_filter', 'value'),
@@ -146,7 +153,8 @@ def staffprofiles_loaduserlist(pathname, searchterm, currentuserid):
                 pe.evaluation_id AS "ID",
                 CONCAT(u.user_fname, ' ', LEFT(u.user_mname, 1), '. ', u.user_sname, ' ', u.user_suffixname) AS "Full Name",
                 q.qao_team_names as "QAO Team",
-                u.user_position AS "Position"
+                u.user_position AS "Position",
+                evaluation_period_id
             FROM director.peer_evaluations pe
             LEFT JOIN maindashboard.users u ON u.user_id = pe.evaluatee_id
             LEFT JOIN maindashboard.offices o ON u.user_office = o.office_id
@@ -162,7 +170,7 @@ def staffprofiles_loaduserlist(pathname, searchterm, currentuserid):
             AND pe.peer_eval_delete_ind =FALSE
         """
         values = [currentuserid]
-        cols = ['ID', 'Full Name', 'QAO Team', 'Position']
+        cols = ['ID', 'Full Name', 'QAO Team', 'Position', 'EvalID']
 
         if searchterm:
             sql += """ AND (u.user_sname ILIKE %s OR u.user_fname ILIKE %s OR u.user_mname ILIKE %s) """
@@ -172,6 +180,27 @@ def staffprofiles_loaduserlist(pathname, searchterm, currentuserid):
             values += []
 
         df = db.querydatafromdatabase(sql, values, cols)
+
+        #Retrieve current period
+        sql_period = """
+            SELECT
+			'From ' ||
+                to_char(lower(period_details), 'Mon DD, YYYY') ||
+                ' to ' ||
+                to_char(upper(period_details) - INTERVAL '1 day', 'Mon DD, YYYY')
+                AS label,
+                period_id   AS value
+            FROM director.evaluation_periods
+            WHERE active_status = TRUE
+            AND period_del_ind = FALSE
+
+        """
+        period_df = db.querydatafromdatabase(sql_period, [], ['EvalPeriod', 'value'])
+        if period_df.shape[0] > 0 :
+            period_label = period_df['EvalPeriod'][0]
+        else:
+            period_label = "No Evaluation Period selected."
+        print(period_label)
 
         if df.shape[0] > 0:
             # Create separate "View" and "Edit" buttons for each evaluation.
@@ -232,9 +261,10 @@ def staffprofiles_loaduserlist(pathname, searchterm, currentuserid):
                 accordion_items,
                 always_open=True  # adjust this if you prefer single-open behavior
             )
-            return accordion
+            
+            return [accordion, html.Div(html.H3(period_label))]
         else:
-            return html.Div("No peer evaluations submitted for the current period")
+            return [html.Div("No peer evaluations submitted for the current period"), html.Div(html.H3(period_label))]
     else:
         raise PreventUpdate
 
