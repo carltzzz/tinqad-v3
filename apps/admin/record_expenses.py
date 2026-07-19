@@ -41,7 +41,7 @@ layout = html.Div(
                                 ),
                                 dbc.Col( 
                                     dbc.Button(
-                                        "➕ Add expense", color="primary", 
+                                        "Add expense", color="primary", 
                                         href='/record_expenses/add_expense?mode=add', 
                                     ),
                                     width="auto",
@@ -159,7 +159,7 @@ layout = html.Div(
                                     dbc.Input(
                                         type='text',
                                         id='burno_filter',
-                                        placeholder='Search by Bur No',
+                                        placeholder='Search by BUR No.',
                                         className='ml-auto'   
                                     ),
                                     width=4,
@@ -177,7 +177,7 @@ layout = html.Div(
                             id="tabs",
                             active_tab="current",
                             style=custom_css["tabs"],
-                            className="custom-tabs"
+                            className="custom-tabs bg-light"
                         ),
 
                         html.Div(
@@ -287,10 +287,10 @@ def recordexpenses_loadlist(pathname, searchterm, status, main_expense, sub_expe
                     exp_id AS "ID",
                     exp_date AS "Date", 
                     exp_payee AS "Payee Name", 
-                    me.main_expense_name AS "Main Expense Type",
+                    me.main_expense_shortname AS "Main Expense Type",
                     se.sub_expense_name AS "Sub Expense Type",
                     exp_particulars AS "Particulars", 
-                    exp_amount AS "Amount", 
+                    exp_amount AS "Amount (₱)", 
                     es.expense_status_name AS "Status",
                     exp_bur_no AS "BUR No",
                     exp_submitted_by AS "Submitted by",
@@ -333,7 +333,7 @@ def recordexpenses_loadlist(pathname, searchterm, status, main_expense, sub_expe
             sql += " ORDER BY exp_timestamp DESC"
 
             cols = ['ID', 'Date', 'Payee Name', 'Main Expense Type', 
-                    'Sub Expense Type', 'Particulars', 'Amount', 'Status', 
+                    'Sub Expense Type', 'Particulars', 'Amount (₱)', 'Status', 
                     'BUR No', 'Submitted by','File', 'File Path']
 
         elif active_tab == "view_all":
@@ -342,10 +342,10 @@ def recordexpenses_loadlist(pathname, searchterm, status, main_expense, sub_expe
                     exp_id AS "ID",
                     exp_date AS "Date", 
                     exp_payee AS "Payee Name", 
-                    me.main_expense_name AS "Main Expense Type",
+                    me.main_expense_shortname AS "Main Expense Type",
                     se.sub_expense_name AS "Sub Expense Type",
                     exp_particulars AS "Particulars", 
-                    exp_amount AS "Amount", 
+                    exp_amount AS "Amount (₱)", 
                     es.expense_status_name AS "Status",
                     exp_bur_no AS "BUR No",
                     exp_submitted_by AS "Submitted by",
@@ -361,7 +361,7 @@ def recordexpenses_loadlist(pathname, searchterm, status, main_expense, sub_expe
             values = []
             
             cols = ['ID', 'Date', 'Payee Name', 'Main Expense Type', 
-                    'Sub Expense Type', 'Particulars', 'Amount', 'Status',
+                    'Sub Expense Type', 'Particulars', 'Amount (₱)', 'Status',
                     'BUR No', 'Submitted by','File', 'File Path']
 
             if searchterm:
@@ -396,7 +396,7 @@ def recordexpenses_loadlist(pathname, searchterm, status, main_expense, sub_expe
     if not df.empty:
         df["View"] = df["ID"].apply(
             lambda x: html.Div(
-                dbc.Button('View', href=f'/record_expenses/add_expense?mode=view&id={x}', size='sm', color='warning'),
+                dbc.Button('View', href=f'/record_expenses/add_expense?mode=view&id={x}', size='sm'),
                 style={'text-align': 'center'}
             )
         )
@@ -409,7 +409,7 @@ def recordexpenses_loadlist(pathname, searchterm, status, main_expense, sub_expe
         )
 
         df = df[['Date', 'Payee Name', 'Main Expense Type', 'Sub Expense Type',
-                'Particulars', 'Amount', 'Status', 'BUR No', 'Submitted by', 
+                'Particulars', 'Amount (₱)', 'Status', 'BUR No', 'Submitted by', 
                 'File', 'View', 'Edit']]
                 
         df['File'] = df.apply(
@@ -422,7 +422,23 @@ def recordexpenses_loadlist(pathname, searchterm, status, main_expense, sub_expe
         )
 
 
-        df['Amount'] = df['Amount'].apply(lambda x: '{:,.2f}'.format(x))
+        df['Amount (₱)'] = df['Amount (₱)'].apply(
+            lambda x: html.Div(f'{x:,.2f}', style={'text-align': 'right'})
+        )
+
+        df['Main Expense Type'] = df['Main Expense Type'].apply(
+            lambda x: html.Div(x, style={'text-align': 'center'})
+        )
+
+        df['Payee Name'] = df['Payee Name'].apply(
+            lambda x: html.Div(x, style={
+                'maxWidth': '100px',
+                'overflow': 'hidden',
+                'textOverflow': 'ellipsis',
+                'whiteSpace': 'nowrap'
+            })
+        )
+
         table = dbc.Table.from_dataframe(df, striped=True, bordered=True, hover=True, size='sm')
         return [table]
         

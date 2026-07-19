@@ -141,6 +141,12 @@
     background-color:rgba(77, 186, 158, 0.25);
     color:#038b68}
 
+.VirtualizedSelectOption {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
 .VirtualizedSelectOption:focus,
 .VirtualizedSelectOption:hover,
 .VirtualizedSelectOption:active{

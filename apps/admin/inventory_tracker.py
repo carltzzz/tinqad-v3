@@ -31,7 +31,7 @@ layout = html.Div(
                                 ),
                                 dbc.Col(   
                                     dbc.Button(
-                                        "➕ Add Inventory Entry", color="primary", 
+                                        "Add Inventory Entry", color="primary", 
                                         href='/inventory_tracker_management?mode=add',
                                     ),
                                     width="auto",    
@@ -133,7 +133,7 @@ def staffprofiles_loaduserlist(pathname, name_filter, po_no_filter):
                 item_description as "Description", 
                 item_supplier as "Supplier", 
                 item_po_number as "PO Number", 
-                item_unit_cost as "Unit Cost",
+                item_unit_cost as "Unit Cost (₱)",
                 CONCAT(u.user_fname, ' ', LEFT(u.user_mname, 1), '. ', u.user_sname, ' ', u.user_suffixname) as "Staff Responsible", 
                 item_assigned_to as "Assigned To"
             FROM adminteam.inventory_tracker it
@@ -143,7 +143,7 @@ def staffprofiles_loaduserlist(pathname, name_filter, po_no_filter):
         values = []
 
         cols = ['ID', 'Item Name', 'S/N Number/ Barcode Number', 'Brand', 'QA Property No.(Initial)', 'QA Property No. (Updated)', 'Description', 
-                'Supplier', 'PO Number', 'Unit Cost', 'Staff Responsible', 'Assigned To']
+                'Supplier', 'PO Number', 'Unit Cost (₱)', 'Staff Responsible', 'Assigned To']
 
         if name_filter:
             filters.append("it.item_name ILIKE %s")
@@ -163,8 +163,11 @@ def staffprofiles_loaduserlist(pathname, name_filter, po_no_filter):
         df = db.querydatafromdatabase(sql, values, cols)
 
         if not df.empty: 
-            df["Unit Cost"] = df["Unit Cost"].apply(
-                lambda x: f"₱{float(re.sub(r'[^\d.]', '', str(x))):,.2f}" if re.sub(r'[^\d.]', '', str(x)) else "₱0.00"
+            df["Unit Cost (₱)"] = df["Unit Cost (₱)"].apply(
+                lambda x: html.Div(
+                    f"{float(re.sub(r'[^\d.]', '', str(x))):,.2f}" if re.sub(r'[^\d.]', '', str(x)) else "0.00",
+                    style={'text-align': 'right'}
+                )
             )
 
             df["View"] = df["ID"].apply(
@@ -182,7 +185,7 @@ def staffprofiles_loaduserlist(pathname, name_filter, po_no_filter):
             )
             df = df[["Item Name","S/N Number/ Barcode Number","Brand",
                     "QA Property No.(Initial)", "QA Property No. (Updated)", "Description","Supplier",
-                    "PO Number", "Unit Cost",
+                    "PO Number", "Unit Cost (₱)",
                     "Staff Responsible", "Assigned To",
                     "View", "Edit" ]]
             
