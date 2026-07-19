@@ -17,9 +17,9 @@ import flask
 
 # Define the highlight colors for styling
 highlight_colors = {
-    'primary': "#0a4323",    # Main headers
-    'secondary': "#7a0911",  # Section titles
-    'accent': "#f8b237"      # Accent for borders/emphasis
+    'primary': "#00573F",    # Main headers
+    'secondary': "#8A1538",  # Section titles
+    'accent': "#FFB81C"      # Accent for borders/emphasis
 }
 
 # Function to generate a custom table with fixed column widths.
@@ -200,7 +200,6 @@ def staffprofiles_loaduserlist(pathname, searchterm, currentuserid):
             period_label = period_df['EvalPeriod'][0]
         else:
             period_label = "No Evaluation Period selected."
-        print(period_label)
 
         if df.shape[0] > 0:
             # Create separate "View" and "Edit" buttons for each evaluation.
