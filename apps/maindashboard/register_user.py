@@ -884,7 +884,7 @@ def register_user(submitbtn, cancelbtn, confirmbtn, removerecord,
         Output('user_livedname', 'value'),
         Output('user_bday', 'value'),
         Output('user_sexatbirth', 'value'),
-        Output('user_placeofbirth', 'value'),
+        Output('user_placeofbirth', 'placeholder'),
         Output('user_bloodtype', 'value'),
         Output('user_preferredpronouns', 'value'),
         Output('user_phone_num', 'value'),
@@ -932,7 +932,8 @@ def registeruser_loadprofile(timestamp, toload, search):
         lname = df['lname'][0]
         bday = df['bday'][0]
         sexatbirth = df['sexatbirth'][0]
-        placeofbirth = df['placeofbirth'][0]
+        pob_id = df['placeofbirth'][0]
+        placeofbirth = db.get_pob_info(pob_id)
         bloodtype = df['bloodtype'][0]
         preferredpronouns = df['preferredpronouns'][0]
         phone = df['phone'][0]
