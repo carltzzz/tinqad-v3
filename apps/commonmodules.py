@@ -163,8 +163,8 @@ def generate_navbar(pathname, access_type, user_id):
                 # admin dashboard
                 html.A(html.B('Admin'), href='/administration_dashboard', className="nav-link"),
                 html.A('Record Expenses', href='/record_expenses', className="nav-link"),
-                html.A('Training Documents', href='/instructions', className="nav-link"),
-                html.A('View Training List', href='/training_record', className="nav-link"),
+                # html.A('Training Documents', href='/instructions', className="nav-link"),
+                # html.A('View Training List', href='/training_record', className="nav-link"),
                 html.A('Inventory Tracker', href='/inventory_tracker', className="nav-link"),
                 html.A('-----------------------------------', style={'color': 'white'}),
 
@@ -209,8 +209,8 @@ def generate_navbar(pathname, access_type, user_id):
                 # admin dashboard
                 html.A(html.B('Admin'), href='/administration_dashboard', className="nav-link"),
                 html.A('Record Expenses', href='/record_expenses', className="nav-link"),
-                html.A('Training Documents', href='/instructions', className="nav-link"),
-                html.A('View Training List', href='/training_record', className="nav-link"),
+                # html.A('Training Documents', href='/instructions', className="nav-link"),
+                # html.A('View Training List', href='/training_record', className="nav-link"),
                 html.A('Staff Profile', href='/staff_profiles', className="nav-link"),
                 html.A('Inventory Tracker', href='/inventory_tracker', className="nav-link"),
                 html.A('-----------------------------------', style={'color': 'white'}),
@@ -256,8 +256,8 @@ def generate_navbar(pathname, access_type, user_id):
                 # admin dashboard
                 html.A(html.B('Admin'), href='/administration_dashboard', className="nav-link"),
                 html.A('Record Expenses', href='/record_expenses', className="nav-link"),
-                html.A('Training Documents', href='/instructions', className="nav-link"),
-                html.A('View Training List', href='/training_record', className="nav-link"),
+                # html.A('Training Documents', href='/instructions', className="nav-link"),
+                # html.A('View Training List', href='/training_record', className="nav-link"),
                 html.A('Inventory Tracker', href='/inventory_tracker', className="nav-link"),
                 html.A('-----------------------------------', style={'color': 'white'}),
 
