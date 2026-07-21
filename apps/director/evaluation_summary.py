@@ -34,7 +34,7 @@ border_style = {
 }
 
 editable_disabled_style = {
-        "background-color": "white",
+        # "background-color": "white",
         "color": "black",
         "opacity": "1",
     }

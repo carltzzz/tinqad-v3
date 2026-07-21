@@ -232,7 +232,7 @@ main_dashboard = dbc.Container(
                                         dcc.Input(
                                             id="date_of_birth",
                                             disabled = True,
-                                            type="date",
+                                            type="text",
                                             placeholder="",
                                             className="mb-2",
                                             style={"width": "100%"}

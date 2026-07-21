@@ -131,7 +131,6 @@ form = dbc.Form(
                             id="user_placeofbirth",
                             options=[],
                             placeholder="Search for City/Municipality",
-                            persistence=True,
                             className="mb-2",
                             # style={"width": "100%"}
                         ),
@@ -357,6 +356,7 @@ layout = html.Div(
                         html.Div(
                             [
                                 dcc.Store(id='registeruser_toload', storage_type='memory', data=0),
+                                dcc.Store(id = 'loaded_pob', storage_type='memory'),
                                 dcc.Store(id='qao_team_required_info', storage_type='memory', data=0),
                             ]
                         ),
@@ -456,17 +456,19 @@ layout = html.Div(
 @app.callback(
     [
         Output('user_office_id', 'options'),
+        Output('user_placeofbirth', 'options'),
         Output('registeruser_toload', 'data'),
         Output('registeruser_removerecord_div', 'style'),
     ],
     [
-        Input('url', 'pathname')
+        Input('url', 'pathname'),
+        Input('user_placeofbirth', 'search_value')
     ],
     [
         State('url', 'search')
     ]
 )
-def registeruser_loaddropdown(pathname, search):
+def registeruser_loaddropdown(pathname, search_value, search):
     if pathname == '/register_user':
         sql = """
             SELECT office_name as label, office_id as value
@@ -477,6 +479,19 @@ def registeruser_loaddropdown(pathname, search):
         cols = ['label', 'value']
         df = db.querydatafromdatabase(sql, values, cols)
         office_options = df.to_dict('records')
+
+        mun_sql = """
+        SELECT 
+            CONCAT(mun.municipality_name, ', ', prov.province_name )as label, 
+            mun.municipality_id  as value
+        FROM public.municipalities AS mun
+        INNER JOIN public.provinces AS prov ON mun.province_id=prov.province_id
+        """
+        mun_values = [search_value]
+        mun_cols = ['label', 'value']
+        mun_df = db.querydatafromdatabase(mun_sql, mun_values, mun_cols)
+        
+        municipality_options = mun_df.to_dict('records')
         
         parsed = urlparse(search)
         create_mode = parse_qs(parsed.query)['mode'][0]
@@ -484,32 +499,19 @@ def registeruser_loaddropdown(pathname, search):
         removediv_style = {'display': 'none'} if not to_load else None
     else:
         raise PreventUpdate
-    return [office_options, to_load, removediv_style]
-
-# Place of Birth
-#municipality dropdown
-@app.callback(
-    Output('user_placeofbirth', 'options'),
-    Input('user_placeofbirth', 'search_value')
-)
-def update_POB(search_value):
-    try: 
-        sql = """
-        SELECT 
-            CONCAT(mun.municipality_name, ', ', prov.province_name )as label, 
-            mun.municipality_id  as value
-        FROM public.municipalities AS mun
-        INNER JOIN public.provinces AS prov ON mun.province_id=prov.province_id
-        """
-        values = [search_value]
-        cols = ['label', 'value']
-        df = db.querydatafromdatabase(sql, values, cols)
-        
-        municipality_options = df.to_dict('records')
-        return municipality_options
+    return [office_options, municipality_options, to_load, removediv_style]
     
-    except Exception as e: 
-        return []
+@app.callback(
+    Output('user_placeofbirth', 'value'),
+    [
+        Input('user_placeofbirth', 'options'),
+        Input('loaded_pob', 'data')
+    ]
+)
+def check_POB(pob_options, loaded_pob):
+    if pob_options and loaded_pob is not None:
+        return(int(loaded_pob))
+    return dash.no_update
 
 @app.callback(
     Output('user_qao_team_id_div', 'style'),
@@ -523,8 +525,6 @@ def toggle_qao_dropdown(selected_office):
     else:
         data_value = 0
         return [{'display': 'none'}, data_value]
-
-
 
 
 # Populate QAO Team options based on Office selection
@@ -884,7 +884,7 @@ def register_user(submitbtn, cancelbtn, confirmbtn, removerecord,
         Output('user_livedname', 'value'),
         Output('user_bday', 'value'),
         Output('user_sexatbirth', 'value'),
-        Output('user_placeofbirth', 'placeholder'),
+        Output('loaded_pob', 'data'),
         Output('user_bloodtype', 'value'),
         Output('user_preferredpronouns', 'value'),
         Output('user_phone_num', 'value'),
@@ -933,7 +933,10 @@ def registeruser_loadprofile(timestamp, toload, search):
         bday = df['bday'][0]
         sexatbirth = df['sexatbirth'][0]
         pob_id = df['placeofbirth'][0]
-        placeofbirth = db.get_pob_info(pob_id)
+        if pob_id is not None:
+            placeofbirth = db.get_pob_info(pob_id)
+        else:
+            placeofbirth = ""
         bloodtype = df['bloodtype'][0]
         preferredpronouns = df['preferredpronouns'][0]
         phone = df['phone'][0]
@@ -944,7 +947,7 @@ def registeruser_loadprofile(timestamp, toload, search):
         email = df['email'][0]  
         access_type = df['access_type'][0]
 
-        return [fname, mname, sname, suffixname, lname, bday, sexatbirth, placeofbirth, bloodtype, preferredpronouns,
+        return [fname, mname, sname, suffixname, lname, bday, sexatbirth, pob_id, bloodtype, preferredpronouns,
                 phone, id_num, officeid, user_qao_team_id, position, email, access_type]
     else:
         raise PreventUpdate
