@@ -5,19 +5,12 @@ from dash import callback_context
 import dash 
 from dash.exceptions import PreventUpdate
 import pandas as pd
-import os
 
 from apps import commonmodules as cm
 from app import app
 from apps import dbconnect as db
 
 import datetime
-
-# Using the corrected path
-UPLOAD_DIRECTORY = r".\assets\database\admin\expenses"
-
-# Ensure the directory exists or create it
-os.makedirs(UPLOAD_DIRECTORY, exist_ok=True)
 
 custom_css = {
     "tabs": {"background-color": "#C2C2C2"},
@@ -41,7 +34,7 @@ layout = html.Div(
                                 ),
                                 dbc.Col( 
                                     dbc.Button(
-                                        "➕ Add expense", color="primary", 
+                                        "Add expense", color="primary", 
                                         href='/record_expenses/add_expense?mode=add', 
                                     ),
                                     width="auto",
@@ -119,31 +112,33 @@ layout = html.Div(
                             ],
                             className="align-items-center mb-2",   
                         ),
+                        # dbc.Row(   
+                        #     [
+                        #         dbc.Col(  
+                        #             html.Label(
+                        #                 "Select Status:", 
+                        #                 className="form-label", 
+                        #                 style={
+                        #                     "fontSize": "18px", 
+                        #                     "fontWeight": "bold",
+                        #                     "width": "100%"}
+                        #             ),
+                        #             width=2,
+                        #         ),
+                        #         dbc.Col(  
+                        #             dcc.Dropdown(
+                        #             id="status_filter",
+                        #             options=[
+                        #                 {"label": "Approved", "value": "Approved"},
+                        #                 {"label": "Pending", "value": "Pending"},
+                        #                 {"label": "Denied", "value": "Denied"},
+                        #             ],
+                        #             placeholder=" Select Status"
+                        #             ),
+                        #             width=4,
+                        #         ),
                         dbc.Row(   
                             [
-                                dbc.Col(  
-                                    html.Label(
-                                        "Select Status:", 
-                                        className="form-label", 
-                                        style={
-                                            "fontSize": "18px", 
-                                            "fontWeight": "bold",
-                                            "width": "100%"}
-                                    ),
-                                    width=2,
-                                ),
-                                dbc.Col(  
-                                    dcc.Dropdown(
-                                    id="status_filter",
-                                    options=[
-                                        {"label": "Approved", "value": "Approved"},
-                                        {"label": "Pending", "value": "Pending"},
-                                        {"label": "Denied", "value": "Denied"},
-                                    ],
-                                    placeholder=" Select Status"
-                                    ),
-                                    width=4,
-                                ),
                                 dbc.Col(  
                                     html.Label(
                                         "BUR No:", 
@@ -159,7 +154,7 @@ layout = html.Div(
                                     dbc.Input(
                                         type='text',
                                         id='burno_filter',
-                                        placeholder='Search by Bur No',
+                                        placeholder='Search by BUR No.',
                                         className='ml-auto'   
                                     ),
                                     width=4,
@@ -177,7 +172,7 @@ layout = html.Div(
                             id="tabs",
                             active_tab="current",
                             style=custom_css["tabs"],
-                            className="custom-tabs"
+                            className="custom-tabs bg-light"
                         ),
 
                         html.Div(
@@ -265,45 +260,17 @@ def update_subexpenses_options(selected_main_expense):
         return [] 
 
 @app.callback(
-    Output("tabs-content", "children"),
-    [Input("tabs", "active_tab")],
-)
-def switch_tab(tab):
-    if tab == "current":
-        return [
-            html.Div(
-                id='recordexpenses_list', 
-                style={
-                    'marginTop': '20px',
-                    'overflowX': 'auto'  # This CSS property adds a horizontal scrollbar
-                }
-            )
-        ]
-    elif tab == "view_all":
-        return [
-            html.Div(
-                id='recordexpenses_list', 
-                style={
-                    'marginTop': '20px',
-                    'overflowX': 'auto'  # This CSS property adds a horizontal scrollbar
-                }
-            )
-        ]
-    return html.Div("No Tab Selected")
-
-@app.callback(
     Output('recordexpenses_list', 'children'),
     [
         Input('url', 'pathname'),   
         Input('payee_name_filter', 'value'),
-        Input('status_filter', 'value'),
         Input('main_expense_filter', 'value'),
         Input('sub_expense_filter', 'value'),
         Input('burno_filter', 'value'),
         Input("tabs", "active_tab")
     ]
 )
-def recordexpenses_loadlist(pathname, searchterm, status, main_expense, sub_expense, bur_no, active_tab):
+def recordexpenses_loadlist(pathname, searchterm, main_expense, sub_expense, bur_no, active_tab):
     if pathname == '/record_expenses':
         current_month = datetime.datetime.now().month
         current_year = datetime.datetime.now().year
@@ -314,19 +281,14 @@ def recordexpenses_loadlist(pathname, searchterm, status, main_expense, sub_expe
                     exp_id AS "ID",
                     exp_date AS "Date", 
                     exp_payee AS "Payee Name", 
-                    me.main_expense_name AS "Main Expense Type",
+                    me.main_expense_shortname AS "Main Expense Type",
                     se.sub_expense_name AS "Sub Expense Type",
-                    exp_particulars AS "Particulars", 
-                    exp_amount AS "Amount", 
-                    es.expense_status_name AS "Status",
-                    exp_bur_no AS "BUR No",
-                    exp_submitted_by AS "Submitted by",
-                    exp_receipt_name AS "File",
-                    exp_receipt_path AS "File Path"
+                    exp_amount AS "Amount (₱)", 
+                    exp_funding_source AS "Funding Source",
+                    exp_bur_no AS "BUR No"
                 FROM adminteam.expenses AS e
                 LEFT JOIN adminteam.main_expenses AS me ON e.main_expense_id = me.main_expense_id
                 LEFT JOIN adminteam.sub_expenses AS se ON e.sub_expense_id = se.sub_expense_id
-                LEFT JOIN adminteam.expense_status AS es ON e.exp_status = es.expense_status_id
                 WHERE 
                     EXTRACT(MONTH FROM exp_date) = %s 
                     AND EXTRACT(YEAR FROM exp_date) = %s
@@ -338,10 +300,6 @@ def recordexpenses_loadlist(pathname, searchterm, status, main_expense, sub_expe
                 sql += """ AND (exp_payee ILIKE %s) """
                 name_like_pattern = f"%{searchterm}%"
                 values.append(name_like_pattern)
-
-            if status:
-                sql += """ AND es.expense_status_name = %s """
-                values.append(status)
             
             if main_expense:
                 sql += """ AND me.main_expense_id = %s"""
@@ -360,8 +318,8 @@ def recordexpenses_loadlist(pathname, searchterm, status, main_expense, sub_expe
             sql += " ORDER BY exp_timestamp DESC"
 
             cols = ['ID', 'Date', 'Payee Name', 'Main Expense Type', 
-                    'Sub Expense Type', 'Particulars', 'Amount', 'Status', 
-                    'BUR No', 'Submitted by','File', 'File Path']
+                    'Sub Expense Type', 'Amount (₱)', 'Funding Source', 
+                    'BUR No']
 
         elif active_tab == "view_all":
             sql = """
@@ -369,37 +327,27 @@ def recordexpenses_loadlist(pathname, searchterm, status, main_expense, sub_expe
                     exp_id AS "ID",
                     exp_date AS "Date", 
                     exp_payee AS "Payee Name", 
-                    me.main_expense_name AS "Main Expense Type",
+                    me.main_expense_shortname AS "Main Expense Type",
                     se.sub_expense_name AS "Sub Expense Type",
-                    exp_particulars AS "Particulars", 
-                    exp_amount AS "Amount", 
-                    es.expense_status_name AS "Status",
-                    exp_bur_no AS "BUR No",
-                    exp_submitted_by AS "Submitted by",
-                    exp_receipt_name AS "File",
-                    exp_receipt_path AS "File Path"
+                    exp_amount AS "Amount (₱)", 
+                    exp_funding_source AS "Funding Source",
+                    exp_bur_no AS "BUR No"
                 FROM adminteam.expenses AS e
                 LEFT JOIN adminteam.main_expenses AS me ON e.main_expense_id = me.main_expense_id
                 LEFT JOIN adminteam.sub_expenses AS se ON e.sub_expense_id = se.sub_expense_id
-                LEFT JOIN adminteam.expense_status AS es ON e.exp_status = es.expense_status_id
                 WHERE
                     exp_del_ind IS FALSE
             """
             values = []
-            sql += " ORDER BY exp_timestamp DESC"
             
             cols = ['ID', 'Date', 'Payee Name', 'Main Expense Type', 
-                    'Sub Expense Type', 'Particulars', 'Amount', 'Status',
-                    'BUR No', 'Submitted by','File', 'File Path']
+                    'Sub Expense Type', 'Amount (₱)', 'Funding Source',
+                    'BUR No']
 
             if searchterm:
                 sql += """ AND (exp_payee ILIKE %s) """
                 name_like_pattern = f"%{searchterm}%"
                 values.append(name_like_pattern)
-
-            if status:
-                sql += """ AND es.expense_status_name = %s """
-                values.append(status)
             
             if main_expense:
                 sql += """ AND me.main_expense_id = %s"""
@@ -414,41 +362,43 @@ def recordexpenses_loadlist(pathname, searchterm, status, main_expense, sub_expe
                 burno_like_pattern = f"%{bur_no}%"
                 values.append(burno_like_pattern)
 
+            sql += " ORDER BY exp_timestamp DESC"
+
         df = db.querydatafromdatabase(sql, values, cols)
  
     else:
         return [html.Div("Invalid tab selection")]
 
     if not df.empty:
-        df["View"] = df["ID"].apply(
+        df["Action"] = df["ID"].apply(
             lambda x: html.Div(
-                dbc.Button('View', href=f'/record_expenses/add_expense?mode=view&id={x}', size='sm', color='warning'),
-                style={'text-align': 'center'}
-            )
-        )
-
-        df["Edit"] = df["ID"].apply(
-            lambda x: html.Div(
-                dbc.Button('Edit', href=f'/record_expenses/add_expense?mode=edit&id={x}', size='sm', color='danger'),
+                dbc.Button('Open', href=f'/record_expenses/add_expense?mode=view&id={x}', 
+                           size='sm', color='primary'),
                 style={'text-align': 'center'}
             )
         )
 
         df = df[['Date', 'Payee Name', 'Main Expense Type', 'Sub Expense Type',
-                'Particulars', 'Amount', 'Status', 'BUR No', 'Submitted by', 
-                'File', 'View', 'Edit']]
-                
-        df['File'] = df.apply(
-            lambda row: html.A(
-                row['File'],
-                href=os.path.join(UPLOAD_DIRECTORY, row['File']) if row['File'] else '',
-                target="_blank"  # This opens the file in a new tab
-            ), 
-            axis=1
+                'Amount (₱)', 'Funding Source', 'BUR No', 'Action']]
+
+
+        df['Amount (₱)'] = df['Amount (₱)'].apply(
+            lambda x: html.Div(f'{x:,.2f}', style={'text-align': 'right'})
         )
 
+        df['Main Expense Type'] = df['Main Expense Type'].apply(
+            lambda x: html.Div(x, style={'text-align': 'center'})
+        )
 
-        df['Amount'] = df['Amount'].apply(lambda x: '{:,.2f}'.format(x))
+        df['Payee Name'] = df['Payee Name'].apply(
+            lambda x: html.Div(x, style={
+                'maxWidth': '100px',
+                'overflow': 'hidden',
+                'textOverflow': 'ellipsis',
+                'whiteSpace': 'nowrap'
+            })
+        )
+
         table = dbc.Table.from_dataframe(df, striped=True, bordered=True, hover=True, size='sm')
         return [table]
         

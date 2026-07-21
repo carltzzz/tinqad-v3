@@ -16,14 +16,7 @@ import datetime
 import locale
 import re
 
-import base64
-import os
 from urllib.parse import urlparse, parse_qs
-
-UPLOAD_DIRECTORY = r".\assets\database\admin\expenses"
-
-# Ensure the directory exists or create it
-os.makedirs(UPLOAD_DIRECTORY, exist_ok=True)
 
 
 form = dbc.Form(
@@ -149,6 +142,20 @@ form = dbc.Form(
         dbc.Row(
             [
                 dbc.Label(
+                    "Funding Source",
+                    width=4
+                ),
+                dbc.Col(
+                    dbc.Input(type="text", id='exp_funding_source', placeholder="Enter funding source"),
+                    width=6,
+                ),
+            ],
+            className="mb-3",
+        ),
+
+        dbc.Row(
+            [
+                dbc.Label(
                     [
                         "Status ",
                         html.Span("*", style={"color": "#F8B237"})
@@ -168,6 +175,7 @@ form = dbc.Form(
                 ),
             ],
             className="mb-3",
+            style={'display': 'none'},
         ),
 
         dbc.Row(
@@ -211,104 +219,26 @@ form = dbc.Form(
         dbc.Row(
             [
                 dbc.Label(
-                    [
-                        "File Submissions",
-                        
-                    ],
+                    "Receipt Link",
                     width=4,
                 ),
                 dbc.Col(
-                    dcc.Upload(
+                    dbc.Input(
                         id="exp_receipt",
-                        children=html.Div(
-                            [
-                                'Drag and Drop or Select File',
-                            ], 
-                        ),
-                        style={
-                            'width': '100%',
-                            'height': '30px',
-                            'lineHeight': '30px',
-                            'borderWidth': '1px',
-                            'borderStyle': 'dashed',
-                            'borderRadius': '5px',
-                            'textAlign': 'center', 
-                        },
-                        multiple=True, 
+                        type="url",
+                        placeholder="Paste Google Drive link here",
                     ),
                     width=6,
                 ),
-                
-            ],
-            className="mb-0",
-        ),
-
-        dbc.Row(
-            [
-                dbc.Col(
-                    [
-                        html.Div()
-                    ],
-                    width=4,
-                ),
-                dbc.Col(
-                    [
-                        html.Div(
-                            "Please upload a single File. If you need to submit multiple files, please compress them into a single zip file before uploading.", 
-                            style={"textAlign": "left"},
-                        )
-                    ],
-                    width=6,
-                ),  
             ],
             className="mb-3",
         ),
 
-        dbc.Row(
-            [dbc.Label("",width=4),
-             dbc.Col(id="exp_receipt_output",style={"color": "#F8B237"}, width=6)],  # Output area for uploaded file names
-            className="mb-3",
-        ),
-  
-        
-        html.Br(), 
+        html.Br(),
     ],
     className="g-2",
 )
 
-
-# Callback to display the names of the uploaded files
-@app.callback(
-    Output("exp_receipt_output", "children"),
-    [Input("exp_receipt", "filename"),
-     Input("url", "search")],
-)
-def display_exp_receipt_file(filenames, search):
-    if not filenames:
-        return "No files uploaded. Compress files first if uploading multiple items."
-    
-    # Parse the query parameter to check for mode
-    parsed = urlparse(search)
-    mode = parse_qs(parsed.query).get('mode', [None])[0]
-    
-    # Calculate relative path for linking the file in edit mode
-    assets_folder = os.path.normpath("./assets")
-    upload_relative_path = os.path.relpath(UPLOAD_DIRECTORY, assets_folder)
-    upload_relative_path = upload_relative_path.replace(os.path.sep, "/")
-    
-    def build_file_message(fname):
-        base_name = os.path.basename(fname)
-        message = f"📑File Uploaded: {base_name}"
-        if mode == "edit":
-            file_url = f"/assets/{upload_relative_path}/{base_name}"
-            return html.A(message, href=file_url, target="_blank")
-        return message
-    
-    if isinstance(filenames, list):
-        # Process each uploaded file
-        return [build_file_message(fname) for fname in filenames]
-    else:
-        return build_file_message(filenames)
 
 #sub expense dropdown
 @app.callback(
@@ -383,7 +313,16 @@ layout = html.Div(
                             [
                                 dbc.Col(
                                     html.H1(id="expenses_header"),
-                                    width=8
+                                    style={"marginRight": "auto"}
+                                ),
+                                dbc.Col(
+                                    dbc.Button(
+                                        "Edit", color="warning",
+                                        id='addexpense_toggle_edit',
+                                        n_clicks=0,
+                                        style={'display': 'none'}
+                                    ),
+                                    width="auto",
                                 ),
                                 dbc.Col(
                                     dbc.Button(
@@ -391,7 +330,7 @@ layout = html.Div(
                                         color="success",
                                         href="/record_expenses"
                                     ),
-                                    width=4,
+                                    width="auto",
                                     id="expenses_back_btn_div",
                                 )
                             ],
@@ -403,6 +342,7 @@ layout = html.Div(
                     html.Div(  
                             [
                                 dcc.Store(id='recordexpenses_toload', storage_type='memory', data=0),
+                                dcc.Store(id='addexpense_edit_mode', storage_type='memory', data=0),
                             ]
                         ),
                     dbc.Alert(id='recordexpenses_alert', is_open=False), # For feedback purpose
@@ -512,9 +452,6 @@ layout = html.Div(
         Output('expenses_header', 'children'),
         Output('main_expense_id', 'options'),
         Output('recordexpenses_toload', 'data'),
-        Output('recordexpenses_removerecord_div', 'style'),
-        Output('recordexpenses_buttons_div', 'style'),
-        Output('expenses_back_btn_div','style')
     ],
     [
         Input('url', 'pathname')
@@ -543,24 +480,15 @@ def populate_mainexpenses_dropdown(pathname, search):
         if create_mode == 'add':
             header = 'Add Expense Record'
             to_load = 0
-            removediv_style = {'display': 'none'}
-            buttondiv_style = None
-            backbtn_div_style = {'display': 'none'}
         elif create_mode == 'edit':
             header = 'Edit Expense Record'
             to_load = 1
-            removediv_style = None
-            buttondiv_style = None
-            backbtn_div_style = {'display': 'none'}
         elif create_mode == 'view':
             header = 'View Expense Record'
             to_load = 1
-            removediv_style = {'display': 'none'}
-            buttondiv_style = {'display': 'none'}
-            backbtn_div_style = {"display": "flex", "justifyContent": "flex-end"}
     else:
         raise PreventUpdate
-    return [header, main_expense_types, to_load, removediv_style, buttondiv_style, backbtn_div_style]
+    return [header, main_expense_types, to_load]
 
 
 
@@ -605,16 +533,17 @@ def populate_mainexpenses_dropdown(pathname, search):
         State('exp_status', 'value'),
         State('exp_bur_no', 'value'),
         State('exp_submitted_by', 'value'),
-        State('exp_receipt', 'contents'), 
-        State('exp_receipt', 'filename'), 
-        State('url', 'search')
+        State('exp_funding_source', 'value'),
+        State('exp_receipt', 'value'),
+        State('url', 'search'),
+        State('addexpense_edit_mode', 'data'),
     ]
 )
 def save_expense(submitbtn, confirmbtn, cancelbtn, removerecord,confirmationmodal,
                  exp_date, exp_payee, main_expense_id, sub_expense_id,
                  exp_particulars, exp_amount, exp_status, 
-                 exp_bur_no, exp_submitted_by,  
-                 exp_receipt_contents, exp_receipt_filename, search):
+                 exp_bur_no, exp_submitted_by, exp_funding_source,
+                 exp_receipt_link, search, edit_mode):
 
     ctx = dash.callback_context 
 
@@ -622,6 +551,13 @@ def save_expense(submitbtn, confirmbtn, cancelbtn, removerecord,confirmationmoda
         raise PreventUpdate
 
     eventid = ctx.triggered[0]['prop_id'].split('.')[0]
+
+    parsed = urlparse(search)
+    create_mode = parse_qs(parsed.query).get('mode', [None])[0]
+
+    # Prevent saving when in view-only mode (mode=view AND edit toggle not activated)
+    if eventid == 'recordexpenses_save_button' and create_mode == 'view' and not edit_mode:
+        raise PreventUpdate
 
     # Set default outputs
     alert_open = False
@@ -642,41 +578,12 @@ def save_expense(submitbtn, confirmbtn, cancelbtn, removerecord,confirmationmoda
     final_modal_open = False
     final_modal_header = ''
     
-    # Helper to process file uploads (same as your current helper)
-    def process_files(contents, filenames):
-        file_data = []
-        for content, filename in zip(contents, filenames):
-            if content == "1" and filename == "1":
-                continue
-            try:
-                content_type, content_string = content.split(',')
-                decoded_content = base64.b64decode(content_string)
-
-                file_path = os.path.join(UPLOAD_DIRECTORY, filename)
-                with open(file_path, 'wb') as f:
-                    f.write(decoded_content)
-
-                file_info = {
-                    "path": file_path,
-                    "name": filename,
-                    "type": content_type,
-                    "size": len(decoded_content),
-                }
-                file_data.append(file_info)
-                
-            except Exception as e:
-                return None, f'Error processing file: {e}'
-        return file_data, None
-
-    parsed = urlparse(search)
-    create_mode = parse_qs(parsed.query).get('mode', [None])[0]
-    
     if eventid == 'recordexpenses_save_button' and submitbtn:
         # Ensure required fields are filled
         def get_input_class(value):
             return 'red-border' if not value else 'form-control'
         if not all([exp_date, exp_payee, main_expense_id, sub_expense_id,
-                exp_particulars, exp_amount, exp_status, exp_bur_no, exp_submitted_by]) and not removerecord:
+                exp_particulars, exp_amount, exp_bur_no, exp_submitted_by]) and not removerecord:
             alert_open = True
             alert_color = 'danger'
             alert_text = 'Missing required fields.'
@@ -693,7 +600,7 @@ def save_expense(submitbtn, confirmbtn, cancelbtn, removerecord,confirmationmoda
             if create_mode == 'add':
                 confirmation_modal_open = True
                 confirmation_message = "Are you sure you want to add this expense record?"
-            elif create_mode == 'edit':
+            elif create_mode in ('edit', 'view'):
                 confirmation_modal_open = True
                 confirmation_message = "Are you sure you want to save changes to this expense record?"
                 if removerecord:
@@ -703,35 +610,22 @@ def save_expense(submitbtn, confirmbtn, cancelbtn, removerecord,confirmationmoda
     elif eventid == 'confirmation_modal_confirm' and confirmbtn:
         if confirmationmodal:
             if create_mode == 'add':
-                # Process each file upload; if a file group is missing, set default values.
-                if exp_receipt_contents is None or exp_receipt_filename is None:
-                    exp_receipt_contents = ["1"]
-                    exp_receipt_filename = ["1"]
-                exp_receipt_data, error = process_files(exp_receipt_contents, exp_receipt_filename)
-
-                if error:
-                    alert_open = True
-                    alert_color = 'danger'
-                    alert_text = error
-
                 sql = """ 
                     INSERT INTO adminteam.expenses (
                         exp_date, exp_payee, main_expense_id, sub_expense_id,
                         exp_particulars, exp_amount, exp_status, 
-                        exp_bur_no, exp_submitted_by,  
-                        exp_receipt_path, exp_receipt_name, exp_receipt_type, exp_receipt_size 
+                        exp_bur_no, exp_submitted_by, exp_funding_source,
+                        exp_receipt_link 
                     ) 
                             
-                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                    VALUES (%s, %s, %s, %s, %s, %s, 2, %s, %s, %s, %s)
                 """
                 values = (
                     exp_date, exp_payee, main_expense_id, sub_expense_id, 
-                    exp_particulars, exp_amount, exp_status, exp_bur_no, 
+                    exp_particulars, exp_amount, exp_bur_no, 
                     exp_submitted_by, 
-                    exp_receipt_data[0]["path"] if exp_receipt_data else None,
-                    exp_receipt_data[0]["name"] if exp_receipt_data else None,
-                    exp_receipt_data[0]["type"] if exp_receipt_data else None,
-                    exp_receipt_data[0]["size"] if exp_receipt_data else None,
+                    exp_funding_source if exp_funding_source else None,
+                    exp_receipt_link if exp_receipt_link else None,
                 )    
                 try:
                     db.modifydatabase(sql, values)
@@ -744,75 +638,37 @@ def save_expense(submitbtn, confirmbtn, cancelbtn, removerecord,confirmationmoda
                     alert_text = f'Error copying record: {e}'
                     return [alert_open, alert_color, alert_text]
         
-            elif create_mode == 'edit': 
+            elif create_mode in ('edit', 'view'): 
                 expid = parse_qs(parsed.query).get('id', [None])[0]
                 
                 if expid is None:
                     raise PreventUpdate
 
-                # Check if the user has provided new file content.
-                if exp_receipt_contents is not None and exp_receipt_contents != ["1"]:
-                    exp_receipt_data, error = process_files(exp_receipt_contents, exp_receipt_filename)
-                    if error:
-                        alert_open = True
-                        alert_color = 'danger'
-                        alert_text = error
-                        return [alert_open, alert_color, alert_text, date_class, payee_class, main_expense_id_class, 
-                                sub_expense_id_class, particulars_class, amount_class, status_class, bur_no_class, 
-                                submitted_by_class, confirmation_modal_open, confirmation_message, btn_color, 
-                                final_modal_open, final_modal_header]
-                    
-                    sqlcode = """
-                        UPDATE adminteam.expenses
-                        SET
-                            exp_date = %s,
-                            exp_payee = %s, 
-                            exp_particulars = %s, 
-                            exp_status = %s,
-                            exp_bur_no = %s,
-                            exp_submitted_by = %s, 
-                            exp_timestamp = CURRENT_TIMESTAMP,
-                            exp_del_ind = %s,
-                            exp_receipt_path = %s,
-                            exp_receipt_name = %s,
-                            exp_receipt_type = %s,
-                            exp_receipt_size = %s
-                        WHERE 
-                            exp_id = %s
-                    """
-                    to_delete = bool(removerecord)
-                    values = [
-                        exp_date, exp_payee, exp_particulars,
-                        exp_status, exp_bur_no, exp_submitted_by,
-                        to_delete,
-                        exp_receipt_data[0]["path"] if exp_receipt_data else None,
-                        exp_receipt_data[0]["name"] if exp_receipt_data else None,
-                        exp_receipt_data[0]["type"] if exp_receipt_data else None,
-                        exp_receipt_data[0]["size"] if exp_receipt_data else None,
-                        expid
-                    ]
-                else:
-                    # No new file provided; update only the other fields.
-                    sqlcode = """
-                        UPDATE adminteam.expenses
-                        SET
-                            exp_date = %s,
-                            exp_payee = %s, 
-                            exp_particulars = %s, 
-                            exp_status = %s,
-                            exp_bur_no = %s,
-                            exp_submitted_by = %s, 
-                            exp_timestamp = CURRENT_TIMESTAMP,
-                            exp_del_ind = %s
-                        WHERE 
-                            exp_id = %s
-                    """
-                    to_delete = bool(removerecord)
-                    values = [
-                        exp_date, exp_payee, exp_particulars,
-                        exp_status, exp_bur_no, exp_submitted_by,
-                        to_delete, expid
-                    ]
+                sqlcode = """
+                    UPDATE adminteam.expenses
+                    SET
+                        exp_date = %s,
+                        exp_payee = %s, 
+                        exp_particulars = %s, 
+                        exp_status = %s,
+                        exp_bur_no = %s,
+                        exp_submitted_by = %s, 
+                        exp_funding_source = %s,
+                        exp_timestamp = CURRENT_TIMESTAMP,
+                        exp_del_ind = %s,
+                        exp_receipt_link = %s
+                    WHERE 
+                        exp_id = %s
+                """
+                to_delete = bool(removerecord)
+                values = [
+                    exp_date, exp_payee, exp_particulars,
+                    exp_status, exp_bur_no, exp_submitted_by,
+                    exp_funding_source if exp_funding_source else None,
+                    to_delete,
+                    exp_receipt_link if exp_receipt_link else None,
+                    expid
+                ]
                 db.modifydatabase(sqlcode, values)
 
                 final_modal_open = True
@@ -844,7 +700,8 @@ def save_expense(submitbtn, confirmbtn, cancelbtn, removerecord,confirmationmoda
         Output('exp_status', 'value'),
         Output('exp_bur_no', 'value'),
         Output('exp_submitted_by', 'value'),
-        Output('exp_receipt', 'filename') 
+        Output('exp_funding_source', 'value'),
+        Output('exp_receipt', 'value') 
     ],
     [
         Input('recordexpenses_toload', 'modified_timestamp')
@@ -863,8 +720,8 @@ def recordexpenses_load(timestamp, toload, search):
             SELECT 
                 exp_date, exp_payee, main_expense_id, sub_expense_id,
                 exp_particulars, exp_amount, exp_status, 
-                exp_bur_no, exp_submitted_by,  
-                exp_receipt_name as exp_receipt
+                exp_bur_no, exp_submitted_by, exp_funding_source,
+                exp_receipt_link as exp_receipt
             FROM adminteam.expenses
             WHERE exp_id = %s
         """
@@ -873,7 +730,7 @@ def recordexpenses_load(timestamp, toload, search):
         cols = [
             'exp_date', 'exp_payee',  'main_expense_id', 'sub_expense_id',
             'exp_particulars', 'exp_amount', 'exp_status', 
-            'exp_bur_no', 'exp_submitted_by',  
+            'exp_bur_no', 'exp_submitted_by', 'exp_funding_source',
             'exp_receipt'
         ]
 
@@ -888,13 +745,14 @@ def recordexpenses_load(timestamp, toload, search):
         exp_status = df['exp_status'][0]
         exp_bur_no = df['exp_bur_no'][0]
         exp_submitted_by = df['exp_submitted_by'][0]
+        exp_funding_source = df['exp_funding_source'][0]
         exp_receipt = df['exp_receipt'][0]
          
         return [
             exp_date, exp_payee,
             main_expense_id, sub_expense_id, exp_particulars,
             exp_amount, exp_status,
-            exp_bur_no, exp_submitted_by, exp_receipt
+            exp_bur_no, exp_submitted_by, exp_funding_source, exp_receipt
         ]
 
     else:
@@ -909,7 +767,7 @@ def recordexpenses_load(timestamp, toload, search):
         Output('sub_expense_id', 'disabled'),
         Output('exp_particulars', 'disabled'),
         Output('exp_amount', 'disabled'),
-        Output('exp_status', 'disabled'),
+        Output('exp_funding_source', 'disabled'),
         Output('exp_bur_no', 'disabled'),
         Output('exp_submitted_by', 'disabled'),
         Output('exp_receipt', 'disabled'), 
@@ -919,52 +777,98 @@ def recordexpenses_load(timestamp, toload, search):
         Output('sub_expense_id', 'style'),
         Output('exp_particulars', 'style'),
         Output('exp_amount', 'style'),
-        Output('exp_status', 'style'),
+        Output('exp_funding_source', 'style'),
         Output('exp_bur_no', 'style'),
         Output('exp_submitted_by', 'style'),
     ],
     [
-        Input('url', 'search')
+        Input('url', 'search'),
+        Input('addexpense_edit_mode', 'data'),
     ]
 )
-def addexpense_inputs_disabled(search):
+def addexpense_inputs_disabled(search, edit_mode):
 
-    editable_disabled_style = {
-        "background-color": "white",
-        "color": "black",
-        "opacity": "1",
-    }
+    editable_disabled_style = {}
     # Initialize the "disabled" properties (booleans)
     date_display = payee_display = main_exense_display = sub_exense_display = (
         particulars_display 
-    ) = amount_display = status_display = bur_no_display = submitted_by_display = receipt_display = False
+    ) = amount_display = funding_source_display = bur_no_display = submitted_by_display = receipt_display = False
 
     # Initialize style properties as empty dictionaries instead of empty strings
     date_style = payee_style = main_expense_style = sub_exense_style = (
         particulars_style
-    ) = amount_style = status_style = bur_no_style = submitted_by_style = {}
+    ) = amount_style = funding_source_style = bur_no_style = submitted_by_style = {}
 
     if search:
         parsed = urlparse(search)
         create_mode = parse_qs(parsed.query).get('mode', [None])[0]
-        if create_mode == 'edit':
-            main_exense_display = sub_exense_display = amount_display = True
-            
-        elif create_mode == 'view':
-            date_display = payee_display = main_exense_display = sub_exense_display = (
-                particulars_display
-            ) = amount_display = status_display = bur_no_display = submitted_by_display = receipt_display = True
-            date_style = payee_style = main_expense_style = sub_exense_style = (
-                particulars_style
-            ) = amount_style = status_style = bur_no_style = submitted_by_style = editable_disabled_style
-        elif create_mode == 'add':
+        
+        if create_mode == 'add':
             # In add mode we leave the disabled properties as False and styles as empty dicts
             pass
+        elif create_mode == 'edit':
+            main_exense_display = sub_exense_display = amount_display = True
+        elif create_mode == 'view' and not edit_mode:
+            # View-only mode: ALL fields disabled
+            date_display = payee_display = main_exense_display = sub_exense_display = (
+                particulars_display
+            ) = amount_display = funding_source_display = bur_no_display = submitted_by_display = receipt_display = True
+            date_style = payee_style = main_expense_style = sub_exense_style = (
+                particulars_style
+            ) = amount_style = funding_source_style = bur_no_style = submitted_by_style = editable_disabled_style
+        elif create_mode == 'view' and edit_mode:
+            # View mode toggled to edit: same as edit mode
+            main_exense_display = sub_exense_display = amount_display = True
 
     return [
         date_display, payee_display, main_exense_display, sub_exense_display,
-        particulars_display, amount_display, status_display, bur_no_display,
+        particulars_display, amount_display, funding_source_display, bur_no_display,
         submitted_by_display, receipt_display,
         date_style, payee_style, main_expense_style, sub_exense_style,
-        particulars_style, amount_style, status_style, bur_no_style, submitted_by_style
+        particulars_style, amount_style, funding_source_style, bur_no_style, submitted_by_style
     ]
+
+
+# Callback to toggle edit mode when Edit button is clicked
+@app.callback(
+    Output('addexpense_edit_mode', 'data'),
+    Input('addexpense_toggle_edit', 'n_clicks'),
+    prevent_initial_call=True,
+)
+def addexpense_toggle_edit_mode(n_clicks):
+    if n_clicks:
+        return 1
+    raise PreventUpdate
+
+
+# Callback to show/hide Save/Cancel, Delete, Edit button, and Back button based on mode
+@app.callback(
+    [
+        Output('recordexpenses_buttons_div', 'style'),
+        Output('recordexpenses_removerecord_div', 'style'),
+        Output('addexpense_toggle_edit', 'style'),
+        Output('expenses_back_btn_div', 'style'),
+    ],
+    [
+        Input('url', 'search'),
+        Input('addexpense_edit_mode', 'data'),
+    ]
+)
+def addexpense_update_action_visibility(search, edit_mode):
+    parsed = urlparse(search)
+    create_mode = parse_qs(parsed.query).get('mode', [None])[0]
+    
+    if create_mode == 'add':
+        # Add mode: show save/cancel, hide delete, hide edit toggle, hide back
+        return [{'display': 'block'}, {'display': 'none'}, {'display': 'none'}, {'display': 'none'}]
+    elif create_mode == 'edit':
+        # Edit mode: show save/cancel, show delete, hide edit toggle, hide back
+        return [{'display': 'block'}, None, {'display': 'none'}, {'display': 'none'}]
+    elif create_mode == 'view' and not edit_mode:
+        # View-only: hide save/cancel, hide delete, show edit toggle, show back
+        return [{'display': 'none'}, {'display': 'none'}, {'display': 'block'}, {"display": "flex", "justifyContent": "flex-end"}]
+    elif create_mode == 'view' and edit_mode:
+        # View toggled to edit: show save/cancel, show delete, hide edit toggle, hide back
+        return [{'display': 'block'}, None, {'display': 'none'}, {'display': 'none'}]
+    else:
+        return [{'display': 'block'}, {'display': 'none'}, {'display': 'none'}, {'display': 'none'}]

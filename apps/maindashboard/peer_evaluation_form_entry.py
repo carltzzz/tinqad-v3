@@ -5,6 +5,7 @@ from dash import callback_context
 import dash
 from dash.exceptions import PreventUpdate
 import pandas as pd
+from flask import session
 
 from apps import commonmodules as cm
 from app import app
@@ -463,6 +464,9 @@ def get_period(pathname):
 )
 
 def team_members_dropdown(pathname, current_userid, search):
+    sess_uid = session.get('user_id')
+    if sess_uid is None:
+        raise PreventUpdate
     if pathname == '/peer_evaluation_form_entry':
         parsed = urlparse(search)
         create_mode = parse_qs(parsed.query)['mode'][0]
@@ -862,6 +866,10 @@ def save_expense(submitbtn, cancelbtn, confirmbtn, remove_record, search,
                  evaluator, evaluatee, 
                  contributions, cooperation, focus, teamrole, communicate, completion,
                  contributions_remarks, cooperation_remarks, focus_remarks, teamrole_remarks, communicate_remarks, completion_remarks):
+
+    sess_uid = session.get('user_id')
+    if sess_uid is None:
+        raise PreventUpdate
 
     ctx = dash.callback_context 
 

@@ -3,12 +3,11 @@ from dash import dash, html, dcc, Input, Output, State
 
 from dash.exceptions import PreventUpdate
 import pandas as pd
+from flask import session
 
 from apps import commonmodules as cm
 from app import app
 from apps import dbconnect as db 
-
-import hashlib
 
 
 
@@ -71,6 +70,9 @@ def update_password_header(pathname, current_userid):
 )
 def save_profile_changes(save, current_userid, prev_password, new_password, confirm_password):
     if save:
+        sess_uid = session.get('user_id')
+        if sess_uid is None:
+            raise PreventUpdate
         # Check if new password and confirm password match
         if new_password != confirm_password:
             return 'danger', "New password and confirm password do not match.", True, False, ''
