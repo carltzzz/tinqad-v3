@@ -10839,4 +10839,13 @@ textarea.form-control-lg {
   }
 }
 
+.no-hover-btn:hover,
+.no-hover-btn:focus,
+.no-hover-btn:active {
+    background-color: transparent !important;
+    color: inherit !important;
+    border-color: inherit !important;
+    box-shadow: none !important;
+}
+
 /*# sourceMappingURL=bootstrap.css.map */

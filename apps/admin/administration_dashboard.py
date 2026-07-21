@@ -101,16 +101,17 @@ def charts_mainexp():
 
 
 def charts_subexp():
-    # Fetch data from the database for the pie chart
     current_year = datetime.now().year
 
     pie_sql = """
         SELECT se.sub_expense_name, SUM(exp_amount) AS total_amount
         FROM adminteam.expenses AS e
-        LEFT JOIN adminteam.sub_expenses AS se ON e.main_expense_id = se.sub_expense_id
+        LEFT JOIN adminteam.sub_expenses AS se ON e.sub_expense_id = se.sub_expense_id
+        LEFT JOIN adminteam.main_expenses AS me ON se.main_expense_id = me.main_expense_id
         WHERE EXTRACT(YEAR FROM e.exp_date) = %s
-          AND e.main_expense_id = 1
           AND e.exp_del_ind IS FALSE
+          AND e.sub_expense_id IS NOT NULL
+          AND me.main_expense_name = 'Maintenance and Other Operating Expenses'
         GROUP BY se.sub_expense_name
     """
 
@@ -119,37 +120,61 @@ def charts_subexp():
     if pie_df.empty:
         pie_chart = html.Div("No data available for the pie chart")
     else:
-        # Set custom legend labels
-        custom_legend_labels = dict(zip(pie_df['sub_expense_name'], pie_df['sub_expense_name']))
-
-        # Define custom colors
         custom_colors = ['#39B54A', '#F8B237', '#D37157', '#A9CD46', '#7EADE4', '#40BFBC']
 
         pie_fig = go.Figure(data=[go.Pie(
             labels=pie_df['sub_expense_name'],
             values=pie_df['total_amount'],
             marker=dict(colors=custom_colors),
-            hole=0.4  # Adjust the value to change the size of the hole
+            hole=0.4
         )])
-        pie_fig.update_traces(textinfo='percent')  # Show percentage and label on pie chart
+        pie_fig.update_traces(textinfo='percent+label')
         pie_fig.update_layout(
-            title=f"{get_year_range()}",  # Title with month and year
+            title=f"{get_year_range()}",
             title_font=dict(size=18),
+            legend=dict(title_font=dict(size=12), orientation='h', yanchor='bottom', y=1.02, xanchor='right', x=1)
         )
         pie_chart = dcc.Graph(figure=pie_fig)
 
-    legend = dict(title_font=dict(size=12), orientation='h', yanchor='bottom', y=1.02, xanchor='right', x=1)
+    bar_sql = """
+        SELECT 
+            TO_CHAR(e.exp_date, 'Month') AS month,
+            SUM(e.exp_amount) AS total_amount
+        FROM adminteam.expenses AS e
+        LEFT JOIN adminteam.sub_expenses AS se ON e.sub_expense_id = se.sub_expense_id
+        LEFT JOIN adminteam.main_expenses AS me ON se.main_expense_id = me.main_expense_id
+        WHERE EXTRACT(YEAR FROM e.exp_date) = %s
+          AND e.exp_del_ind IS FALSE
+          AND e.sub_expense_id IS NOT NULL
+          AND me.main_expense_name = 'MOOE'
+        GROUP BY TO_CHAR(e.exp_date, 'Month')
+        ORDER BY TO_DATE(TO_CHAR(e.exp_date, 'Month'), 'Month')
+    """
+    bar_df = db.querydatafromdatabase(bar_sql, (current_year,), ['month', 'total_amount'])
+
+    if bar_df.empty:
+        bar_chart = html.Div("No data available for the bar chart")
+    else:
+        bar_fig = go.Figure([go.Bar(x=bar_df['month'], y=bar_df['total_amount'])])
+        bar_fig.update_layout(
+            title='Monthly Sub Expenses',
+            xaxis_title='Month',
+            yaxis_title='Expenses',
+            title_x=0.5,
+            margin={'l': 50, 'r': 50, 't': 100, 'b': 0},
+            height=400
+        )
+        bar_fig.update_layout(
+            title_font=dict(size=18)
+        )
+        bar_chart = dcc.Graph(figure=bar_fig)
 
     return dbc.Row(
         [
-            dbc.Col(pie_chart, width=6),  # Equal width for both charts
-            dbc.Col(legend, width=6),  # Equal width for both charts
+            dbc.Col(pie_chart, width=6),
+            dbc.Col(bar_chart, width=6)
         ]
     )
-
-
-
-
 
 def get_main_expenses():
     df = db.querydatafromdatabase("SELECT main_expense_id, main_expense_name FROM adminteam.main_expenses WHERE main_expense_del_ind is FALSE", (), ['main_expense_id', 'main_expense_name'])
@@ -183,7 +208,7 @@ def populate_accordion():
 
     return html.Div(dbc.Accordion(accordion_items))
 
-expensetypes = populate_accordion()
+
 
 
 
@@ -223,7 +248,7 @@ layout = html.Div(
                             [
                                 dbc.CardHeader(html.H3("Expense Types", className="mb-0")),
                                 dbc.CardBody(
-                                    expensetypes,
+                                    html.Div(id='expensetypes_accordion'),
                                 )
                             ]
                         ),
@@ -261,7 +286,8 @@ layout = html.Div(
 
 @app.callback(
     [Output('charts_mainexp', 'children'),
-     Output('charts_subexp', 'children')],
+     Output('charts_subexp', 'children'),
+     Output('expensetypes_accordion', 'children')],
     [Input('admindashboard_toload', 'modified_timestamp')],
     [State('admindashboard_toload', 'data')]
 )
@@ -269,7 +295,8 @@ def update_charts(timestamp, toload):
     if toload:
         main_exp_charts = charts_mainexp()
         sub_exp_charts = charts_subexp()
-        return main_exp_charts, sub_exp_charts
+        expensetypes = populate_accordion()
+        return main_exp_charts, sub_exp_charts, expensetypes
     else:
         raise PreventUpdate
     

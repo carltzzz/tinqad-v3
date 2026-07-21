@@ -32,7 +32,7 @@ layout = html.Div(
                                 ),
                                 dbc.Col(   
                                     dbc.Button(
-                                        "➕ Add Training Document", color="primary", 
+                                        "Add Training Document", color="primary", 
                                         href='/training_documents?mode=add',  
                                     ),
                                     width="auto",    
@@ -84,7 +84,7 @@ layout = html.Div(
                                     width=4,
                                 ), 
                             ],
-                            className="align-items-center",    
+                            className="align-items-center mb-2",    
                         ),
                         dbc.Row(   
                             [

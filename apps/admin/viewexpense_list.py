@@ -98,39 +98,46 @@ def expensetype_list(pathname):
     if pathname == '/expense_list':
         sql = """
             SELECT 
+                me.main_expense_id AS "ID",
+                me.main_expense_shortname AS "Main Expense",
+                '' AS "Sub Expense",
+                'main' AS "Type"
+            FROM adminteam.main_expenses me
+            WHERE me.main_expense_del_ind = FALSE
+
+            UNION ALL
+
+            SELECT 
                 se.sub_expense_id AS "ID",
                 me.main_expense_shortname AS "Main Expense",
-                se.sub_expense_name AS "Sub Expense"
-            FROM 
-                adminteam.sub_expenses se
-            JOIN
-                adminteam.main_expenses me ON se.main_expense_id = me.main_expense_id 
-            WHERE 
-                se.sub_expense_del_ind = FALSE;
-        """
-        cols = ["ID", "Main Expense", "Sub Expense"]
+                se.sub_expense_name AS "Sub Expense",
+                'sub' AS "Type"
+            FROM adminteam.sub_expenses se
+            JOIN adminteam.main_expenses me ON se.main_expense_id = me.main_expense_id
+            WHERE se.sub_expense_del_ind = FALSE
 
-        # Execute the query and fetch the data
+            ORDER BY "Main Expense", "Type", "Sub Expense"
+        """
+        cols = ["ID", "Main Expense", "Sub Expense", "Type"]
+
         df = db.querydatafromdatabase(sql, [], cols)
 
         if df.shape[0] > 0:
-            # Add an Action column with a removal button for each row.
-            df["Action"] = df["ID"].apply(
-                lambda x: html.Div(
+            df["Action"] = df.apply(
+                lambda row: html.Div(
                     dbc.Button(
                         'Remove',
-                        id={'type': 'remove-button', 'index': x},
+                        id={'type': 'remove-button', 'index': f"{row['Type']}_{row['ID']}"},
                         size='sm',
                         color='danger'
                     ),
                     style={'text-align': 'center'}
-                )
+                ),
+                axis=1
             )
 
-            # Select only the columns to display
             df = df[["Main Expense", "Sub Expense", "Action"]]
 
-            # Build the table rows
             table_rows = []
             for _, row in df.iterrows():
                 table_rows.append(html.Tr([
@@ -139,11 +146,8 @@ def expensetype_list(pathname):
                     html.Td(row["Action"]),
                 ]))
 
-            # Return the complete table
             return [dbc.Table(
-                # Table header
                 [html.Thead(html.Tr([html.Th(col) for col in df.columns]))] +
-                # Table body
                 [html.Tbody(table_rows)]
             )]
         else:
@@ -194,13 +198,21 @@ def process_removal(n_clicks_list, confirm_btn, cancel_btn, button_id_list, conf
             output_list = []
             for n_clicks, button_id in zip(n_clicks_list, button_id_list):
                 if n_clicks:
-                    expensetype_id = button_id['index']
-                    update_expense_sql = """
-                        UPDATE adminteam.sub_expenses
-                        SET sub_expense_del_ind = TRUE
-                        WHERE sub_expense_id = %s
-                    """
-                    db.modifydatabase(update_expense_sql, [expensetype_id])
+                    index_str = button_id['index']
+                    exp_type, expensetype_id = index_str.split('_', 1)
+                    if exp_type == 'main':
+                        update_expense_sql = """
+                            UPDATE adminteam.main_expenses
+                            SET main_expense_del_ind = TRUE
+                            WHERE main_expense_id = %s
+                        """
+                    else:
+                        update_expense_sql = """
+                            UPDATE adminteam.sub_expenses
+                            SET sub_expense_del_ind = TRUE
+                            WHERE sub_expense_id = %s
+                        """
+                    db.modifydatabase(update_expense_sql, [int(expensetype_id)])
                     output_list.append(expensetype_list('/expense_list')[0])
                     final_modal = True
                     confirm_modal = False
