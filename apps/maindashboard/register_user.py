@@ -297,6 +297,35 @@ form = dbc.Form(
                 ],
                 className="mb-2",
             ),
+
+            html.Div(
+                [
+                    html.Hr(),
+                    html.H5(html.B('Registration Info')),
+                    dbc.Row(
+                        [
+                            dbc.Label("Registered By", width=3),
+                            dbc.Col(
+                                dbc.Input(type="text", id='registeruser_registeredby', disabled=True, placeholder="N/A"),
+                                width=6,
+                            ),
+                        ],
+                        className="mb-2",
+                    ),
+                    dbc.Row(
+                        [
+                            dbc.Label("Registered On", width=3),
+                            dbc.Col(
+                                dbc.Input(type="text", id='registeruser_registeredon', disabled=True, placeholder="N/A"),
+                                width=6,
+                            ),
+                        ],
+                        className="mb-2",
+                    ),
+                ],
+                id='registeruser_registration_info_div',
+                style={'display': 'none'}
+            ),
     ] 
 )
 
@@ -611,12 +640,13 @@ def populate_useraccess_dropdown(pathname):
         State('url', 'search'),
         State('qao_team_required_info', 'data'),
         State('registeruser_edit_mode', 'data'),
+        State('currentuserid', 'data'),
     ]
 )
 def register_user(submitbtn, cancelbtn, confirmbtn, removerecord,
                   fname, mname, sname, suffixname, livedname, bday, sexatbirth, placeofbirth, bloodtype, preferredpronouns, phone_num, id_num,
                   office, user_qao_team_id, position, email, password, confirm_password,
-                  user_access_type, search, qao_team_required_info, edit_mode):
+                  user_access_type, search, qao_team_required_info, edit_mode, current_userid):
     
     ctx = dash.callback_context 
 
@@ -775,14 +805,16 @@ def register_user(submitbtn, cancelbtn, confirmbtn, removerecord,
                     user_bday, user_phone_num, user_id_num, 
                     user_office, user_qao_team_id, user_position, user_email, user_password, 
                     user_access_type, user_acc_status, user_del_ind, 
-                    user_suffixname, user_sexatbirth, user_placeofbirth, user_bloodtype, user_preferredpronouns
+                    user_suffixname, user_sexatbirth, user_placeofbirth, user_bloodtype, user_preferredpronouns,
+                    user_registered_by, user_registered_on
                 )
                 VALUES (
                     %s, %s, %s, 
                     %s, %s, %s, %s, 
                     %s, %s, %s, %s, %s, 
                     %s, %s, %s,
-                    %s, %s, %s, %s, %s
+                    %s, %s, %s, %s, %s,
+                    %s, NOW()
                 )
             """
             hashed_password = db.hash_new_password(password)
@@ -791,7 +823,8 @@ def register_user(submitbtn, cancelbtn, confirmbtn, removerecord,
                 bday, phone_num, id_num, 
                 office, user_qao_team_id, position, email, hashed_password, 
                 user_access_type, 1, False,
-                suffixname, sexatbirth, placeofbirth, bloodtype, preferredpronouns
+                suffixname, sexatbirth, placeofbirth, bloodtype, preferredpronouns,
+                current_userid
             )
             db.modifydatabase(sql, values)
             final_modal_open = True
@@ -882,6 +915,8 @@ def register_user(submitbtn, cancelbtn, confirmbtn, removerecord,
         Output('user_position', 'value'),
         Output('user_email', 'value'), 
         Output('user_access_type', 'value'),
+        Output('registeruser_registeredby', 'value'),
+        Output('registeruser_registeredon', 'value'),
     ],
     [  
         Input('registeruser_toload', 'modified_timestamp')
@@ -900,16 +935,19 @@ def registeruser_loadprofile(timestamp, toload, search):
                 u.user_fname, u.user_mname, u.user_sname, u.user_suffixname,
                 u.user_livedname, u.user_bday, u.user_sexatbirth, u.user_placeofbirth, u.user_bloodtype, u.user_preferredpronouns, u.user_phone_num,  
                 u.user_id_num, u.user_office, u.user_qao_team_id,
-                u.user_position, u.user_email, u.user_access_type
+                u.user_position, u.user_email, u.user_access_type,
+                r.user_email AS registered_by_email,
+                u.user_registered_on
             FROM maindashboard.users u
             LEFT JOIN maindashboard.qao_teams q ON u.user_qao_team_id = q.qao_team_id
-            WHERE user_id = %s
+            LEFT JOIN maindashboard.users r ON u.user_registered_by = r.user_id
+            WHERE u.user_id = %s
         """
         values = [userid]
         cols = [
             'fname', 'mname', 'sname', 'suffixname', 'lname', 
             'bday', 'sexatbirth', 'placeofbirth', 'bloodtype', 'preferredpronouns', 'phone', 'id_num', 'officeid', 'user_qao_team_id', 'position',  
-            'email', 'access_type'
+            'email', 'access_type', 'registered_by_email', 'registered_on'
         ]
         df = db.querydatafromdatabase(sql, values, cols)
 
@@ -930,9 +968,16 @@ def registeruser_loadprofile(timestamp, toload, search):
         position = df['position'][0]
         email = df['email'][0]  
         access_type = df['access_type'][0]
+        registered_by_email = df['registered_by_email'][0] if pd.notna(df['registered_by_email'][0]) else None
+        registered_on = df['registered_on'][0]
+        if pd.notna(registered_on):
+            registered_on = registered_on.strftime('%Y-%m-%d %H:%M:%S')
+        else:
+            registered_on = None
 
         return [fname, mname, sname, suffixname, lname, bday, sexatbirth, placeofbirth, bloodtype, preferredpronouns,
-                phone, id_num, officeid, user_qao_team_id, position, email, access_type]
+                phone, id_num, officeid, user_qao_team_id, position, email, access_type,
+                registered_by_email, registered_on]
     else:
         raise PreventUpdate
 
@@ -1023,13 +1068,14 @@ def update_registeruser_title(search, edit_mode):
         return "REGISTER NEW USER"
 
 
-# Callback to show/hide Save/Cancel buttons, delete checkbox, and Back button based on mode
+# Callback to show/hide Save/Cancel buttons, delete checkbox, Back button, and registration info based on mode
 @app.callback(
     [
         Output('registeruser_actions_div', 'style'),
         Output('registeruser_removerecord_div', 'style'),
         Output('registeruser_toggle_edit', 'style'),
         Output('registeruser_back_div', 'style'),
+        Output('registeruser_registration_info_div', 'style'),
     ],
     [
         Input('url', 'search'),
@@ -1041,16 +1087,16 @@ def update_action_visibility(search, edit_mode):
     create_mode = parse_qs(parsed.query).get('mode', [None])[0]
     
     if create_mode == 'add':
-        # Add mode: show save/cancel, hide delete, hide edit toggle, hide back
-        return [{'display': 'block'}, {'display': 'none'}, {'display': 'none'}, {'display': 'none'}]
+        # Add mode: show save/cancel, hide delete, hide edit toggle, hide back, hide reg info
+        return [{'display': 'block'}, {'display': 'none'}, {'display': 'none'}, {'display': 'none'}, {'display': 'none'}]
     elif create_mode == 'edit':
-        # Edit mode: show save/cancel, show delete, hide edit toggle, hide back
-        return [{'display': 'block'}, None, {'display': 'none'}, {'display': 'none'}]
+        # Edit mode: show save/cancel, show delete, hide edit toggle, hide back, show reg info
+        return [{'display': 'block'}, None, {'display': 'none'}, {'display': 'none'}, {'display': 'block'}]
     elif create_mode == 'view' and not edit_mode:
-        # View-only: hide save/cancel, hide delete, show edit toggle, show back
-        return [{'display': 'none'}, {'display': 'none'}, {'display': 'block'}, {'display': 'block'}]
+        # View-only: hide save/cancel, hide delete, show edit toggle, show back, show reg info
+        return [{'display': 'none'}, {'display': 'none'}, {'display': 'block'}, {'display': 'block'}, {'display': 'block'}]
     elif create_mode == 'view' and edit_mode:
-        # View toggled to edit: show save/cancel, show delete, hide edit toggle, hide back
-        return [{'display': 'block'}, None, {'display': 'none'}, {'display': 'none'}]
+        # View toggled to edit: show save/cancel, show delete, hide edit toggle, hide back, show reg info
+        return [{'display': 'block'}, None, {'display': 'none'}, {'display': 'none'}, {'display': 'block'}]
     else:
-        return [{'display': 'block'}, {'display': 'none'}, {'display': 'none'}, {'display': 'none'}]
+        return [{'display': 'block'}, {'display': 'none'}, {'display': 'none'}, {'display': 'none'}, {'display': 'none'}]

@@ -125,11 +125,12 @@ def update_profile_header(pathname, current_userid):
         State('userprof_email', 'value'),
         State('userprof_password', 'value'),
         State('userprof_confirmpassword', 'value'),
-        State('userprof_offcanvas', 'is_open')
+        State('userprof_offcanvas', 'is_open'),
+        State('userprof_edit_mode', 'data'),
     ]
 )
 def save_profile_changes(save_btn, cancel_btn, confirm_btn, current_userid, fname, mname, sname, suffixname, id_num, livedname, pronouns, bday, placeofbirth, bloodtype, phone_num, position, email, password,
-                         confirm_pw, confirm_condition):
+                         confirm_pw, confirm_condition, edit_mode):
     
     sess_uid = session.get('user_id')
     if sess_uid is None:
@@ -140,8 +141,11 @@ def save_profile_changes(save_btn, cancel_btn, confirm_btn, current_userid, fnam
     if not ctx.triggered:
         raise PreventUpdate
     
-    
     eventid = ctx.triggered[0]['prop_id'].split('.')[0]
+    
+    # Prevent saving when in view-only mode
+    if eventid == 'userprof_save_button' and not edit_mode:
+        raise PreventUpdate
     alert_open = False
     alert_color = ''
     alert_message = ''
@@ -475,14 +479,88 @@ def toggle_password_visibility(checked_values):
     else:
         return 'password', 'password'
 
+
+# Callback to toggle edit mode when Edit button is clicked
+@app.callback(
+    Output('userprof_edit_mode', 'data'),
+    Input('userprof_toggle_edit', 'n_clicks'),
+    prevent_initial_call=True,
+)
+def userprof_toggle_edit_mode(n_clicks):
+    if n_clicks:
+        return 1
+    raise PreventUpdate
+
+
+# Callback to disable all fields based on edit mode
+@app.callback(
+    [
+        Output('userprof_fname', 'disabled'),
+        Output('userprof_mname', 'disabled'),
+        Output('userprof_sname', 'disabled'),
+        Output('userprof_suffixname', 'disabled'),
+        Output('userprof_id_num', 'disabled'),
+        Output('userprof_livedname', 'disabled'),
+        Output('userprof_preferredpronouns', 'disabled'),
+        Output('userprof_bday', 'disabled'),
+        Output('userprof_placeofbirth', 'disabled'),
+        Output('userprof_bloodtype', 'disabled'),
+        Output('userprof_phone_num', 'disabled'),
+        Output('userprof_position', 'disabled'),
+        Output('userprof_email', 'disabled'),
+        Output('userprof_password', 'disabled'),
+        Output('userprof_confirmpassword', 'disabled'),
+    ],
+    [Input('userprof_edit_mode', 'data')]
+)
+def userprof_set_fields_disabled(edit_mode):
+    if edit_mode:
+        # Edit mode: all enabled except office (handled in layout)
+        return [False] * 15
+    else:
+        # View-only mode: ALL disabled
+        return [True] * 15
+
+
+# Callback to show/hide Save/Cancel and Edit button based on edit mode
+@app.callback(
+    [
+        Output('userprof_actions_div', 'style'),
+        Output('userprof_toggle_edit', 'style'),
+    ],
+    [Input('userprof_edit_mode', 'data')]
+)
+def userprof_update_action_visibility(edit_mode):
+    if edit_mode:
+        # Edit mode: show save/cancel, hide edit toggle
+        return [{'display': 'block'}, {'display': 'none'}]
+    else:
+        # View-only: hide save/cancel, show edit toggle
+        return [{'display': 'none'}, {'display': 'block'}]
+
 layout = html.Div(
     [
+        dcc.Store(id='userprof_edit_mode', storage_type='memory', data=0),
         dbc.Row(
             [
                 cm.sidebar,
                 dbc.Col(
                 [
-                    profile_header,  
+                    dbc.Row(
+                        [
+                            dbc.Col(profile_header, width="auto", style={"marginRight": "auto"}),
+                            dbc.Col(
+                                dbc.Button(
+                                    "Edit", color="warning",
+                                    id='userprof_toggle_edit',
+                                    n_clicks=0,
+                                    style={'display': 'none'}
+                                ),
+                                width="auto",
+                            ),
+                        ],
+                        align="center",
+                    ),
                     html.Hr(),
                     
                     html.Br(), 
@@ -512,7 +590,8 @@ layout = html.Div(
                         className="offcanvas",
                         scrollable=True,
                     ),
-                    dbc.Row(
+                    html.Div(
+                        dbc.Row(
                             [ 
                                 dbc.Col(
                                     dbc.Button("Save", color="primary",  id="userprof_save_button", n_clicks=0),
@@ -526,28 +605,31 @@ layout = html.Div(
                             className="mb-2",
                             justify="end",
                         ),
+                        id='userprof_actions_div',
+                        style={'display': 'none'}
+                    ),
 
-                        dbc.Modal(
-                            [
-                                dbc.ModalHeader(html.H3("Please Confirm Your Action"), className="bg-primary"),
-                                dbc.ModalBody(
-                                    html.H5('Are you sure you want to save your changes?'),
-                                ),
-                                dbc.ModalFooter(
-                                    [
-                                        dbc.Button("Cancel", id= "userprof_initialmodal_cancel", color="warning"),
-                                        dbc.Button("Confirm", id= "userprof_initialmodal_confirm", color="success")
-                                    ]
-                                ),
-                            ],
-                            centered=True,
-                            id='userprof_initialmodal',
-                            backdrop=True,   
-                            className="modal-success"    
-                        ), 
-                    ], 
-                    width=8, 
-                    style={'marginLeft': '15px'}
+                    dbc.Modal(
+                        [
+                            dbc.ModalHeader(html.H3("Please Confirm Your Action"), className="bg-primary"),
+                            dbc.ModalBody(
+                                html.H5('Are you sure you want to save your changes?'),
+                            ),
+                            dbc.ModalFooter(
+                                [
+                                    dbc.Button("Cancel", id= "userprof_initialmodal_cancel", color="warning"),
+                                    dbc.Button("Confirm", id= "userprof_initialmodal_confirm", color="success")
+                                ]
+                            ),
+                        ],
+                        centered=True,
+                        id='userprof_initialmodal',
+                        backdrop=True,   
+                        className="modal-success"    
+                    ), 
+                ], 
+                width=8, 
+                style={'marginLeft': '15px'}
                 ), 
             ]
         ),
