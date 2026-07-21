@@ -34,7 +34,7 @@ border_style = {
 }
 
 editable_disabled_style = {
-        "background-color": "white",
+        "background-color": 'rgba(0,0,0,0)',
         "color": "black",
         "opacity": "1",
     }
@@ -69,7 +69,7 @@ summary = dbc.Container(
                                     style=border_style
                                 ),
                                 html.Td(
-                                    dbc.Textarea(id="reviewers", placeholder="List of Reviewers", disabled=True, style={**editable_disabled_style, "fontWeight": "bold"}),
+                                    dbc.Textarea(id="reviewers", placeholder="List of Reviewers", disabled=True, style=editable_disabled_style),
                                     rowSpan=2,
                                     style=border_style
                                 ),
@@ -195,7 +195,8 @@ summary = dbc.Container(
                     dbc.Textarea(
                         id="opportunities_text",
                         placeholder="Enter opportunities for improvement here...",
-                        style={**editable_disabled_style, "width": "100%", "height": "100px"},
+                        disabled=True,
+                        style={"width": "100%", "height": "100px"},
                     )
                 ],
                 width=12
@@ -218,7 +219,7 @@ summary = dbc.Container(
                                 html.Td([
                                     html.Div("Date:", style={"margin-bottom": "5px"}),
                                     dcc.DatePickerSingle(id="conducted_date", className='SingleDatePicker', date=str(pd.to_datetime("today").date()),
-                                                          placeholder="mm/dd/yyyy", disabled=False, style=editable_disabled_style),
+                                                          placeholder="mm/dd/yyyy", disabled=False),
                                 ], style=border_style),
                                 html.Td([
                                     html.Div("Received by:", style={"margin-bottom": "5px"}),
@@ -226,7 +227,7 @@ summary = dbc.Container(
                                 ], style=border_style),
                                 html.Td([
                                     html.Div("Date:", style={"margin-bottom": "5px"}),
-                                    dcc.DatePickerSingle(id="received_date", className='SingleDatePicker', placeholder="mm/dd/yyyy", disabled=False, style=editable_disabled_style),
+                                    dcc.DatePickerSingle(id="received_date", className='SingleDatePicker', placeholder="mm/dd/yyyy", disabled=False),
                                 ], style=border_style),
                             ])
                         ])
@@ -371,7 +372,8 @@ layout = html.Div(
                         html.Div(  
                             [
                                 dcc.Store(id='response_to_load', storage_type='memory', data=0),
-                                dcc.Download(id="pdf-download")
+                                dcc.Download(id="pdf-download"),
+                                dcc.Location(id='url_loc', refresh=True)
                             ]
                         ),
                         html.Div(
@@ -393,8 +395,20 @@ layout = html.Div(
                                                         "color": highlight_colors['accent']
                                                     }
                                             ),
+                                            dbc.Button(
+                                                "Edit",
+                                                id="edit_btn",
+                                                n_clicks=0,
+                                                className="me-2",
+                                                style={
+                                                    "display": "flex",          # make the button a flex container
+                                                    "justifyContent": "center",# center horizontally
+                                                    "alignItems": "center",    # center vertically
+                                                    "fontWeight": "bold",      # bold text
+                                                }
+                                            )
                                         ],
-                                        style={"margin-bottom": "0px"}  # reduce bottom margin of the header container
+                                        style={"margin-bottom": "5px"}  # reduce bottom margin of the header container
                                     ),
                                     width=12,
                                 ),
@@ -528,6 +542,32 @@ layout = html.Div(
         ), 
     ]
 )
+
+#Edit mode button
+@app.callback(
+    [   
+        Output('url_loc', 'href'),
+    ],
+    [
+        Input('url', 'pathname'),
+        Input('edit_btn', 'n_clicks')
+    ],
+    [
+        State('url', 'search')
+    ],
+    prevent_initial_call=True
+)
+
+def load_conducted_by(pathname, nclicks, search):
+    if pathname == '/peer_evaluation_responses/evaluation_summary':
+        parsed = urlparse(search)
+        evaluatee_id = parse_qs(parsed.query)['id'][0]
+    else:
+        raise PreventUpdate
+    if nclicks>0:
+        return [f"/peer_evaluation_responses/evaluation_summary?mode=edit&id={evaluatee_id}"]
+
+#---------------
 
 @app.callback(
     [   
@@ -820,8 +860,7 @@ def peereval_load(timestamp, to_load, search):
     [
         Output('period_input', 'value'),
         Output('dates_conducted_input', 'value'),
-        Output('reviewers', 'value'),
-        Output('reviewers', 'style')
+        Output('reviewers', 'value')
     ],
     [
         Input('response_to_load', 'modified_timestamp')
@@ -875,12 +914,6 @@ def update_reviewers(timestamp, to_load, search):
             evaluation_period = ""
             dates_conducted = ""
             reviewers_text= "No peer review evaluations found."
-            reviewers_style = {
-                "background-color": "white",
-                "color": "black",
-                "opacity": "1",
-                "fontWeight": "bold"
-            }
 
         if not df.empty:
             evaluation_period = df['evaluation_period'][0]
@@ -888,10 +921,9 @@ def update_reviewers(timestamp, to_load, search):
             # Combine the distinct evaluator names into a single string, separated by commas.
             evaluator_names = df['full_name'].unique().tolist()
             reviewers_text = ", ".join(evaluator_names)   
-            reviewers_style = default_style
 
     
-    return [evaluation_period, dates_conducted, reviewers_text, reviewers_style]
+    return [evaluation_period, dates_conducted, reviewers_text]
 
 @app.callback(
     [
@@ -1162,25 +1194,38 @@ def load_summary(timestamp, to_load, search):
 
 @app.callback(
     [ 
+        Output('opportunities_text', 'disabled'),
         Output('conducted_by', 'disabled'),
         Output('conducted_date', 'disabled'),
         Output('received_by', 'disabled'),
         Output('received_date', 'disabled'),
+        Output('conducted_by', 'style'),
+        Output('received_by', 'style')
     ],
     [
         Input('url', 'search')
     ]
 )
 def addexpense_inputs_disabled(search):
+    enabled_style = {
+        "background-color": "white",
+        "color": "black",
+        "opacity": "1",
+    }
+    default_style = {
+        "background-color": 'rgba(0,0,0,0)',
+        "color": "black",
+        "opacity": "1",
+    }
     if search:
         parsed = urlparse(search)
         create_mode = parse_qs(parsed.query).get('mode', [None])[0]
         if create_mode == 'edit':
-            return [False, False, False, False] 
+            return [False, False, False, False, False, enabled_style, enabled_style] 
         elif create_mode == 'view':
-            return [True, True, True, True] 
+            return [True, True, True, True, True, default_style, default_style] 
         
-    return [True, True, True, True]
+    return [True, True, True, True, True, default_style, default_style]
 
 
 
