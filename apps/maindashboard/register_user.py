@@ -325,9 +325,27 @@ layout = html.Div(
                             [
                                 dcc.Store(id='registeruser_toload', storage_type='memory', data=0),
                                 dcc.Store(id='qao_team_required_info', storage_type='memory', data=0),
+                                dcc.Store(id='registeruser_edit_mode', storage_type='memory', data=0),
                             ]
                         ),
-                        html.H1("REGISTER NEW USER"),
+                        dbc.Row(
+                            [
+                                dbc.Col(
+                                    html.H1(id='registeruser_title'),
+                                    style={"marginRight": "auto"}
+                                ),
+                                dbc.Col(
+                                    dbc.Button(
+                                        "Edit", color="warning",
+                                        id='registeruser_toggle_edit',
+                                        n_clicks=0,
+                                        style={'display': 'none'}
+                                    ),
+                                    width="auto",
+                                ),
+                            ],
+                            style={"marginBottom": "-10px"}
+                        ),
                         html.Hr(),
                         html.P("", style={"color": "#F8B237"}),
                         form,
@@ -355,19 +373,36 @@ layout = html.Div(
 
                         html.Br(),
                         dbc.Alert(id='registeruser_alert', is_open=False),
-                        dbc.Row(
-                            [ 
-                                dbc.Col(
-                                    dbc.Button("Save", color="primary", id="registeruser_save_button", n_clicks=0),
-                                    width="auto"
-                                ),
-                                dbc.Col(
-                                    dbc.Button("Cancel", color="warning", id="registeruser_cancel_button", n_clicks=0, href="/search_users"),
-                                    width="auto"
-                                ),
-                            ],
-                            className="mb-2",
-                            justify="end",
+                        html.Div(
+                            dbc.Row(
+                                [ 
+                                    dbc.Col(
+                                        dbc.Button("Save", color="primary", id="registeruser_save_button", n_clicks=0),
+                                        width="auto"
+                                    ),
+                                    dbc.Col(
+                                        dbc.Button("Cancel", color="warning", id="registeruser_cancel_button", n_clicks=0, href="/search_users"),
+                                        width="auto"
+                                    ),
+                                ],
+                                className="mb-2",
+                                justify="end",
+                            ),
+                            id='registeruser_actions_div'
+                        ),
+                        html.Div(
+                            dbc.Row(
+                                [
+                                    dbc.Col(
+                                        dbc.Button("Back", color="secondary", href="/search_users"),
+                                        width="auto"
+                                    ),
+                                ],
+                                className="mb-2",
+                                justify="start",
+                            ),
+                            id='registeruser_back_div',
+                            style={'display': 'none'}
                         ),
 
                         dbc.Modal(
@@ -420,12 +455,11 @@ layout = html.Div(
 )
 
 
-# Callback to populate Office dropdown and determine mode (add/edit)
+# Callback to populate Office dropdown and determine mode (add/edit/view)
 @app.callback(
     [
         Output('user_office_id', 'options'),
         Output('registeruser_toload', 'data'),
-        Output('registeruser_removerecord_div', 'style'),
     ],
     [
         Input('url', 'pathname')
@@ -447,12 +481,15 @@ def registeruser_loaddropdown(pathname, search):
         office_options = df.to_dict('records')
         
         parsed = urlparse(search)
-        create_mode = parse_qs(parsed.query)['mode'][0]
-        to_load = 1 if create_mode == 'edit' else 0
-        removediv_style = {'display': 'none'} if not to_load else None
+        create_mode = parse_qs(parsed.query).get('mode', [None])[0]
+        
+        if create_mode == 'edit' or create_mode == 'view':
+            to_load = 1
+        else:
+            to_load = 0
     else:
         raise PreventUpdate
-    return [office_options, to_load, removediv_style]
+    return [office_options, to_load]
 
 
 @app.callback(
@@ -573,12 +610,13 @@ def populate_useraccess_dropdown(pathname):
         State('user_access_type', 'value'),
         State('url', 'search'),
         State('qao_team_required_info', 'data'),
+        State('registeruser_edit_mode', 'data'),
     ]
 )
 def register_user(submitbtn, cancelbtn, confirmbtn, removerecord,
                   fname, mname, sname, suffixname, livedname, bday, sexatbirth, placeofbirth, bloodtype, preferredpronouns, phone_num, id_num,
                   office, user_qao_team_id, position, email, password, confirm_password,
-                  user_access_type, search, qao_team_required_info):
+                  user_access_type, search, qao_team_required_info, edit_mode):
     
     ctx = dash.callback_context 
 
@@ -614,6 +652,10 @@ def register_user(submitbtn, cancelbtn, confirmbtn, removerecord,
 
     parsed = urlparse(search)
     create_mode = parse_qs(parsed.query).get('mode', [None])[0]
+    
+    # Treat view mode with edit toggle as edit mode
+    if create_mode == 'view' and edit_mode:
+        create_mode = 'edit'
     
     def get_input_class(value):
             return 'red-border' if not value else 'form-control'
@@ -895,7 +937,7 @@ def registeruser_loadprofile(timestamp, toload, search):
         raise PreventUpdate
 
 
-# Callback to disable inputs in edit mode 
+# Callback to disable inputs based on mode and edit toggle
 @app.callback(
     [
         Output('user_fname', 'disabled'),
@@ -908,13 +950,107 @@ def registeruser_loadprofile(timestamp, toload, search):
         Output('user_password', 'disabled'),
         Output('confirm_password', 'disabled'),
         Output('user_access_type', 'disabled'),
+        Output('user_livedname', 'disabled'),
+        Output('user_bday', 'disabled'),
+        Output('user_placeofbirth', 'disabled'),
+        Output('user_bloodtype', 'disabled'),
+        Output('user_preferredpronouns', 'disabled'),
+        Output('user_phone_num', 'disabled'),
+        Output('user_id_num', 'disabled'),
+        Output('user_position', 'disabled'),
+        Output('user_email', 'disabled'),
     ],
-    [Input('url', 'search')]
+    [
+        Input('url', 'search'),
+        Input('registeruser_edit_mode', 'data'),
+    ]
 )
-def set_inputs_disabled(search):
-    if search:
-        parsed = urlparse(search)
-        create_mode = parse_qs(parsed.query).get('mode', [None])[0]
-        if create_mode == 'edit':
-            return [True] * 10  # Disable all inputs in edit mode
-    return [False] * 10  # Enable all inputs otherwise
+def set_inputs_disabled(search, edit_mode):
+    parsed = urlparse(search)
+    create_mode = parse_qs(parsed.query).get('mode', [None])[0]
+    
+    if create_mode == 'add':
+        # Add mode: all enabled
+        return [False] * 19
+    elif create_mode == 'edit':
+        # Edit mode: disable immutable fields only
+        return [True, True, True, True, True, True, True, True, True, True,
+                False, False, False, False, False, False, False, False, False]
+    elif create_mode == 'view' and not edit_mode:
+        # View-only mode: ALL fields disabled
+        return [True] * 19
+    elif create_mode == 'view' and edit_mode:
+        # View mode toggled to edit: same as edit mode
+        return [True, True, True, True, True, True, True, True, True, True,
+                False, False, False, False, False, False, False, False, False]
+    else:
+        return [False] * 19
+
+
+# Callback to toggle edit mode when Edit button is clicked
+@app.callback(
+    Output('registeruser_edit_mode', 'data'),
+    Input('registeruser_toggle_edit', 'n_clicks'),
+    prevent_initial_call=True,
+)
+def toggle_edit_mode(n_clicks):
+    if n_clicks:
+        return 1
+    raise PreventUpdate
+
+
+# Callback to update page title based on mode
+@app.callback(
+    Output('registeruser_title', 'children'),
+    [
+        Input('url', 'search'),
+        Input('registeruser_edit_mode', 'data'),
+    ]
+)
+def update_registeruser_title(search, edit_mode):
+    parsed = urlparse(search)
+    create_mode = parse_qs(parsed.query).get('mode', [None])[0]
+    
+    if create_mode == 'view' and not edit_mode:
+        return "VIEW USER"
+    elif create_mode == 'view' and edit_mode:
+        return "EDIT USER"
+    elif create_mode == 'edit':
+        return "EDIT USER"
+    elif create_mode == 'add':
+        return "REGISTER NEW USER"
+    else:
+        return "REGISTER NEW USER"
+
+
+# Callback to show/hide Save/Cancel buttons, delete checkbox, and Back button based on mode
+@app.callback(
+    [
+        Output('registeruser_actions_div', 'style'),
+        Output('registeruser_removerecord_div', 'style'),
+        Output('registeruser_toggle_edit', 'style'),
+        Output('registeruser_back_div', 'style'),
+    ],
+    [
+        Input('url', 'search'),
+        Input('registeruser_edit_mode', 'data'),
+    ]
+)
+def update_action_visibility(search, edit_mode):
+    parsed = urlparse(search)
+    create_mode = parse_qs(parsed.query).get('mode', [None])[0]
+    
+    if create_mode == 'add':
+        # Add mode: show save/cancel, hide delete, hide edit toggle, hide back
+        return [{'display': 'block'}, {'display': 'none'}, {'display': 'none'}, {'display': 'none'}]
+    elif create_mode == 'edit':
+        # Edit mode: show save/cancel, show delete, hide edit toggle, hide back
+        return [{'display': 'block'}, None, {'display': 'none'}, {'display': 'none'}]
+    elif create_mode == 'view' and not edit_mode:
+        # View-only: hide save/cancel, hide delete, show edit toggle, show back
+        return [{'display': 'none'}, {'display': 'none'}, {'display': 'block'}, {'display': 'block'}]
+    elif create_mode == 'view' and edit_mode:
+        # View toggled to edit: show save/cancel, show delete, hide edit toggle, hide back
+        return [{'display': 'block'}, None, {'display': 'none'}, {'display': 'none'}]
+    else:
+        return [{'display': 'block'}, {'display': 'none'}, {'display': 'none'}, {'display': 'none'}]
