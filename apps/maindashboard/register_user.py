@@ -533,17 +533,6 @@ def registeruser_loaddropdown(pathname, search_value, search):
         cols = ['label', 'value']
         df = db.querydatafromdatabase(sql, values, cols)
         office_options = df.to_dict('records')
-        
-        parsed = urlparse(search)
-        create_mode = parse_qs(parsed.query).get('mode', [None])[0]
-        
-        if create_mode == 'edit' or create_mode == 'view':
-            to_load = 1
-        else:
-            to_load = 0
-    else:
-        raise PreventUpdate
-    return [office_options, to_load]
 
         mun_sql = """
         SELECT 
@@ -558,10 +547,38 @@ def registeruser_loaddropdown(pathname, search_value, search):
         
         municipality_options = mun_df.to_dict('records')
         
+        # parsed = urlparse(search)
+        # create_mode = parse_qs(parsed.query)['mode'][0]
         parsed = urlparse(search)
-        create_mode = parse_qs(parsed.query)['mode'][0]
+        create_mode = parse_qs(parsed.query).get('mode', [None])[0]
         to_load = 1 if create_mode == 'edit' else 0
         removediv_style = {'display': 'none'} if not to_load else None
+        
+        if create_mode == 'edit' or create_mode == 'view':
+            to_load = 1
+        else:
+            to_load = 0
+    # else:
+    #     raise PreventUpdate
+    # return [office_options, to_load]
+
+        # mun_sql = """
+        # SELECT 
+        #     CONCAT(mun.municipality_name, ', ', prov.province_name )as label, 
+        #     mun.municipality_id  as value
+        # FROM public.municipalities AS mun
+        # INNER JOIN public.provinces AS prov ON mun.province_id=prov.province_id
+        # """
+        # mun_values = [search_value]
+        # mun_cols = ['label', 'value']
+        # mun_df = db.querydatafromdatabase(mun_sql, mun_values, mun_cols)
+        
+        # municipality_options = mun_df.to_dict('records')
+        
+        # parsed = urlparse(search)
+        # create_mode = parse_qs(parsed.query)['mode'][0]
+        # to_load = 1 if create_mode == 'edit' else 0
+        # removediv_style = {'display': 'none'} if not to_load else None
     else:
         raise PreventUpdate
     return [office_options, municipality_options, to_load, removediv_style]
