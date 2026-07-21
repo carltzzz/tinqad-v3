@@ -80,6 +80,8 @@ ELEVATED_ROUTES = {
     # '/training_record/mode=view': viewtraining_list.layout,
     '/inventory_tracker': inventory_tracker.layout,
     '/inventory_tracker_management': add_inventory.layout,
+    '/staff_profiles': staff_profiles.layout,
+    '/staff_profiles_management': staff_profiles_management.layout,
     '/peer_evaluation_landing': peer_evaluation_landing.main_layout,
     '/peer_evaluation_form_entry': peer_evaluation_form_entry.main_layout,
     '/iqa_dashboard': iqa_dashboard.layout,
@@ -127,8 +129,6 @@ ELEVATED_ROUTES = {
 
 # requires exact minimum role: {pathname: (min_role, layout)}
 ROLE_RESTRICTED = {
-    '/staff_profiles': (3, staff_profiles.layout),
-    '/staff_profiles_management': (3, staff_profiles_management.layout),
     '/director_dashboard': (2, director_dashboard.layout),
     '/peer_evaluation_settings': (2, peer_evaluation_settings.layout),
     '/peer_evaluation_settings/peer_evaluation_forms': (2, peer_evaluation_form.layout),

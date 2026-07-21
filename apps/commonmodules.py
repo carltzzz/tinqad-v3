@@ -165,6 +165,7 @@ def generate_navbar(pathname, access_type, user_id):
                 html.A('Record Expenses', href='/record_expenses', className="nav-link"),
                 # html.A('Training Documents', href='/instructions', className="nav-link"),
                 # html.A('View Training List', href='/training_record', className="nav-link"),
+                html.A('Staff Profile', href='/staff_profiles', className="nav-link"),
                 html.A('Inventory Tracker', href='/inventory_tracker', className="nav-link"),
                 html.A('-----------------------------------', style={'color': 'white'}),
 
@@ -242,7 +243,54 @@ def generate_navbar(pathname, access_type, user_id):
                 html.A(html.B('QA Officers Dashboard'), href='/QAOfficers_dashboard', className="nav-link"),
                 html.A('QA Officers Directory', href='/qaofficers_directory', className="nav-link"),
             ]
-        if access_type >= 4:
+        if access_type == 4:
+            sidebar += [
+                html.A('Profile', href='/profile', className="nav-link"),
+                html.A('Search Users', href='/search_users', className="nav-link"),
+                html.A('-----------------------------------', style={'color': 'white'}),
+
+                # FOR ALL TEAMS TO SEE
+                html.A(html.B('Peer Evaluations'), className="nav-link"),
+                html.A('Peer Evaluation Form', href='/peer_evaluation_landing', className="nav-link"),
+                html.A('-----------------------------------', style={'color': 'white'}),
+
+                # admin dashboard
+                html.A(html.B('Admin'), href='/administration_dashboard', className="nav-link"),
+                html.A('Record Expenses', href='/record_expenses', className="nav-link"),
+                # html.A('Training Documents', href='/instructions', className="nav-link"),
+                # html.A('View Training List', href='/training_record', className="nav-link"),
+                html.A('Staff Profile', href='/staff_profiles', className="nav-link"),
+                html.A('Inventory Tracker', href='/inventory_tracker', className="nav-link"),
+                html.A('-----------------------------------', style={'color': 'white'}),
+
+
+                # internal qa dashboard
+                html.A(html.B('Internal QA'), href='/iqa_dashboard', className="nav-link"),
+                html.A('Academic Heads Directory', href='/acad_heads_directory', className="nav-link"),
+                html.A('ISO Facilitators Directory', href='/iso_facilitator_directory', className="nav-link"),
+                html.A('-----------------------------------', style={'color': 'white'}),
+
+
+                # external qa dashboard
+                html.A(html.B('Program-Level QA'), href='/eqa_dashboard', className="nav-link"),
+                html.A('Program-Level Reports', href='/assessment_reports', className="nav-link"),
+                html.A('EQA Activities', href='/assessment_tracker', className="nav-link"),
+                html.A('Program List', href='/program_list', className="nav-link"),
+                html.A('-----------------------------------', style={'color': 'white'}),
+
+
+                # km team dashboard
+                html.A(html.B('KM Team'), href='/km_dashboard', className="nav-link"),
+                html.A('SDG Evidence List', href='/SDG_evidencelist', className="nav-link"),
+                html.A('QS Rankings', href='/qs_rankings', className="nav-link"),
+                html.A('-----------------------------------', style={'color': 'white'}),
+
+
+                # qa officers
+                html.A(html.B('QA Officers Dashboard'), href='/QAOfficers_dashboard', className="nav-link"),
+                html.A('QA Officers Directory', href='/qaofficers_directory', className="nav-link"),
+            ]
+        if access_type >= 5:
             sidebar += [
                 html.A('Profile', href='/profile', className="nav-link"),
                 html.A('Search Users', href='/search_users', className="nav-link"),
