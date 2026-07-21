@@ -56,7 +56,7 @@ summary = dbc.Container(
                             html.Tr([
                                 html.Td("Name", style=border_style),
                                 html.Td(
-                                    dbc.Input(id="name_input", type="text", placeholder="Enter name", disabled=True, style=editable_disabled_style),
+                                    dbc.Input(id="pr_name_input", type="text", placeholder="Enter name", disabled=True, style=editable_disabled_style),
                                     style=border_style
                                 ),
                                 html.Td("Peer Reviewers", style={**border_style, "text-align": "center"}),
@@ -65,11 +65,11 @@ summary = dbc.Container(
                             html.Tr([
                                 html.Td("For the period", style=border_style),
                                 html.Td(
-                                    dbc.Input(id="period_input", type="text", placeholder="e.g. Jan 2025 - Mar 2025", disabled=True, style=editable_disabled_style),
+                                    dbc.Input(id="pr_period_input", type="text", placeholder="e.g. Jan 2025 - Mar 2025", disabled=True, style=editable_disabled_style),
                                     style=border_style
                                 ),
                                 html.Td(
-                                    dbc.Textarea(id="reviewers", placeholder="List of Reviewers", disabled=True, style=editable_disabled_style),
+                                    dbc.Textarea(id="pr_reviewers", placeholder="List of Reviewers", disabled=True, style=editable_disabled_style),
                                     rowSpan=2,
                                     style=border_style
                                 ),
@@ -78,7 +78,7 @@ summary = dbc.Container(
                             html.Tr([
                                 html.Td("Dates Conducted", style=border_style),
                                 html.Td(
-                                    dbc.Input(id="dates_conducted_input", type="text", placeholder="e.g. March 1, 2025", disabled=True, style=editable_disabled_style),
+                                    dbc.Input(id="pr_dates_conducted_input", type="text", placeholder="e.g. March 1, 2025", disabled=True, style=editable_disabled_style),
                                     style=border_style
                                 ),
                             ]),
@@ -117,62 +117,62 @@ summary = dbc.Container(
                         html.Tbody([
                             html.Tr([
                                 html.Td("Contributions", style=border_style),
-                                html.Td(dbc.Input(id="contributions_beginning", type="number", disabled=True, style=editable_disabled_style), style=border_style),
-                                html.Td(dbc.Input(id="contributions_progressing", type="number", disabled=True, style=editable_disabled_style), style=border_style),
-                                html.Td(dbc.Input(id="contributions_competent", type="number", disabled=True, style=editable_disabled_style), style=border_style),
-                                html.Td(dbc.Input(id="contributions_advanced", type="number", disabled=True, style=editable_disabled_style), style=border_style),
-                                html.Td(dbc.Input(id="contributions_weighted_average", type="number", disabled=True, style=editable_disabled_style),
+                                html.Td(dbc.Input(id="pr_contributions_beginning", type="number", disabled=True, style=editable_disabled_style), style=border_style),
+                                html.Td(dbc.Input(id="pr_contributions_progressing", type="number", disabled=True, style=editable_disabled_style), style=border_style),
+                                html.Td(dbc.Input(id="pr_contributions_competent", type="number", disabled=True, style=editable_disabled_style), style=border_style),
+                                html.Td(dbc.Input(id="pr_contributions_advanced", type="number", disabled=True, style=editable_disabled_style), style=border_style),
+                                html.Td(dbc.Input(id="pr_contributions_weighted_average", type="number", disabled=True, style=editable_disabled_style),
                                         style=border_style),
                             ]),
                             html.Tr([
                                 html.Td("Cooperation with Others", style=border_style),
-                                html.Td(dbc.Input(id="cooperation_beginning", type="number", disabled=True, style=editable_disabled_style), style=border_style),
-                                html.Td(dbc.Input(id="cooperation_progressing", type="number", disabled=True, style=editable_disabled_style), style=border_style),
-                                html.Td(dbc.Input(id="cooperation_competent", type="number", disabled=True, style=editable_disabled_style), style=border_style),
-                                html.Td(dbc.Input(id="cooperation_advanced", type="number", disabled=True, style=editable_disabled_style), style=border_style),
-                                html.Td(dbc.Input(id="cooperation_weighted_average", type="number", disabled=True, style=editable_disabled_style),
+                                html.Td(dbc.Input(id="pr_cooperation_beginning", type="number", disabled=True, style=editable_disabled_style), style=border_style),
+                                html.Td(dbc.Input(id="pr_cooperation_progressing", type="number", disabled=True, style=editable_disabled_style), style=border_style),
+                                html.Td(dbc.Input(id="pr_cooperation_competent", type="number", disabled=True, style=editable_disabled_style), style=border_style),
+                                html.Td(dbc.Input(id="pr_cooperation_advanced", type="number", disabled=True, style=editable_disabled_style), style=border_style),
+                                html.Td(dbc.Input(id="pr_cooperation_weighted_average", type="number", disabled=True, style=editable_disabled_style),
                                         style=border_style),
                             ]),
                             html.Tr([
                                 html.Td("Focus and Commitments", style=border_style),
-                                html.Td(dbc.Input(id="focus_beginning", type="number", disabled=True, style=editable_disabled_style), style=border_style),
-                                html.Td(dbc.Input(id="focus_progressing", type="number", disabled=True, style=editable_disabled_style), style=border_style),
-                                html.Td(dbc.Input(id="focus_competent", type="number", disabled=True, style=editable_disabled_style), style=border_style),
-                                html.Td(dbc.Input(id="focus_advanced", type="number", disabled=True, style=editable_disabled_style), style=border_style),
-                                html.Td(dbc.Input(id="focus_weighted_average", type="number", disabled=True, style=editable_disabled_style),
+                                html.Td(dbc.Input(id="pr_focus_beginning", type="number", disabled=True, style=editable_disabled_style), style=border_style),
+                                html.Td(dbc.Input(id="pr_focus_progressing", type="number", disabled=True, style=editable_disabled_style), style=border_style),
+                                html.Td(dbc.Input(id="pr_focus_competent", type="number", disabled=True, style=editable_disabled_style), style=border_style),
+                                html.Td(dbc.Input(id="pr_focus_advanced", type="number", disabled=True, style=editable_disabled_style), style=border_style),
+                                html.Td(dbc.Input(id="pr_focus_weighted_average", type="number", disabled=True, style=editable_disabled_style),
                                         style=border_style),
                             ]),
                             html.Tr([
                                 html.Td("Team Role Fulfillment", style=border_style),
-                                html.Td(dbc.Input(id="teamrole_beginning", type="number", disabled=True, style=editable_disabled_style), style=border_style),
-                                html.Td(dbc.Input(id="teamrole_progressing", type="number", disabled=True, style=editable_disabled_style), style=border_style),
-                                html.Td(dbc.Input(id="teamrole_competent", type="number", disabled=True, style=editable_disabled_style), style=border_style),
-                                html.Td(dbc.Input(id="teamrole_advanced", type="number", disabled=True, style=editable_disabled_style), style=border_style),
-                                html.Td(dbc.Input(id="teamrole_weighted_average", type="number", disabled=True, style=editable_disabled_style),
+                                html.Td(dbc.Input(id="pr_teamrole_beginning", type="number", disabled=True, style=editable_disabled_style), style=border_style),
+                                html.Td(dbc.Input(id="pr_teamrole_progressing", type="number", disabled=True, style=editable_disabled_style), style=border_style),
+                                html.Td(dbc.Input(id="pr_teamrole_competent", type="number", disabled=True, style=editable_disabled_style), style=border_style),
+                                html.Td(dbc.Input(id="pr_teamrole_advanced", type="number", disabled=True, style=editable_disabled_style), style=border_style),
+                                html.Td(dbc.Input(id="pr_teamrole_weighted_average", type="number", disabled=True, style=editable_disabled_style),
                                         style=border_style),
                             ]),
                             html.Tr([
                                 html.Td("Ability to Communicate", style=border_style),
-                                html.Td(dbc.Input(id="communicate_beginning", type="number", disabled=True, style=editable_disabled_style), style=border_style),
-                                html.Td(dbc.Input(id="communicate_progressing", type="number", disabled=True, style=editable_disabled_style), style=border_style),
-                                html.Td(dbc.Input(id="communicate_competent", type="number", disabled=True, style=editable_disabled_style), style=border_style),
-                                html.Td(dbc.Input(id="communicate_advanced", type="number", disabled=True, style=editable_disabled_style), style=border_style),
-                                html.Td(dbc.Input(id="communicate_weighted_average", type="number", disabled=True, style=editable_disabled_style),
+                                html.Td(dbc.Input(id="pr_communicate_beginning", type="number", disabled=True, style=editable_disabled_style), style=border_style),
+                                html.Td(dbc.Input(id="pr_communicate_progressing", type="number", disabled=True, style=editable_disabled_style), style=border_style),
+                                html.Td(dbc.Input(id="pr_communicate_competent", type="number", disabled=True, style=editable_disabled_style), style=border_style),
+                                html.Td(dbc.Input(id="pr_communicate_advanced", type="number", disabled=True, style=editable_disabled_style), style=border_style),
+                                html.Td(dbc.Input(id="pr_communicate_weighted_average", type="number", disabled=True, style=editable_disabled_style),
                                         style=border_style),
                             ]),
                             html.Tr([
                                 html.Td("Completion of Assigned Task", style=border_style),
-                                html.Td(dbc.Input(id="completion_beginning", type="number", disabled=True, style=editable_disabled_style), style=border_style),
-                                html.Td(dbc.Input(id="completion_progressing", type="number", disabled=True, style=editable_disabled_style), style=border_style),
-                                html.Td(dbc.Input(id="completion_competent", type="number",disabled=True, style=editable_disabled_style), style=border_style),
-                                html.Td(dbc.Input(id="completion_advanced", type="number", disabled=True, style=editable_disabled_style), style=border_style),
-                                html.Td(dbc.Input(id="completion_weighted_average", type="number", disabled=True, style=editable_disabled_style),
+                                html.Td(dbc.Input(id="pr_completion_beginning", type="number", disabled=True, style=editable_disabled_style), style=border_style),
+                                html.Td(dbc.Input(id="pr_completion_progressing", type="number", disabled=True, style=editable_disabled_style), style=border_style),
+                                html.Td(dbc.Input(id="pr_completion_competent", type="number",disabled=True, style=editable_disabled_style), style=border_style),
+                                html.Td(dbc.Input(id="pr_completion_advanced", type="number", disabled=True, style=editable_disabled_style), style=border_style),
+                                html.Td(dbc.Input(id="pr_completion_weighted_average", type="number", disabled=True, style=editable_disabled_style),
                                         style=border_style),
                             ]),
                             # Overall Weighted Average Row
                             html.Tr([
                                 html.Td("Overall Weighted Average", colSpan=5, style={**border_style, "font-weight": "bold", "text-align": "right"}),
-                                html.Td(dbc.Input(id="overall_weighted_average", type="number", disabled=True, style=editable_disabled_style),
+                                html.Td(dbc.Input(id="pr_overall_weighted_average", type="number", disabled=True, style=editable_disabled_style),
                                         style=border_style),
                             ]),
                         ]),
@@ -193,7 +193,7 @@ summary = dbc.Container(
                     html.Div("Opportunities for Improvement", 
                              style={"font-weight": "bold", "margin-bottom": "5px", "color": highlight_colors['secondary']}),
                     dbc.Textarea(
-                        id="opportunities_text",
+                        id="pr_opportunities_text",
                         placeholder="Enter opportunities for improvement here...",
                         disabled=True,
                         style={"width": "100%", "height": "100px"},
@@ -214,20 +214,20 @@ summary = dbc.Container(
                             html.Tr([
                                 html.Td([
                                     html.Div("Conducted by:", style={"margin-bottom": "5px"}),
-                                    dbc.Select(id="conducted_by", placeholder="Name", disabled=False, style=editable_disabled_style),
+                                    dbc.Select(id="pr_conducted_by", placeholder="Name", disabled=True, style=editable_disabled_style),
                                 ], style=border_style),
                                 html.Td([
                                     html.Div("Date:", style={"margin-bottom": "5px"}),
-                                    dcc.DatePickerSingle(id="conducted_date", className='SingleDatePicker', date=str(pd.to_datetime("today").date()),
-                                                          placeholder="mm/dd/yyyy", disabled=False),
+                                    dcc.DatePickerSingle(id="pr_conducted_date", className='SingleDatePicker', date=str(pd.to_datetime("today").date()),
+                                                          placeholder="mm/dd/yyyy", disabled=True),
                                 ], style=border_style),
                                 html.Td([
                                     html.Div("Received by:", style={"margin-bottom": "5px"}),
-                                    dbc.Select(id="received_by", placeholder="Name", disabled=False, style=editable_disabled_style),
+                                    dbc.Select(id="pr_received_by", placeholder="Name", disabled=True, style=editable_disabled_style),
                                 ], style=border_style),
                                 html.Td([
                                     html.Div("Date:", style={"margin-bottom": "5px"}),
-                                    dcc.DatePickerSingle(id="received_date", className='SingleDatePicker', placeholder="mm/dd/yyyy", disabled=False),
+                                    dcc.DatePickerSingle(id="pr_received_date", className='SingleDatePicker', placeholder="mm/dd/yyyy", disabled=True),
                                 ], style=border_style),
                             ])
                         ])
@@ -236,7 +236,7 @@ summary = dbc.Container(
                 ),
                 width=12
             ),
-            id="sign_off_row",
+            id="pr_sign_off_row",
             style={"margin-bottom": "20px"}
         ),
 
@@ -275,7 +275,7 @@ remarks_section = dbc.Container(
                                 html.Td("Contribution", style=border_style),
                                 html.Td(
                                     dbc.Textarea(
-                                        id="remarks_contribution", 
+                                        id="pr_remarks_contribution", 
                                         placeholder="No feedback received for Contribution...", 
                                         disabled=True,  # Set to False if you want it editable
                                         style=editable_disabled_style
@@ -288,7 +288,7 @@ remarks_section = dbc.Container(
                                 html.Td("Cooperation with Others", style=border_style),
                                 html.Td(
                                     dbc.Textarea(
-                                        id="remarks_cooperation", 
+                                        id="pr_remarks_cooperation", 
                                         placeholder="No feedback received for Cooperation with Others...", 
                                         disabled=True,
                                         style=editable_disabled_style
@@ -301,7 +301,7 @@ remarks_section = dbc.Container(
                                 html.Td("Focus and Commitments", style=border_style),
                                 html.Td(
                                     dbc.Textarea(
-                                        id="remarks_focus", 
+                                        id="pr_remarks_focus", 
                                         placeholder="No feedback received for Focus and Commitments...", 
                                         disabled=True,
                                         style=editable_disabled_style
@@ -314,7 +314,7 @@ remarks_section = dbc.Container(
                                 html.Td("Team Role Fulfillment", style=border_style),
                                 html.Td(
                                     dbc.Textarea(
-                                        id="remarks_team_role", 
+                                        id="pr_remarks_team_role", 
                                         placeholder="No feedback received for Team Role Fulfillment...", 
                                         disabled=True,
                                         style=editable_disabled_style
@@ -327,7 +327,7 @@ remarks_section = dbc.Container(
                                 html.Td("Ability to Communicate", style=border_style),
                                 html.Td(
                                     dbc.Textarea(
-                                        id="remarks_communicate", 
+                                        id="pr_remarks_communicate", 
                                         placeholder="No feedback received for Ability to Communicate...", 
                                         disabled=True,
                                         style=editable_disabled_style
@@ -340,7 +340,7 @@ remarks_section = dbc.Container(
                                 html.Td("Completion of Tasks", style=border_style),
                                 html.Td(
                                     dbc.Textarea(
-                                        id="remarks_completion", 
+                                        id="pr_remarks_completion", 
                                         placeholder="No feedback received for Completion of Tasks...", 
                                         disabled=True,
                                         style=editable_disabled_style
@@ -371,9 +371,8 @@ layout = html.Div(
                     [
                         html.Div(  
                             [
-                                dcc.Store(id='response_to_load', storage_type='memory', data=0),
-                                dcc.Download(id="pdf-download"),
-                                dcc.Location(id='url_loc', refresh=True)
+                                dcc.Store(id='pr_response_to_load', storage_type='memory', data=0),
+                                dcc.Download(id="pr_pdf-download")
                             ]
                         ),
                         html.Div(
@@ -395,18 +394,6 @@ layout = html.Div(
                                                         "color": highlight_colors['accent']
                                                     }
                                             ),
-                                            dbc.Button(
-                                                "Evaluate",
-                                                id="edit_btn",
-                                                n_clicks=0,
-                                                className="me-2",
-                                                style={
-                                                    "display": "flex",          # make the button a flex container
-                                                    "justifyContent": "center",# center horizontally
-                                                    "alignItems": "center",    # center vertically
-                                                    "fontWeight": "bold",      # bold text
-                                                }
-                                            )
                                         ],
                                         style={"margin-bottom": "5px"}  # reduce bottom margin of the header container
                                     ),
@@ -424,38 +411,38 @@ layout = html.Div(
                         html.Br(),
                         remarks_section,
                         html.Br(),
-                        dbc.Alert(id='response_summary_alert', is_open=False), # For feedback purpose
+                        dbc.Alert(id='pr_response_summary_alert', is_open=False), # For feedback purpose
                         html.Div(
                             [
                                 dbc.Col(
                                     dbc.Button(
                                         "Download PDF",
-                                        id="download_pdf_btn",
+                                        id="pr_download_pdf_btn",
                                         n_clicks=0,
                                         color="secondary",
                                         style={"margin-left": "10px"}
                                     )
                                 )
                             ],
-                            id="download_style_div"
+                            id="pr_download_style_div"
                         ),
                         html.Div(
                             dbc.Row(
                                 [ 
                                     
                                     dbc.Col(
-                                        dbc.Button("Save", color="primary",  id="summary_save_button", n_clicks=0),
+                                        dbc.Button("Save", color="primary",  id="pr_summary_save_button", n_clicks=0),
                                         width="auto"
                                     ),
                                     dbc.Col(
-                                        dbc.Button("Cancel", color="warning", id="summary_cancel_button", n_clicks=0, href="/peer_evaluation_responses"),  
+                                        dbc.Button("Cancel", color="warning", id="pr_summary_cancel_button", n_clicks=0, href="/peer_evaluation_responses"),  
                                         width="auto"
                                     ),
                                 ],
                                 className="mb-2",
                                 justify="end",
                             ),
-                            id="summary_buttons_div"
+                            id="pr_summary_buttons_div"
                         ),
                         dbc.Row(
                             [
@@ -464,10 +451,10 @@ layout = html.Div(
                                         [
                                             dbc.Button(
                                                 "Back",
-                                                id="back_button",
+                                                id="pr_back_button",
                                                 color="primary",
                                                 className="me-2",
-                                                href="/peer_evaluation_responses",
+                                                href="/homepage",
                                                 style={
                                                     "display": "flex",          # make the button a flex container
                                                     "justifyContent": "center",# center horizontally
@@ -494,13 +481,13 @@ layout = html.Div(
                                 ),
                                 dbc.ModalFooter(
                                     [
-                                        dbc.Button("Cancel", id= "summary_initial_modal_cancel", color="warning"),
-                                        dbc.Button("Confirm", id= "summary_initial_modal_confirm", color="success")
+                                        dbc.Button("Cancel", id= "pr_summary_initial_modal_cancel", color="warning"),
+                                        dbc.Button("Confirm", id= "pr_summary_initial_modal_confirm", color="success")
                                     ]
                                 ),
                             ],
                             centered=True,
-                            id="summary_initial_modal",
+                            id="pr_summary_initial_modal",
                             backdrop=True,
                             className="modal-success",
                         ),
@@ -519,7 +506,7 @@ layout = html.Div(
                                 ),
                             ],
                             centered=True,
-                            id="summary_last_modal",
+                            id="pr_summary_last_modal",
                             backdrop="static",
                             className="modal-success",
                         ), 
@@ -543,35 +530,10 @@ layout = html.Div(
     ]
 )
 
-#Edit mode button
-@app.callback(
-    [   
-        Output('url_loc', 'href'),
-    ],
-    [
-        Input('url', 'pathname'),
-        Input('edit_btn', 'n_clicks')
-    ],
-    [
-        State('url', 'search')
-    ],
-    prevent_initial_call=True
-)
-
-def load_conducted_by(pathname, nclicks, search):
-    if pathname == '/peer_evaluation_responses/evaluation_summary':
-        parsed = urlparse(search)
-        evaluatee_id = parse_qs(parsed.query)['id'][0]
-    else:
-        raise PreventUpdate
-    if nclicks>0:
-        return [f"/peer_evaluation_responses/evaluation_summary?mode=edit&id={evaluatee_id}"]
-
-#---------------
 
 @app.callback(
     [   
-        Output('conducted_by', 'options'),
+        Output('pr_received_by', 'options'),
     ],
     [
         Input('url', 'pathname'),
@@ -581,41 +543,9 @@ def load_conducted_by(pathname, nclicks, search):
     ]
 )
 
-def load_conducted_by(pathname, current_user):
-    if pathname == '/peer_evaluation_responses/evaluation_summary':
-        sql = """
-            SELECT
-            CONCAT(u.user_fname, ' ', LEFT(u.user_mname, 1), '. ', u.user_sname, ' ', u.user_suffixname) as label,
-            u.user_id as value
-            FROM maindashboard.users u
-            WHERE u.user_id = %s
-        """
-        values = [current_user]
-        cols = ['label', 'value']
-        df = db.querydatafromdatabase(sql, values, cols)
-        conducted_by_options = df.to_dict('records')
-
-    else:
-        raise PreventUpdate
-    
-    return [conducted_by_options]
-
-@app.callback(
-    [   
-        Output('received_by', 'options'),
-    ],
-    [
-        Input('url', 'pathname'),
-    ],
-    [
-        State('url', 'search')
-    ]
-)
-
-def load_conducted_by(pathname, search):
-    if pathname == '/peer_evaluation_responses/evaluation_summary':
-        parsed = urlparse(search)
-        evaluatee_id = parse_qs(parsed.query)['id'][0]
+def load_received_by(pathname, currentuserid):
+    if pathname == '/peer_evaluation_results':
+        evaluatee_id = currentuserid
 
         sql = """
             SELECT
@@ -636,9 +566,9 @@ def load_conducted_by(pathname, search):
 
 @app.callback(
     [   
-        Output('response_to_load', 'data'),
-        Output('summary_buttons_div', 'style'),
-        Output('back_button', 'style'),
+        Output('pr_response_to_load', 'data'),
+        Output('pr_summary_buttons_div', 'style'),
+        Output('pr_back_button', 'style'),
     ],
     [
         Input('url', 'pathname'),
@@ -648,9 +578,8 @@ def load_conducted_by(pathname, search):
     ]
 )
 def peereval_get_userid(pathname, search):
-    if pathname == '/peer_evaluation_responses/evaluation_summary':
-        parsed = urlparse(search)
-        create_mode = parse_qs(parsed.query)['mode'][0]
+    if pathname == '/peer_evaluation_results':
+        create_mode = 'view'
         if create_mode == 'edit':
             to_load = 1
             button_style = {'display': 'flex', 'justifyContent': 'flex-end'}
@@ -672,53 +601,52 @@ def peereval_get_userid(pathname, search):
 
 @app.callback(
     [
-        Output('name_input', 'value'),
-        Output('contributions_beginning', 'value'),
-        Output('contributions_progressing', 'value'),
-        Output('contributions_competent', 'value'),
-        Output('contributions_advanced', 'value'),
-        Output('contributions_weighted_average', 'value'),
-        Output('cooperation_beginning', 'value'),
-        Output('cooperation_progressing', 'value'),
-        Output('cooperation_competent', 'value'),
-        Output('cooperation_advanced', 'value'),
-        Output('cooperation_weighted_average', 'value'),
-        Output('focus_beginning', 'value'),
-        Output('focus_progressing', 'value'),
-        Output('focus_competent', 'value'),
-        Output('focus_advanced', 'value'),
-        Output('focus_weighted_average', 'value'),
-        Output('teamrole_beginning', 'value'),
-        Output('teamrole_progressing', 'value'),
-        Output('teamrole_competent', 'value'),
-        Output('teamrole_advanced', 'value'),
-        Output('teamrole_weighted_average', 'value'),
-        Output('communicate_beginning', 'value'),
-        Output('communicate_progressing', 'value'),
-        Output('communicate_competent', 'value'),
-        Output('communicate_advanced', 'value'),
-        Output('communicate_weighted_average', 'value'),
-        Output('completion_beginning', 'value'),
-        Output('completion_progressing', 'value'),
-        Output('completion_competent', 'value'),
-        Output('completion_advanced', 'value'),
-        Output('completion_weighted_average', 'value'),
-        Output('overall_weighted_average', 'value')
+        Output('pr_name_input', 'value'),
+        Output('pr_contributions_beginning', 'value'),
+        Output('pr_contributions_progressing', 'value'),
+        Output('pr_contributions_competent', 'value'),
+        Output('pr_contributions_advanced', 'value'),
+        Output('pr_contributions_weighted_average', 'value'),
+        Output('pr_cooperation_beginning', 'value'),
+        Output('pr_cooperation_progressing', 'value'),
+        Output('pr_cooperation_competent', 'value'),
+        Output('pr_cooperation_advanced', 'value'),
+        Output('pr_cooperation_weighted_average', 'value'),
+        Output('pr_focus_beginning', 'value'),
+        Output('pr_focus_progressing', 'value'),
+        Output('pr_focus_competent', 'value'),
+        Output('pr_focus_advanced', 'value'),
+        Output('pr_focus_weighted_average', 'value'),
+        Output('pr_teamrole_beginning', 'value'),
+        Output('pr_teamrole_progressing', 'value'),
+        Output('pr_teamrole_competent', 'value'),
+        Output('pr_teamrole_advanced', 'value'),
+        Output('pr_teamrole_weighted_average', 'value'),
+        Output('pr_communicate_beginning', 'value'),
+        Output('pr_communicate_progressing', 'value'),
+        Output('pr_communicate_competent', 'value'),
+        Output('pr_communicate_advanced', 'value'),
+        Output('pr_communicate_weighted_average', 'value'),
+        Output('pr_completion_beginning', 'value'),
+        Output('pr_completion_progressing', 'value'),
+        Output('pr_completion_competent', 'value'),
+        Output('pr_completion_advanced', 'value'),
+        Output('pr_completion_weighted_average', 'value'),
+        Output('pr_overall_weighted_average', 'value')
     ],
     [
-        Input('response_to_load', 'modified_timestamp')
+        Input('pr_response_to_load', 'modified_timestamp')
     ],
     [
-        State('response_to_load', 'data'),
-        State('url', 'search'),
+        State('pr_response_to_load', 'data'),
+        State('currentuserid', 'data'),
     ]
 )
-def peereval_load(timestamp, to_load, search):
+def peereval_load(timestamp, to_load, currentuserid):
     if not to_load:
         raise PreventUpdate
     if to_load:
-        parsed = urlparse(search)
-        evaluatee_id = parse_qs(parsed.query)['id'][0]
+        evaluatee_id = currentuserid
 
     # Run one query for all rubric_ids (1 to 6)
     sql = """
@@ -858,19 +786,20 @@ def peereval_load(timestamp, to_load, search):
 
 @app.callback(
     [
-        Output('period_input', 'value'),
-        Output('dates_conducted_input', 'value'),
-        Output('reviewers', 'value')
+        Output('pr_period_input', 'value'),
+        Output('pr_dates_conducted_input', 'value'),
+        Output('pr_reviewers', 'value')
     ],
     [
-        Input('response_to_load', 'modified_timestamp')
+        Input('pr_response_to_load', 'modified_timestamp')
     ],
     [
-        State('response_to_load', 'data'),
+        State('pr_response_to_load', 'data'),
         State('url', 'search'),
+        State('currentuserid', 'data')
     ]
 )
-def update_reviewers(timestamp, to_load, search):
+def update_reviewers(timestamp, to_load, search, currentuserid):
 
     default_style = {
         "background-color": "white",
@@ -882,19 +811,16 @@ def update_reviewers(timestamp, to_load, search):
         raise PreventUpdate
 
     if to_load:
-        parsed = urlparse(search)
-        evaluatee_id = parse_qs(parsed.query)['id'][0]
+        evaluatee_id = currentuserid
 
         # SQL query to get the distinct full names of evaluators who have evaluated the chosen evaluatee.
         sql = """
             SELECT DISTINCT 
-                CONCAT(u.user_fname, ' ', LEFT(u.user_mname, 1), '. ', u.user_sname, ' ', u.user_suffixname) AS full_name,
                 to_char(lower(period_details), 'Mon DD, YYYY') ||
                 ' to ' ||
                 to_char(upper(period_details) - INTERVAL '1 day', 'Mon DD, YYYY')
                 AS evaluation_period
             FROM director.peer_evaluations pe
-            JOIN maindashboard.users u ON pe.evaluator_id = u.user_id
             JOIN director.evaluation_periods ep on ep.period_id = pe.evaluation_period_id 
             WHERE pe.evaluatee_id = %s
             AND pe.peer_eval_delete_ind = FALSE
@@ -906,7 +832,7 @@ def update_reviewers(timestamp, to_load, search):
             );
         """
         values = [evaluatee_id]
-        cols = ['full_name', 'evaluation_period']
+        cols = ['evaluation_period']
         df = db.querydatafromdatabase(sql, values, cols)
 
         # If no evaluators are found, return an empty string.
@@ -919,38 +845,36 @@ def update_reviewers(timestamp, to_load, search):
             evaluation_period = df['evaluation_period'][0]
             dates_conducted = df['evaluation_period'][0]
             # Combine the distinct evaluator names into a single string, separated by commas.
-            evaluator_names = df['full_name'].unique().tolist()
-            reviewers_text = ", ".join(evaluator_names)   
+            reviewers_text = "Anonymous"
 
     
     return [evaluation_period, dates_conducted, reviewers_text]
 
 @app.callback(
     [
-        Output('remarks_contribution',   'value'),
-        Output('remarks_cooperation',    'value'),
-        Output('remarks_focus',          'value'),
-        Output('remarks_team_role',      'value'),
-        Output('remarks_communicate',    'value'),
-        Output('remarks_completion',     'value'),
+        Output('pr_remarks_contribution',   'value'),
+        Output('pr_remarks_cooperation',    'value'),
+        Output('pr_remarks_focus',          'value'),
+        Output('pr_remarks_team_role',      'value'),
+        Output('pr_remarks_communicate',    'value'),
+        Output('pr_remarks_completion',     'value'),
     ],
     [
-        Input('response_to_load', 'modified_timestamp')
+        Input('pr_response_to_load', 'modified_timestamp')
     ],
     [
-        State('response_to_load', 'data'),
-        State('url', 'search')
+        State('pr_response_to_load', 'data'),
+        State('url', 'search'),
+        State('currentuserid', 'data')
     ]
 )
-def update_remarks(timestamp, to_load, search):
+def update_remarks(timestamp, to_load, search, currentuserid):
     # only run after the store is set
     if not to_load:
         raise PreventUpdate
     if to_load:
         # extract evaluatee_id from URL
-        parsed = urlparse(search)
-        qs = parse_qs(parsed.query)
-        evaluatee_id = qs.get('id', [None])[0]
+        evaluatee_id = currentuserid
         if evaluatee_id is None:
             raise PreventUpdate
 
@@ -958,9 +882,7 @@ def update_remarks(timestamp, to_load, search):
         sql = """
             SELECT
                 ed.rubric_id,
-                ed.feedback,
-                CONCAT(u.user_fname, ' ', LEFT(u.user_mname,1), '. ', u.user_sname, ' ', u.user_suffixname)
-                AS evaluator_name
+                ed.feedback
             FROM director.peer_evaluations pe
             JOIN director.evaluation_details ed
             ON pe.evaluation_id = ed.evaluation_id
@@ -977,7 +899,7 @@ def update_remarks(timestamp, to_load, search):
             AND ed.feedback IS NOT NULL
             ORDER BY ed.rubric_id, pe.evaluation_date;
         """
-        df = db.querydatafromdatabase(sql, [evaluatee_id], ['rubric_id', 'feedback', 'evaluator_name'])
+        df = db.querydatafromdatabase(sql, [evaluatee_id], ['rubric_id', 'feedback'])
 
         # initialize empty lists for each rubric
         remarks_by_rubric = {i: [] for i in range(1,7)}
@@ -986,8 +908,7 @@ def update_remarks(timestamp, to_load, search):
         for _, row in df.iterrows():
             r = row['rubric_id']
             text = row['feedback'].strip()
-            name = row['evaluator_name'].strip()
-            remarks_by_rubric[r].append(f"{text} — {name}")
+            remarks_by_rubric[r].append(f"{text}")
 
         # join entries with single line breaks, default to empty string
         return [
@@ -1003,31 +924,32 @@ def update_remarks(timestamp, to_load, search):
 @app.callback(
     [
         # Check if all fields are filled
-        Output('response_summary_alert', 'is_open'),
-        Output('response_summary_alert', 'color'),
-        Output('response_summary_alert', 'children'),
-        Output('summary_initial_modal', 'is_open'),
-        Output('summary_last_modal', 'is_open'),
-        Output('opportunities_text', 'className'),
-        Output('conducted_by', 'className'),
-        Output('received_by', 'className'),
+        Output('pr_response_summary_alert', 'is_open'),
+        Output('pr_response_summary_alert', 'color'),
+        Output('pr_response_summary_alert', 'children'),
+        Output('pr_summary_initial_modal', 'is_open'),
+        Output('pr_summary_last_modal', 'is_open'),
+        Output('pr_opportunities_text', 'className'),
+        Output('pr_conducted_by', 'className'),
+        Output('pr_received_by', 'className'),
     ],
     [
-        Input('summary_save_button', 'n_clicks'),
-        Input('summary_initial_modal_cancel', 'n_clicks'),
-        Input('summary_initial_modal_confirm', 'n_clicks'),
+        Input('pr_summary_save_button', 'n_clicks'),
+        Input('pr_summary_initial_modal_cancel', 'n_clicks'),
+        Input('pr_summary_initial_modal_confirm', 'n_clicks'),
     ],
     [
         State('url', 'search'),
-        State('opportunities_text', 'value'),
-        State('conducted_by', 'value'),
-        State('conducted_date', 'date'),
-        State('received_by', 'value'),
-        State('received_date', 'date'),
+        State('pr_opportunities_text', 'value'),
+        State('pr_conducted_by', 'value'),
+        State('pr_conducted_date', 'date'),
+        State('pr_received_by', 'value'),
+        State('pr_received_date', 'date'),
+        State('currentuserid', 'data')
     ]
 )
 
-def save_opportunity_summary(save_button, cancel_button, confirm_button, search, opportunities_text, conducted_by, conducted_date, received_by, received_date):
+def save_opportunity_summary(save_button, cancel_button, confirm_button, search, opportunities_text, conducted_by, conducted_date, received_by, received_date, currentuserid):
 
     ctx = dash.callback_context
     
@@ -1037,8 +959,8 @@ def save_opportunity_summary(save_button, cancel_button, confirm_button, search,
     eventid = ctx.triggered[0]['prop_id'].split('.')[0]
 
     parsed = urlparse(search)
-    create_mode = parse_qs(parsed.query).get('mode', [None])[0]
-    evaluatee_user_id = parse_qs(parsed.query).get('id', [None])[0]
+    create_mode = 'view'
+    evaluatee_user_id = currentuserid
 
     opportunities_text_class = ''
     conducted_by_class = ''
@@ -1139,25 +1061,25 @@ def save_opportunity_summary(save_button, cancel_button, confirm_button, search,
 
 @app.callback(
     [
-        Output('opportunities_text', 'value'),
-        Output('conducted_by', 'value'),
-        Output('conducted_date', 'date'),
-        Output('received_by', 'value'),
-        Output('received_date', 'date'),
+        Output('pr_opportunities_text', 'value'),
+        Output('pr_conducted_by', 'value'),
+        Output('pr_conducted_date', 'date'),
+        Output('pr_received_by', 'value'),
+        Output('pr_received_date', 'date'),
     ],
     [
-        Input('response_to_load', 'modified_timestamp')
+        Input('pr_response_to_load', 'modified_timestamp')
     ],
     [
-        State('response_to_load', 'data'),
+        State('pr_response_to_load', 'data'),
         State('url', 'search'),
+        State('currentuserid', 'data')
     ]
 )
 
-def load_summary(timestamp, to_load, search):
+def load_summary(timestamp, to_load, search, currentuserid):
     if to_load:
-        parsed = urlparse(search)
-        evaluatee_id = parse_qs(parsed.query)['id'][0]
+        evaluatee_id = currentuserid
 
         sql = """
             SELECT summary_text, summary_conducted_by, summary_conducted_date, summary_received_by, summary_received_date
@@ -1192,56 +1114,18 @@ def load_summary(timestamp, to_load, search):
     
     return [summary_text, conducted_by, conducted_date, received_by, received_date]
 
-@app.callback(
-    [ 
-        Output('opportunities_text', 'disabled'),
-        Output('conducted_by', 'disabled'),
-        Output('conducted_date', 'disabled'),
-        Output('received_by', 'disabled'),
-        Output('received_date', 'disabled'),
-        Output('conducted_by', 'style'),
-        Output('received_by', 'style'),
-        Output('edit_btn', 'style')
-    ],
-    [
-        Input('url', 'search')
-    ]
-)
-def addexpense_inputs_disabled(search):
-    enabled_style = {
-        "background-color": "white",
-        "color": "black",
-        "opacity": "1",
-    }
-    default_style = {
-        "background-color": 'rgba(0,0,0,0)',
-        "color": "black",
-        "opacity": "1",
-    }
-    if search:
-        parsed = urlparse(search)
-        create_mode = parse_qs(parsed.query).get('mode', [None])[0]
-        if create_mode == 'edit':
-            return [False, False, False, False, False, enabled_style, enabled_style, {'display': 'none'}] 
-        elif create_mode == 'view':
-            return [True, True, True, True, True, default_style, default_style, {'display': 'flex'}] 
-        
-    return [True, True, True, True, True, default_style, default_style, {'display': 'flex'}]
-
-
 
 @app.callback(
-    Output("download_style_div", "style"),
+    Output("pr_download_style_div", "style"),
     Input('url', 'pathname'),
-    State('url', 'search'),
+    State('currentuserid', 'data')
 )
-def evaluation_summary_downloadbutton(pathname, search):
+def evaluation_summary_downloadbutton(pathname, currentuserid):
 
     download_button_style = {'display': 'none'}
 
-    if pathname == '/peer_evaluation_responses/evaluation_summary':
-        parsed = urlparse(search)
-        id_evaluatee = parse_qs(parsed.query)['id'][0]
+    if pathname == '/peer_evaluation_results':
+        id_evaluatee = currentuserid
         id_final = int(id_evaluatee)
 
         if not id_evaluatee:
@@ -1272,15 +1156,15 @@ def evaluation_summary_downloadbutton(pathname, search):
 
 
 @app.callback(
-    Output("pdf-download", "data"),
-    Input("download_pdf_btn", "n_clicks"),
-    State("url", "search"),
+    Output("pr_pdf-download", "data"),
+    Input("pr_download_pdf_btn", "n_clicks"),
+    [State("url", "search"),
+     State('currentuserid', 'data')],
     prevent_initial_call=True,
 )
 
-def serve_pdf(n_clicks, search):
-    parsed = urlparse(search)
-    eval_id = parse_qs(parsed.query)['id'][0]
+def serve_pdf(n_clicks, search, currentuserid):
+    eval_id = currentuserid
     final_id = int(eval_id)
 
     if not eval_id:
