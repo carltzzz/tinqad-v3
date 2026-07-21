@@ -141,6 +141,12 @@
     background-color:rgba(77, 186, 158, 0.25);
     color:#038b68}
 
+.VirtualizedSelectOption {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
 .VirtualizedSelectOption:focus,
 .VirtualizedSelectOption:hover,
 .VirtualizedSelectOption:active{
@@ -157,4 +163,18 @@
 .nav-link:hover,
 .nav-link.active {
     background-color: #FEE8C6; 
+}
+
+* {
+    font-family: Arial, "Trebuchet MS", Tahoma, Verdana, sans-serif;
+}
+
+.team-card-link {
+    text-decoration: none;
+    color: inherit;
+}
+
+.team-card-link:hover {
+    text-decoration: underline;
+    text-decoration-color: #000000;
 }

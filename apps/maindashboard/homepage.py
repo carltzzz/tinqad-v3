@@ -4,6 +4,7 @@ from dash import dash, html, dcc, Input, Output, State
 from dash.dependencies import MATCH
 from dash.exceptions import PreventUpdate
 import pandas as pd
+from flask import session
 
 from apps import commonmodules as cm
 from app import app
@@ -63,11 +64,11 @@ team_messages_content = html.Div(
                 dbc.Row(
                     [
                         dbc.Col(
-                            dbc.Button("Post", id="teammsgspost_button", color="success", className="mt-2"),
+                            dbc.Button("Post", id="teammsgspost_button", className="border-0 mt-2 rounded-0", color="success", outline='True',),
                             width="auto",
                         ),
                         dbc.Col(
-                            dbc.Button("Cancel", id="teammsgscancel_button", color="warning", className="mt-2"),
+                            dbc.Button("Cancel", id="teammsgscancel_button", className="border-0 mt-2 rounded-0", color="danger", outline='True',),
                             width="auto",
                         ),
                     ],
@@ -85,8 +86,9 @@ team_messages_footer = html.Div(
         dbc.Button(
             "Add Message",
             id="teammsgs_footer_button",
-            className="mt-2",
-            color="success",
+            className="border-0 rounded-0",
+            color="primary",
+            outline='True',
             n_clicks = 0
         ),
     ],
@@ -127,11 +129,11 @@ announcement_content = html.Div(
                 dbc.Row(
                     [
                         dbc.Col(
-                            dbc.Button("Post", id="anmsgspost_button", color="primary", className="mt-2"),
+                            dbc.Button("Post", id="anmsgspost_button", className="border-0 mt-2 rounded-0", color="success", outline='True',),
                             width="auto",
                         ),
                         dbc.Col(
-                            dbc.Button("Cancel", id="anmsgscancel_button", color="secondary", className="mt-2"),
+                            dbc.Button("Cancel", id="anmsgscancel_button", className="border-0 mt-2 rounded-0", color="danger", outline='True',),
                             width="auto",
                         ),
                     ],
@@ -149,8 +151,9 @@ announcement_footer = html.Div(
         dbc.Button(
             "Add Message",
             id="anmsgs_footer_button",
-            className="mt-2",
-            color="success",
+            className="border-0 rounded-0",
+            color="primary",
+            outline='True',
             n_clicks = 0
         ),
     ],
@@ -169,6 +172,9 @@ announcement_footer = html.Div(
     ],
 )
 def fetch_announcements(pathname, trigger_add, trigger_del, current_user_id):
+    sess_uid = session.get('user_id')
+    if sess_uid is None:
+        raise PreventUpdate
     if pathname != "/homepage":
         raise PreventUpdate
 
@@ -216,7 +222,7 @@ def fetch_announcements(pathname, trigger_add, trigger_del, current_user_id):
                     html.Span(
                         "delete",
                         id={'type': 'an-delete-link', 'index': aid},
-                        style={"cursor": "pointer", "fontWeight": "bold", "color": "#ff4d4d"}
+                        style={"cursor": "pointer", "fontWeight": "", "color": "#ff4d4d"}
                     ),
                 ],
                 style={
@@ -264,6 +270,9 @@ def handle_team_message(
     footer_clicks, edit_clicks, cancel_clicks, post_clicks,
     header, content, user_id, edit_id, trigger_count
 ):
+    sess_uid = session.get('user_id')
+    if sess_uid is None:
+        raise PreventUpdate
     ctx = callback_context
     if not ctx.triggered:
         raise PreventUpdate
@@ -572,15 +581,18 @@ layout = html.Div(
                             [
                                 dbc.Alert(id = 'greeting_alert', color = 'dark'),
                                 dbc.Alert(id="new_homeannouncement_alert", is_open=False, duration=3000, color="info"),
-                            ]
-                        )
+                            ],
+                            className="m-0 p-0"
+                        ),
+                        className="mb-1"
                     ),
-                    html.Br(),
+                    #  html.Br(),
 
                     dbc.Row(
                         dbc.Col(
                             card, width=12
-                        )
+                        ),
+                        className="mt-0"
                     ),
                     html.Br(),
 
@@ -597,7 +609,7 @@ layout = html.Div(
                                                         dbc.Col(html.Img(src=app.get_asset_url("icons/admin_icon.png"), style={"height": "100px"})),
                                                         dbc.Col(
                                                             [
-                                                                html.Div(style={'background-color': '#31356E', 'width': '100%', 'height': '20px'}),  # Rectangle
+                                                                # html.Div(style={'background-color': '#31356E', 'width': '100%', 'height': '20px'}),  # Rectangle
                                                                 html.H5("Administration Team", className="card-title fw-bold text-dark", style={"text-align": "right",'text-decoration': 'none'})
                                                             ]
                                                         )
@@ -609,7 +621,8 @@ layout = html.Div(
                                         className="mb-3",
                                         style={"backgroundColor": "#FFFFFF"}
                                     ),
-                                    href='/administration_dashboard'
+                                    href='/administration_dashboard',
+                                    className="team-card-link"
                                     ),
                                     width={"size": 6, "md": 12, "sm": 12},
                                 ),
@@ -623,7 +636,7 @@ layout = html.Div(
                                                         dbc.Col(html.Img(src=app.get_asset_url("icons/eqa_icon.png"), style={"height": "100px"})),
                                                         dbc.Col(
                                                             [
-                                                                html.Div(style={'background-color': '#F8B237', 'width': '100%', 'height': '20px'}),  # Rectangle
+                                                                #  html.Div(style={'background-color': '#F8B237', 'width': '100%', 'height': '20px'}),  # Rectangle
                                                                 html.H5("External Quality Assurance Team", className="card-title fw-bold text-dark", style={"text-align": "right",'text-decoration': 'none'})
                                                             ]
                                                         )
@@ -635,7 +648,8 @@ layout = html.Div(
                                         className="mb-3",
                                         style={"backgroundColor": "#FFFFFF"}
                                     ),
-                                    href='/eqa_dashboard'
+                                    href='/eqa_dashboard',
+                                    className="team-card-link"
                                     ),
                                     width={"size": 6, "md": 12, "sm": 12},
                                 ),
@@ -654,7 +668,7 @@ layout = html.Div(
                                                         dbc.Col(html.Img(src=app.get_asset_url("icons/iqa_icon.png"), style={"height": "100px"})),
                                                         dbc.Col(
                                                             [
-                                                                html.Div(style={'background-color': '#D37157', 'width': '100%', 'height': '20px'}),  # Rectangle
+                                                                # html.Div(style={'background-color': '#D37157', 'width': '100%', 'height': '20px'}),  # Rectangle
                                                                 html.H5("Internal Quality Assurance Team", className="card-title fw-bold text-dark", style={"text-align": "right",'text-decoration': 'none'})
                                                             ]
                                                         )
@@ -666,7 +680,8 @@ layout = html.Div(
                                         className="mb-3",
                                         style={"backgroundColor": "#FFFFFF"}
                                     ),
-                                    href='/iqa_dashboard'
+                                    href='/iqa_dashboard',
+                                    className="team-card-link"
                                     ),
                                     width={"size": 6, "md": 12, "sm": 12},
                                 ),
@@ -680,7 +695,7 @@ layout = html.Div(
                                                         dbc.Col(html.Img(src=app.get_asset_url("icons/km_icon.png"), style={"height": "100px"})),
                                                         dbc.Col(
                                                             [
-                                                                html.Div(style={'background-color': '#39B54A', 'width': '100%', 'height': '20px'}),  # Rectangle
+                                                                # html.Div(style={'background-color': '#39B54A', 'width': '100%', 'height': '20px'}),  # Rectangle
                                                                 html.H5("Knowledge Management Team", className="card-title fw-bold text-dark", style={"text-align": "right",'text-decoration': 'none'})
                                                             ]
                                                         )
@@ -692,7 +707,8 @@ layout = html.Div(
                                         className="mb-3",
                                         style={"backgroundColor": "#FFFFFF"}
                                     ),
-                                    href='/km_dashboard'
+                                    href='/km_dashboard',
+                                    className="team-card-link"
                                     ),
                                     width={"size": 6, "md": 12, "sm": 12},
                                 ),
@@ -750,11 +766,11 @@ layout = html.Div(
                 ),
                 dbc.Modal(
                     [
-                        dbc.ModalHeader(html.H3("Confirm deletion"), className="bg-primary"),
+                        dbc.ModalHeader(html.H5("Confirm deletion", className="fw-bold"), className=""),
                         dbc.ModalBody(html.H5("Are you sure you want to delete this message? This action cannot be undone.")),
                         dbc.ModalFooter([
-                            dbc.Button("Cancel", id="delete-cancel", color="secondary", className="me-2"),
-                            dbc.Button("Delete", id="delete-confirm", color="danger")
+                            dbc.Button("Cancel", id="delete-cancel", className="border-0 rounded-0", color="secondary", outline='True',),
+                            dbc.Button("Delete", id="delete-confirm", className="border-0 rounded-0", color="danger", outline='True',)
                         ]),
                     ],
                     id="delete-modal",
@@ -763,11 +779,11 @@ layout = html.Div(
                 ),
                 dbc.Modal(
                     [
-                        dbc.ModalHeader(html.H3("Confirm deletion"), className="bg-primary"),
+                        dbc.ModalHeader(html.H5("Confirm deletion", className="fw-bold"), className=""),
                         dbc.ModalBody(html.H5("Are you sure you want to delete this announcement?")),
                         dbc.ModalFooter([
-                            dbc.Button("Cancel", id="an-delete-cancel", color="secondary", className="me-2"),
-                            dbc.Button("Delete", id="an-delete-confirm", color="danger")
+                            dbc.Button("Cancel", id="an-delete-cancel", className="border-0 rounded-0", color="secondary", outline='True'),
+                            dbc.Button("Delete", id="an-delete-confirm", className="border-0 rounded-0", color="danger", outline='True')
                         ]),
                     ],
                     id="an-delete-modal",
@@ -823,23 +839,23 @@ def generate_greeting(pathname, user_id):
         
         if df.empty or (df.isnull().all().all()) or (df['livedname'].str.strip().eq("").all() and df['fname'].str.strip().eq("").all()):
             text = html.H5(html.B("?? Welcome!"))
-            color = '#F9B236'  # Set default color
+            # color = '#F9B236'  # Set default color
         else:
             name = df['livedname'][0] if df['livedname'][0] else df['fname'][0]
             time = datetime.now(pytz.timezone('Asia/Manila')).hour
 
             if time >= 0 and time < 12:
                 text = html.H5(html.B("Good morning, %s!" % name))
-                color = '#F9B236'    
+                #color = '#8a1538'    
             elif time >= 12 and time < 18:
                 text = html.H5(html.B("Good afternoon, %s!" % name))
-                color = '#D37157'
+                #color = '#D37157'
             elif time >= 18 and time < 22:
                 text = html.H5(html.B("Good evening, %s!" % name))
-                color = '#A09DCB'
+                #color = '#A09DCB'
             else:
                 text = html.H5(html.B("Good night, %s!" % name))
-                color = '#7EADE4'
+                #color = '#7EADE4'
 
         return [text, color]
     else: 
@@ -875,6 +891,9 @@ def update_time_date(n):
      Input("currentuserid", "data")]  
 )
 def fetch_team_messages(pathname, delete_trigger, added_trigger, current_user_id):
+    sess_uid = session.get('user_id')
+    if sess_uid is None:
+        raise PreventUpdate
     if pathname != "/homepage":
         raise PreventUpdate
 
@@ -916,7 +935,7 @@ def fetch_team_messages(pathname, delete_trigger, added_trigger, current_user_id
                         html.Span(
                             "delete",
                             id={'type': 'delete-link', 'index': mid},
-                            style={"cursor": "pointer", "fontWeight": "bold", "color": "#ff4d4d"}
+                            style={"cursor": "pointer", "fontWeight": "", "color": "#ff4d4d"}
                         ),
                     ],
                     style={
@@ -1011,6 +1030,9 @@ def handle_team_message(
     footer_clicks, edit_clicks, cancel_clicks, post_clicks,
     content, user_id, edit_id, trigger_count
 ):
+    sess_uid = session.get('user_id')
+    if sess_uid is None:
+        raise PreventUpdate
     ctx = callback_context
     if not ctx.triggered:
         raise PreventUpdate

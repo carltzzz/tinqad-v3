@@ -1,29 +1,21 @@
+import os
 import psycopg2
 import pandas as pd 
 
-# def getdblocation():
-#     db = psycopg2.connect(
-#         host='10.206.100.41',
-#         database='tinquaddb',
-#         user='qaotinqad',
-#         port=5432,
-#         password='qaotinqad123'
-#     )
+import hashlib
 
-#     return db
+from apps.extensions import bcrypt
 
 def getdblocation():
     db = psycopg2.connect(
-        host='localhost',
-        database='TINQAD_Database',
-        user='postgres',
-        port=5433,
-        password='postgres'
+        host=os.environ['DB_HOST'],
+        database=os.environ['DB_NAME'],
+        user=os.environ['DB_USER'],
+        port=os.environ['DB_PORT'],
+        password=os.environ['DB_PASSWORD']
     )
 
     return db
-
-print(getdblocation())
 
 
  
@@ -319,34 +311,55 @@ def verify_password(user_id, password):
         conn = getdblocation()
         cursor = conn.cursor()
 
-        query = """
-            SELECT user_id
-            FROM maindashboard.users 
-            WHERE user_id = %s AND user_password = %s
-        """
-        cursor.execute(query, (user_id, password))
+        # query = """
+        #     SELECT user_id
+        #     FROM maindashboard.users 
+        #     WHERE user_id = %s AND user_password = %s
+        # """
+        cursor.execute(
+            "SELECT user_password FROM maindashboard.users WHERE user_id = %s",
+            (int(user_id),)
+        )
         result = cursor.fetchone()
 
         cursor.close()
         conn.close()
 
-        return result is not None
+        if result is None:
+            return False
+        
+        stored_hash = result[0]
+
+        input_hash = hashlib.sha256(password.encode('utf-8')).hexdigest()
+
+        return bcrypt.check_password_hash(stored_hash, input_hash)
 
     except psycopg2.Error as e:
         print("Error verifying password:", e)
         return False
+
+# to hash new password before storing 
+def hash_new_password(password):
+    input_hash = hashlib.sha256(password.encode('utf-8')).hexdigest()
+    return bcrypt.generate_password_hash(input_hash).decode('utf-8')
 
 def update_password(user_id, new_password):
     try:
         conn = getdblocation()
         cursor = conn.cursor()
 
-        query = """
-            UPDATE maindashboard.users
-            SET user_password = %s
-            WHERE user_id = %s
-        """
-        cursor.execute(query, (new_password, user_id))
+        # query = """
+        #     UPDATE maindashboard.users
+        #     SET user_password = %s
+        #     WHERE user_id = %s
+        # """
+        input_hash = hashlib.sha256(new_password.encode('utf-8')).hexdigest()
+        new_hash = bcrypt.generate_password_hash(input_hash).decode('utf-8')
+
+        cursor.execute(
+            "UPDATE maindashboard.users SET user_password = %s WHERE user_id = %s",
+            (new_hash, int(user_id))
+        )
         conn.commit()
 
         cursor.close()

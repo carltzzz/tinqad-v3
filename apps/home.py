@@ -1,10 +1,9 @@
-import hashlib
-
 import dash
 from dash import callback_context, dcc, html
 import dash_bootstrap_components as dbc
 from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
+from flask import session
 
 from app import app
 from apps import dbconnect as db
@@ -16,11 +15,6 @@ layout = dbc.Row(
                 [
                     html.Div(
                         [
-                            dcc.Store(id='user_id_store', storage_type='session', data=0),
-                        ]
-                    ),
-                    html.Div(
-                        [
                             html.Img(
                                 src=app.get_asset_url('icons/qao-logo-block.png'),
                                 style={
@@ -29,7 +23,7 @@ layout = dbc.Row(
                                     'display': 'block'  # Display as block element
                                 },
                             ),
-                            html.H5("Total Integrated Network for Quality Assurance and Development", className="fw-bolder text-center"),
+                            html.H5("Total Integrated Network for Quality Assurance and Development", className="fw-bolder text-center fs-4"),
                             html.P("Copyright (c) 2024. Quality Assurance Office, University of the Philippines", className="text-center"),
                             dbc.Row(
                                 [
@@ -229,27 +223,41 @@ def loginprocess(loginbtn, useremail, password, currentuserid, pathname):
                     username_class = 'red-border' if not useremail else 'form-control'
                     password_class = 'red-border' if not password else 'form-control'
                 else:
+                    # CASE: deleted accounts could still be used to log in
                     sql = """
                     SELECT user_id, user_access_type
                     FROM maindashboard.users
                     WHERE
                         user_email = %s AND
-                        user_password = %s
+                        user_del_ind = False AND
+                        user_acc_status = 1
                     """
                                 
-                    encrypt_string = lambda string: hashlib.sha256(string.encode('utf-8')).hexdigest()
-                    values = [useremail, encrypt_string(password)]
+                    values = [useremail]
                     cols = ['user_id', 'user_access_type']
 
-                    # Assuming db.querydatafromdatabase returns a DataFrame
                     df = db.querydatafromdatabase(sql, values, cols)
                     if df.shape[0]:
-                        currentuserid = df['user_id'][0]
-                        accesstype = df['user_access_type'][0] 
-                        pathname = '/homepage'
+                        user_id = df['user_id'][0]
+                        if db.verify_password(user_id, password):
+                            currentuserid = user_id
+                            accesstype = df['user_access_type'][0]
+                            session['user_id'] = int(user_id)
+                            session['access_type'] = int(accesstype)
+                            pathname = '/homepage'
+                        else:
+                            currentuserid = -1
+                            accesstype = 0
+                            session.pop('user_id', None)
+                            session.pop('access_type', None)
+                            alert_color = 'danger'
+                            alert_text = 'Incorrect username or password.'
+                            alert_open = True
                     else:
                         currentuserid = -1
                         accesstype = 0
+                        session.pop('user_id', None)
+                        session.pop('access_type', None)
                         alert_color = 'danger'
                         alert_text = 'Incorrect username or password.'
                         alert_open = True

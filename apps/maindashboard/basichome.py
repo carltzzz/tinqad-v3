@@ -4,6 +4,7 @@ from dash import html, dcc, Input, Output, State, callback_context
 import dash
 from dash.exceptions import PreventUpdate
 import pandas as pd
+from flask import session
 
 from apps import commonmodules as cm
 from app import app
@@ -215,6 +216,9 @@ def toggle_announcement_form(footer_clicks, cancel_clicks, current_style):
 )
 
 def insert_announcement(n_clicks, n_dismiss, replies_header, replies_content, current_userid):
+    sess_uid = session.get('user_id')
+    if sess_uid is None:
+        raise PreventUpdate
     ctx = callback_context
     if not ctx.triggered:
         raise PreventUpdate
@@ -326,7 +330,7 @@ layout = html.Div(
                 cm.sidebar,
                 dbc.Col(
                     [
-                        html.H1(html.B("👋 Welcome!")), 
+                        html.H1(html.B("Welcome!")), 
                         html.Br(), 
                         dbc.Alert(
                                 id="basic_kmann_alert", 
