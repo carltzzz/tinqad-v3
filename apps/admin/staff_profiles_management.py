@@ -232,7 +232,7 @@ main_dashboard = dbc.Container(
                                         dcc.Input(
                                             id="date_of_birth",
                                             disabled = True,
-                                            type="date",
+                                            type="text",
                                             placeholder="",
                                             className="mb-2",
                                             style={"width": "100%"}
@@ -1574,7 +1574,7 @@ main_dashboard = dbc.Container(
 @app.callback(
     Output("staff_image_output", "children"),
     [Input("staff_image", "filename"),
-     Input("url", "search")]
+     State("url", "search")]
 )
 def display_staff_image(filenames, search):
     if not filenames:
@@ -1607,7 +1607,7 @@ def display_staff_image(filenames, search):
 @app.callback(
     Output("govt_id_photo_output", "children"),
     [Input("govt_id_photo", "filename"),
-     Input('url', 'search'),]
+     State('url', 'search'),]
 )
 def display_govt_id_photo_file(filenames, search):
     if not filenames:
@@ -1641,7 +1641,7 @@ def display_govt_id_photo_file(filenames, search):
 @app.callback(
     Output("landbank_photo_output", "children"),
     [Input("landbank_photo", "filename"),
-     Input('url', 'search'),]
+     State('url', 'search'),]
 )
 def display_landbank_photo_file(filenames, search):
     if not filenames:
@@ -1674,7 +1674,7 @@ def display_landbank_photo_file(filenames, search):
 @app.callback(
     Output("ob_w_admin_output", "children"),
     [Input("ob_w_admin", "filename"),
-     Input('url', 'search'),]
+     State('url', 'search'),]
 )
 def display_ob_w_admin_file(filenames, search):
     if not filenames:
@@ -1707,7 +1707,7 @@ def display_ob_w_admin_file(filenames, search):
 @app.callback(
     Output("ob_w_home_team_output", "children"),
     [Input("ob_w_home_team", "filename"),
-     Input('url', 'search'),]
+     State('url', 'search'),]
 )
 def display_ob_w_home_team_file(filenames, search):
     if not filenames:
@@ -1739,7 +1739,7 @@ def display_ob_w_home_team_file(filenames, search):
 @app.callback(
     Output("gender_sensitivity_training_output", "children"),
     [Input("gender_sensitivity_training", "filename"),
-     Input('url', 'search'),]
+     State('url', 'search'),]
 )
 def display_gender_sensitivity_training_file(filenames, search):
     if not filenames:
@@ -1771,7 +1771,7 @@ def display_gender_sensitivity_training_file(filenames, search):
 @app.callback(
     Output("gender_dev_training_output", "children"),
     [Input("gender_dev_training", "filename"),
-     Input('url', 'search'),]
+     State('url', 'search'),]
 )
 def display_gender_dev_training_file(filenames, search):
     if not filenames:
@@ -1803,7 +1803,7 @@ def display_gender_dev_training_file(filenames, search):
 @app.callback(
     Output("open_up_fcisdg_output", "children"),
     [Input("open_up_fcisdg", "filename"),
-     Input('url', 'search'),]
+     State('url', 'search'),]
 )
 def display_open_up_fcisdg_file(filenames, search):
     if not filenames:
@@ -1835,7 +1835,7 @@ def display_open_up_fcisdg_file(filenames, search):
 @app.callback(
     Output("open_up_ppi_output", "children"),
     [Input("open_up_ppi", "filename"),
-     Input('url', 'search'),]
+     State('url', 'search'),]
 )
 def display_open_up_ppi_file(filenames, search):
     if not filenames:
@@ -1867,7 +1867,7 @@ def display_open_up_ppi_file(filenames, search):
 @app.callback(
     Output("open_up_iwsh_output", "children"),
     [Input("open_up_iwsh", "filename"),
-     Input('url', 'search'),]
+     State('url', 'search'),]
 )
 def display_open_up_iwsh_file(filenames, search):
     if not filenames:
@@ -1900,7 +1900,7 @@ def display_open_up_iwsh_file(filenames, search):
 @app.callback(
     Output("open_up_ashp_output", "children"),
     [Input("open_up_ashp", "filename"),
-     Input('url', 'search'),]
+     State('url', 'search'),]
 )
 def display_open_up_ashp_file(filenames, search):
     if not filenames:
@@ -1932,7 +1932,7 @@ def display_open_up_ashp_file(filenames, search):
 @app.callback(
     Output("others_orientation_trainings_output", "children"),
     [Input("others_orientation_trainings", "filename"),
-     Input('url', 'search'),]
+     State('url', 'search'),]
 )
 def display_others_orientation_trainings_file(filenames, search):
     if not filenames:
@@ -1964,7 +1964,7 @@ def display_others_orientation_trainings_file(filenames, search):
 @app.callback(
     Output("upload_resume_file_output", "children"),
     [Input("upload_resume_file", "filename"),
-     Input('url', 'search'),]
+     State('url', 'search'),]
 )
 def display_upload_resume_file(filenames, search):
     if not filenames:
@@ -2139,14 +2139,17 @@ layout = html.Div(
 @app.callback(
     Output('degree_count', 'data'),
     [
-        Input('url', 'pathname'),
-        Input('url', 'search'),
+        Input('to_load', 'modified_timestamp'),
         Input('add_degree_button', 'n_clicks'),
         Input('remove_degree_button', 'n_clicks'),
     ],
-    State('degree_count', 'data'),
+    [
+        State('url', 'pathname'),
+        State('url', 'search'),
+        State('degree_count', 'data'),
+    ],
 )
-def update_degree_count(pathname, search, add_clicks, remove_clicks, current_count):
+def update_degree_count(to_load_ts, add_clicks, remove_clicks, pathname, search, current_count):
     # Determine who triggered us
     trigger = callback_context.triggered_id
 
@@ -3789,9 +3792,10 @@ def set_country_value(barangay_options, loaded_barangay):
         Output('orientation_checklist', 'style'),
         Output('resume_info', 'style'),
     ],
-    [Input('url', 'search')]
+    [Input('to_load', 'modified_timestamp')],
+    [State('url', 'search')]
 )
-def staff_profile_disabled(search):
+def staff_profile_disabled(to_load_ts, search):
 
     editable_disabled_style = {
         "background-color": "white",
@@ -3831,10 +3835,11 @@ def staff_profile_disabled(search):
     [
         Input('staff_image', 'contents'),
         Input('staff_image', 'filename'),
-        Input('url', 'search'),
-    ]
+        Input('to_load', 'modified_timestamp'),
+    ],
+    [State('url', 'search')]
 )
-def update_image_preview(contents, filename, search):
+def update_image_preview(contents, filename, to_load_ts, search):
     # 1) New upload: show instantly
     if contents:
         # If list, pick first

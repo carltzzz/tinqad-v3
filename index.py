@@ -42,8 +42,8 @@ server = app.server
 SHARED_ROUTES = {
     '/profile': user_profile.layout,
     '/About_TINQAD': about_TINQAD.layout,
-    '/training_instructions': training_instructions.layout,
-    '/training_documents': training_documents.layout,
+    # '/training_instructions': training_instructions.layout,
+    # '/training_documents': training_documents.layout,
     '/km_dashboard': km_dashboard.layout,
     '/sdglist': sdglist.layout,
     '/sdglist/sdg1submission': sdg_form_1.layout,
@@ -75,11 +75,13 @@ ELEVATED_ROUTES = {
     '/record_expenses/add_expense': add_expenses.layout,
     '/expense_list': viewexpense_list.layout,
     '/expense_list/add_expensetype': expensetype_add.layout,
-    '/instructions': instructions.layout,
-    '/training_record': training_record.layout,
-    '/training_record/mode=view': viewtraining_list.layout,
+    # '/instructions': instructions.layout,
+    # '/training_record': training_record.layout,
+    # '/training_record/mode=view': viewtraining_list.layout,
     '/inventory_tracker': inventory_tracker.layout,
     '/inventory_tracker_management': add_inventory.layout,
+    '/staff_profiles': staff_profiles.layout,
+    '/staff_profiles_management': staff_profiles_management.layout,
     '/peer_evaluation_landing': peer_evaluation_landing.main_layout,
     '/peer_evaluation_form_entry': peer_evaluation_form_entry.main_layout,
     '/iqa_dashboard': iqa_dashboard.layout,
@@ -127,8 +129,6 @@ ELEVATED_ROUTES = {
 
 # requires exact minimum role: {pathname: (min_role, layout)}
 ROLE_RESTRICTED = {
-    '/staff_profiles': (3, staff_profiles.layout),
-    '/staff_profiles_management': (3, staff_profiles_management.layout),
     '/director_dashboard': (2, director_dashboard.layout),
     '/peer_evaluation_settings': (2, peer_evaluation_settings.layout),
     '/peer_evaluation_settings/peer_evaluation_forms': (2, peer_evaluation_form.layout),

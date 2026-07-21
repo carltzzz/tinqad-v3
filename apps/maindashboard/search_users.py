@@ -119,9 +119,9 @@ def searchusers_loaduserlist(pathname, searchterm):
             for user_id in df['ID']:
                 buttons.append(
                     html.Div(
-                        dbc.Button('Edit',
-                                   href=f'register_user?mode=edit&id={user_id}',
-                                   size='sm', color='warning'),
+                        dbc.Button('Open',
+                                   href=f'register_user?mode=view&id={user_id}',
+                                   size='sm', color='primary'),
                         style={'text-align': 'center'}
                     )
                 )
