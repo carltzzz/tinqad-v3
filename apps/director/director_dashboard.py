@@ -20,6 +20,7 @@ def get_total_checked():
         SELECT COUNT(*)
         FROM maindashboard.users u
         WHERE u.user_office = 1
+        AND u.user_del_ind = false
         AND u.user_id IN (
             SELECT es.summary_evaluatee_id
             FROM director.evaluation_summaries es
@@ -40,6 +41,7 @@ def get_total_ongoing():
         SELECT COUNT(*)
         FROM maindashboard.users u
         WHERE u.user_office = 1
+        AND u.user_del_ind = false
         AND u.user_id IN (
             SELECT es.summary_evaluatee_id
             FROM director.evaluation_summaries es
@@ -60,6 +62,7 @@ def get_total_unchecked():
         SELECT COUNT(*)
         FROM maindashboard.users u
         WHERE u.user_office = 1
+        AND u.user_del_ind = false
         AND u.user_id NOT IN (
             SELECT es.summary_evaluatee_id
             FROM director.evaluation_summaries es

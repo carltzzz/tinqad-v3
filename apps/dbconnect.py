@@ -303,7 +303,14 @@ def get_office_info(office_id):
     db.close()
     return office_name
 
-
+def get_pob_info(pob_id):
+    db = getdblocation()
+    cursor = db.cursor()
+    # cursor.execute("SELECT municipality_name FROM public.municipalities WHERE municipality_id = %s", (pob_id,))
+    cursor.execute("SELECT CONCAT(mun.municipality_name, ', ', prov.province_name )as label, mun.municipality_id  as value FROM public.municipalities AS mun INNER JOIN public.provinces AS prov ON mun.province_id=prov.province_id WHERE mun.municipality_id = %s", (pob_id,))
+    row = cursor.fetchone()
+    db.close()
+    return row[0] if row else str(pob_id) if pob_id else ''
 
 
 def verify_password(user_id, password):

@@ -34,6 +34,13 @@ peer_evaluation_form = dbc.Container([
     ),
     dbc.Row(
         dbc.Col(
+            html.Div(id="entry_period"),
+            style={'color': highlight_colors['primary'], 'textAlign': 'center', 'marginTop': '20px'},
+            width=12
+        )
+    ),
+    dbc.Row(
+        dbc.Col(
             html.P(
                 "Peer Evaluation gives feedback on each other's work, another group's work, or, if working in a group, "
                 "other group-members' contribution to a project. It is part of an employee's development process. This peer "
@@ -411,6 +418,32 @@ allowed_layout = html.Div(
         ), 
     ], 
 )
+
+@app.callback(
+        Output('entry_period', 'children'),
+        Input('url', 'pathname')
+)
+#Retrieve current period
+def get_period(pathname):
+    sql_period = """
+        SELECT
+        'From ' ||
+            to_char(lower(period_details), 'Mon DD, YYYY') ||
+            ' to ' ||
+            to_char(upper(period_details) - INTERVAL '1 day', 'Mon DD, YYYY')
+            AS label,
+            period_id   AS value
+        FROM director.evaluation_periods
+        WHERE active_status = TRUE
+        AND period_del_ind = FALSE
+
+    """
+    period_df = db.querydatafromdatabase(sql_period, [], ['EvalPeriod', 'value'])
+    if period_df.shape[0] > 0 :
+        period_label = period_df['EvalPeriod'][0]
+    else:
+        period_label = "No Evaluation Period selected."
+    return html.Div(html.H3(period_label))
 
 @app.callback(
     [

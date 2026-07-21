@@ -42,6 +42,8 @@ profile_header = html.Div(
         Output('userprof_preferredpronouns', 'value'),
         Output('userprof_bday', 'value'),
         Output('userprof_placeofbirth', 'value'),
+        Output('userprof_placeofbirth', 'options'),
+        Output('userprof_loaded_pob', 'data'),
         Output('userprof_bloodtype', 'value'),
         Output('userprof_phone_num', 'value'),
         Output('userprof_office', 'value'),
@@ -66,7 +68,7 @@ def update_profile_header(pathname, current_userid):
         user_preferredpronouns = user_info.get('user_preferredpronouns', '')
         user_id_num = user_info.get('user_id_num', '')
         user_bday = user_info.get('user_bday', '')
-        user_placeofbirth = user_info.get('user_placeofbirth', '')
+        user_pob_id = user_info.get('user_placeofbirth', None)
         user_bloodtype = user_info.get('user_bloodtype', '')
         user_phone_num = user_info.get('user_phone_num', '')
         user_office_id = user_info.get('user_office', '')  # Retrieve office ID
@@ -77,6 +79,19 @@ def update_profile_header(pathname, current_userid):
         # Retrieve office name based on office ID
         user_office_name = db.get_office_info(user_office_id)
 
+        # Load municipality options for POB dropdown
+        db_con = db.getdblocation()
+        cursor = db_con.cursor()
+        cursor.execute("""
+            SELECT CONCAT(mun.municipality_name, ', ', prov.province_name) as label, mun.municipality_id as value
+            FROM public.municipalities AS mun
+            INNER JOIN public.provinces AS prov ON mun.province_id=prov.province_id
+        """)
+        pob_rows = cursor.fetchall()
+        cursor.close()
+        db_con.close()
+        pob_options = [{'label': row[0], 'value': row[1]} for row in pob_rows]
+
         # Concatenate full name
         fullname_parts = [part for part in [user_fname, user_mname, user_sname, user_suffixname] if part]
         if user_livedname:
@@ -85,11 +100,13 @@ def update_profile_header(pathname, current_userid):
 
         return (
             fullname, user_id_num, user_fname, user_mname, user_sname, user_suffixname,
-            user_id_num, user_livedname, user_preferredpronouns, user_bday, user_placeofbirth, user_bloodtype, user_phone_num,
+            user_id_num, user_livedname, user_preferredpronouns, user_bday,
+            int(user_pob_id) if user_pob_id else None, pob_options, user_pob_id,
+            user_bloodtype, user_phone_num,
             user_office_name, user_position, user_email
         )
     else:
-        return "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""
+        return "", "", "", "", "", "", "", "", "", "", "", [], None, "", "", "", "", ""
   
 @app.callback(
     [    
@@ -353,7 +370,11 @@ form = dbc.Form(
                     ],
                     width=4),
                 dbc.Col(
-                    dbc.Input(type="text", id='userprof_placeofbirth'),
+                    dcc.Dropdown(
+                        id='userprof_placeofbirth',
+                        options=[],
+                        placeholder="Search for City/Municipality",
+                    ),
                     width=6,
                 ),
             ],
@@ -541,6 +562,7 @@ def userprof_update_action_visibility(edit_mode):
 layout = html.Div(
     [
         dcc.Store(id='userprof_edit_mode', storage_type='memory', data=0),
+        dcc.Store(id='userprof_loaded_pob', storage_type='memory'),
         dbc.Row(
             [
                 cm.sidebar,
