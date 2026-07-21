@@ -301,6 +301,7 @@ def generate_navbar(pathname, access_type, user_id):
                 # FOR ALL TEAMS TO SEE
                 html.A(html.B('Peer Evaluations'), className="nav-link"),
                 html.A('Peer Evaluation Form', href='/peer_evaluation_landing', className="nav-link"),
+                html.A('Peer Evaluation Results', href='/peer_evaluation_results', className="nav-link"),
                 html.A('-----------------------------------', style={'color': 'white'}),
 
                 # admin dashboard

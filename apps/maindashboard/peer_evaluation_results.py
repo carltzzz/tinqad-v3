@@ -426,24 +426,6 @@ layout = html.Div(
                             ],
                             id="pr_download_style_div"
                         ),
-                        html.Div(
-                            dbc.Row(
-                                [ 
-                                    
-                                    dbc.Col(
-                                        dbc.Button("Save", color="primary",  id="pr_summary_save_button", n_clicks=0),
-                                        width="auto"
-                                    ),
-                                    dbc.Col(
-                                        dbc.Button("Cancel", color="warning", id="pr_summary_cancel_button", n_clicks=0, href="/peer_evaluation_responses"),  
-                                        width="auto"
-                                    ),
-                                ],
-                                className="mb-2",
-                                justify="end",
-                            ),
-                            id="pr_summary_buttons_div"
-                        ),
                         dbc.Row(
                             [
                                 dbc.Col(
@@ -567,7 +549,6 @@ def load_received_by(pathname, currentuserid):
 @app.callback(
     [   
         Output('pr_response_to_load', 'data'),
-        Output('pr_summary_buttons_div', 'style'),
         Output('pr_back_button', 'style'),
     ],
     [
@@ -580,22 +561,12 @@ def load_received_by(pathname, currentuserid):
 def peereval_get_userid(pathname, search):
     if pathname == '/peer_evaluation_results':
         create_mode = 'view'
-        if create_mode == 'edit':
-            to_load = 1
-            button_style = {'display': 'flex', 'justifyContent': 'flex-end'}
-            back_btn_div_style = {'display': 'none'}
-        elif create_mode == 'view':
-            to_load = 1
-            button_style = {'display': 'none'}
-            back_btn_div_style = {'display': 'flex', 'justifyContent': 'flex-end'}
-        else:
-            to_load = 0
-            button_style = {'display': 'flex', 'justifyContent': 'flex-end'}
-            back_btn_div_style = {'display': 'none'}
+        to_load = 1
+        back_btn_div_style = {'display': 'flex', 'justifyContent': 'flex-end'}
     else:  
         raise PreventUpdate
     
-    return [to_load, button_style, back_btn_div_style]
+    return [to_load, back_btn_div_style]
 
 # evaluatee_id = parse_qs(parsed.query).get('id', [None])[0]
 
@@ -919,145 +890,6 @@ def update_remarks(timestamp, to_load, search, currentuserid):
             "\n\n".join(remarks_by_rubric[5]),
             "\n\n".join(remarks_by_rubric[6]),
         ]
-
-
-@app.callback(
-    [
-        # Check if all fields are filled
-        Output('pr_response_summary_alert', 'is_open'),
-        Output('pr_response_summary_alert', 'color'),
-        Output('pr_response_summary_alert', 'children'),
-        Output('pr_summary_initial_modal', 'is_open'),
-        Output('pr_summary_last_modal', 'is_open'),
-        Output('pr_opportunities_text', 'className'),
-        Output('pr_conducted_by', 'className'),
-        Output('pr_received_by', 'className'),
-    ],
-    [
-        Input('pr_summary_save_button', 'n_clicks'),
-        Input('pr_summary_initial_modal_cancel', 'n_clicks'),
-        Input('pr_summary_initial_modal_confirm', 'n_clicks'),
-    ],
-    [
-        State('url', 'search'),
-        State('pr_opportunities_text', 'value'),
-        State('pr_conducted_by', 'value'),
-        State('pr_conducted_date', 'date'),
-        State('pr_received_by', 'value'),
-        State('pr_received_date', 'date'),
-        State('currentuserid', 'data')
-    ]
-)
-
-def save_opportunity_summary(save_button, cancel_button, confirm_button, search, opportunities_text, conducted_by, conducted_date, received_by, received_date, currentuserid):
-
-    ctx = dash.callback_context
-    
-    if not ctx.triggered:
-        raise PreventUpdate
-
-    eventid = ctx.triggered[0]['prop_id'].split('.')[0]
-
-    parsed = urlparse(search)
-    create_mode = 'view'
-    evaluatee_user_id = currentuserid
-
-    opportunities_text_class = ''
-    conducted_by_class = ''
-    received_by_class = ''
-
-    primary_sql = """
-        SELECT COUNT(*)
-        FROM director.evaluation_summaries
-        WHERE summary_evaluatee_id = %s
-        AND summary_evaluation_period = (
-            SELECT period_id
-            FROM director.evaluation_periods
-            WHERE active_status = TRUE
-            AND period_del_ind = FALSE
-        )
-    """
-    primary_values = [evaluatee_user_id]
-
-    cols = ['count']
-    df = db.querydatafromdatabase(primary_sql, primary_values, cols)
-    checker = int(df['count'][0])
-
-    # Set default outputs
-    alert_open = False
-    alert_color = ''
-    alert_text = ''
-    initial_modal_open = False
-    last_modal_open = False
-
-    if eventid == 'summary_save_button' and save_button:
-        # Check if all fields are filled
-        if not all([opportunities_text, conducted_by, received_by]):
-            alert_open = True
-            alert_color = 'danger'
-            alert_text = 'Please fill in at the "Opportunities for Improvement", "Conducted by:", and "Received by:" sections.'
-            opportunities_text_class = 'red-border' if not opportunities_text else ''
-            conducted_by_class = 'red-border' if not conducted_by else 'form-control'
-            received_by_class = 'red-border' if not received_by else 'form-control'
-        else:
-            if create_mode == 'edit':
-                initial_modal_open = True
-
-    elif eventid == 'summary_initial_modal_confirm' and confirm_button and checker < 1:
-        sql = """
-            INSERT INTO director.evaluation_summaries (
-                summary_evaluatee_id, summary_text, summary_conducted_by, summary_conducted_date, summary_received_by, summary_received_date, summary_evaluation_period
-            )
-                    
-            VALUES (%s, %s, %s, %s, %s, %s,
-                (SELECT period_id
-                    FROM director.evaluation_periods
-                    WHERE active_status = TRUE
-                    AND period_del_ind  = FALSE
-                )
-        )
-        """
-
-        values = [evaluatee_user_id, opportunities_text, conducted_by, conducted_date, received_by, received_date]
-
-        db.modifydatabase(sql, values)
-
-        initial_modal_open = False
-        last_modal_open = True
-
-    elif eventid == 'summary_initial_modal_confirm' and confirm_button and checker >= 1:
-        sql = """
-            UPDATE director.evaluation_summaries
-            SET summary_text = %s,
-                summary_conducted_by = %s,
-                summary_conducted_date = %s,
-                summary_received_by = %s,
-                summary_received_date = %s
-            WHERE summary_evaluatee_id = %s
-            AND summary_evaluation_period = (
-                SELECT period_id
-                FROM director.evaluation_periods
-                WHERE active_status = TRUE
-                AND period_del_ind  = FALSE
-            )
-        """
-
-        values = [opportunities_text, conducted_by, conducted_date, received_by, received_date, evaluatee_user_id]
-
-        db.modifydatabase(sql, values)
-
-        initial_modal_open = False
-        last_modal_open = True
-
-    elif eventid == 'summary_initial_modal_cancel' and cancel_button:
-        initial_modal_open = False
-
-    else:
-        raise PreventUpdate
-
-
-    return [alert_open, alert_color, alert_text, initial_modal_open, last_modal_open, opportunities_text_class, conducted_by_class, received_by_class]
-
 
 @app.callback(
     [

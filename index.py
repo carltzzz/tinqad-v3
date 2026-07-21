@@ -15,7 +15,7 @@ from apps import home
 from apps import blankpage  
 from apps import dbconnect as db
 
-from apps.maindashboard import homepage, peer_evaluation_landing, peer_evaluation_form_entry, user_profile, register_user, search_users, password, about_TINQAD, basichome
+from apps.maindashboard import homepage, peer_evaluation_landing, peer_evaluation_form_entry, peer_evaluation_results, user_profile, register_user, search_users, password, about_TINQAD, basichome
 from apps.director import peer_evaluation_settings, peer_evaluation_form, peer_evaluation_responses, evaluation_summary, remove_periods, director_dashboard
 from apps.admin import add_inventory, administration_dashboard, expensetype_add, inventory_tracker, record_expenses, staff_profiles_management, staff_profiles, training_instructions, instructions, training_documents, add_expenses, training_record, viewexpense_list, viewtraining_list
 from apps.iqa import iqa_dashboard, more_details, acad_heads_directory, acadheads_profile, iso_facilitator_directory, iso_facilitator_profile
@@ -84,6 +84,7 @@ ELEVATED_ROUTES = {
     '/staff_profiles_management': staff_profiles_management.layout,
     '/peer_evaluation_landing': peer_evaluation_landing.main_layout,
     '/peer_evaluation_form_entry': peer_evaluation_form_entry.main_layout,
+    '/peer_evaluation_results': peer_evaluation_results.layout,
     '/iqa_dashboard': iqa_dashboard.layout,
     '/dashboard/more_details': more_details.layout,
     '/acad_heads_directory': acad_heads_directory.layout,

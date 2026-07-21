@@ -162,10 +162,11 @@ def staffprofiles_loaduserlist(pathname, name_filter, po_no_filter):
 
         df = db.querydatafromdatabase(sql, values, cols)
 
-        if not df.empty: 
+        if not df.empty:
+            pattern = "r'[^\d.]'" 
             df["Unit Cost (₱)"] = df["Unit Cost (₱)"].apply(
                 lambda x: html.Div(
-                    f"{float(re.sub(r'[^\d.]', '', str(x))):,.2f}" if re.sub(r'[^\d.]', '', str(x)) else "0.00",
+                    f"{float(re.sub({pattern}, '', str(x))):,.2f}" if re.sub({pattern}, '', str(x)) else "0.00",
                     style={'text-align': 'right'}
                 )
             )
