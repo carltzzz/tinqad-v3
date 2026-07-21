@@ -15,18 +15,18 @@ from urllib.parse import urlparse, parse_qs
 import flask
 import json
 
-# Define the highlight colors for styling
+# Highlight colors
 highlight_colors = {
-    'primary': "#0a4323",    # Main headers
-    'secondary': "#7a0911",  # Section titles
-    'accent': "#f8b237"      # Accent for borders/emphasis
+    'primary': "#0a4323",
+    'secondary': "#7a0911",
+    'accent': "#f8b237"
 }
 
 def generate_table(df):
     """Builds the HTML table, injecting per-row modals & alerts keyed by user_id."""
-    columns = ['Full Name','Position','QAO Team','View','Edit','Mark as Checked']
+    columns = ['Full Name','Position','QAO Team','View','Edit','Mark as Done']
     widths = {'Full Name':'30%','Position':'20%','QAO Team':'20%',
-              'View':'10%','Edit':'10%','Mark as Checked':'10%'}
+              'View':'10%','Edit':'10%','Mark as Done':'10%'}
 
     header = [html.Th(col, style={'width':widths[col],'textAlign':'center'}) for col in columns]
     rows = []
@@ -56,11 +56,11 @@ def generate_table(df):
 
         cells = []
         for col in columns:
-            if col == 'Mark as Checked':
+            if col == 'Mark as Done':
                 comp = dbc.Checklist(
                     id={'type':'done-checklist','user_id':uid},
                     options=[{"label":"","value":True}],
-                    value=[True] if row['Mark as Checked'] else [],
+                    value=[True] if row['Mark as Done'] else [],
                     inline=True,
                     label_checked_style={"color":"green"},
                     input_checked_style={"backgroundColor":"lightgreen","borderColor":"green"},
@@ -109,7 +109,7 @@ def render_table(pathname, searchterm):
                CONCAT(u.user_fname,' ',LEFT(u.user_mname,1),'. ',u.user_sname) AS "Full Name",
                q.qao_team_names AS "QAO Team",
                u.user_position AS "Position",
-               COALESCE(es.summary_done,FALSE) AS "Checked"
+               COALESCE(es.summary_done,FALSE) AS "Done"
           FROM maindashboard.users u
      LEFT JOIN maindashboard.offices o ON u.user_office=o.office_id
      LEFT JOIN maindashboard.qao_teams q ON u.user_qao_team_id=q.qao_team_id
@@ -120,7 +120,6 @@ def render_table(pathname, searchterm):
                  WHERE active_status=TRUE AND period_del_ind=FALSE
            )
          WHERE o.office_name='Quality Assurance Office'
-         AND u.user_del_ind = false
          AND u.user_id NOT IN(
                 SELECT u.user_id 
                 FROM maindashboard.users u
@@ -134,7 +133,7 @@ def render_table(pathname, searchterm):
         sql += " AND (u.user_sname ILIKE %s OR u.user_fname ILIKE %s)"
         values = [f"%{searchterm}%"] * 2
 
-    cols = ['ID','Full Name','QAO Team','Position','Checked']
+    cols = ['ID','Full Name','QAO Team','Position','Done']
     df = db.querydatafromdatabase(sql, values, cols)
 
     # --- 2) Build View/Edit buttons ---
@@ -159,11 +158,11 @@ def render_table(pathname, searchterm):
     # --- 3) Inject into DataFrame ---
     df['View'] = view_buttons
     df['Edit'] = edit_buttons
-    # Rename 'Checked' to 'Mark as Checked' so generate_table sees it
-    df = df.rename(columns={'Checked':'Mark as Checked'})
+    # Rename 'Done' to 'Mark as Done' so generate_table sees it
+    df = df.rename(columns={'Done':'Mark as Done'})
 
     # --- 4) Re-order columns for generate_table ---
-    df = df[['ID','Full Name','Position','QAO Team','View','Edit','Mark as Checked']]
+    df = df[['ID','Full Name','Position','QAO Team','View','Edit','Mark as Done']]
 
     # Pass to your generator (which ignores the ID column internally)
     return generate_table(df)
@@ -210,9 +209,9 @@ def handle_toggle(checklist_val, n_confirm, n_cancel):
         if int(df['cnt'][0]) < 1:
             return [], False, "", True, "danger", "Please save evaluation first."
 
-        body = ("Do you really want to mark this entry as checked?"
+        body = ("Do you really want to mark this entry as done?"
                 if checklist_val
-                else "Do you really want to mark this entry as unchecked?")
+                else "Do you really want to mark this entry as undone?")
         return dash.no_update, True, body, False, no_update, no_update
 
     # 2) User clicked “Cancel” in the modal
