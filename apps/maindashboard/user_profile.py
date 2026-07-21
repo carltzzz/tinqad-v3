@@ -66,7 +66,7 @@ def update_profile_header(pathname, current_userid):
         user_preferredpronouns = user_info.get('user_preferredpronouns', '')
         user_id_num = user_info.get('user_id_num', '')
         user_bday = user_info.get('user_bday', '')
-        user_pob_id = user_info.get('user_placeofbirth', '') #Retrieve POB ID
+        user_placeofbirth = user_info.get('user_placeofbirth', '')
         user_bloodtype = user_info.get('user_bloodtype', '')
         user_phone_num = user_info.get('user_phone_num', '')
         user_office_id = user_info.get('user_office', '')  # Retrieve office ID
@@ -76,7 +76,6 @@ def update_profile_header(pathname, current_userid):
 
         # Retrieve office name based on office ID
         user_office_name = db.get_office_info(user_office_id)
-        user_placeofbirth_name = db.get_pob_info(user_pob_id)
 
         # Concatenate full name
         fullname_parts = [part for part in [user_fname, user_mname, user_sname, user_suffixname] if part]
@@ -86,7 +85,7 @@ def update_profile_header(pathname, current_userid):
 
         return (
             fullname, user_id_num, user_fname, user_mname, user_sname, user_suffixname,
-            user_id_num, user_livedname, user_preferredpronouns, user_bday, user_placeofbirth_name, user_bloodtype, user_phone_num,
+            user_id_num, user_livedname, user_preferredpronouns, user_bday, user_placeofbirth, user_bloodtype, user_phone_num,
             user_office_name, user_position, user_email
         )
     else:
@@ -119,7 +118,7 @@ def update_profile_header(pathname, current_userid):
         State('userprof_livedname', 'value'),
         State('userprof_preferredpronouns', 'value'),
         State('userprof_bday', 'value'),
-        # State('user_placeofbirth', 'value'),
+        State('userprof_placeofbirth', 'value'),
         State('userprof_bloodtype', 'value'),
         State('userprof_phone_num', 'value'), 
         State('userprof_position', 'value'),
@@ -203,13 +202,13 @@ def save_profile_changes(save_btn, cancel_btn, confirm_btn, current_userid, fnam
             sql = """
             UPDATE maindashboard.users
             SET user_fname = %s, user_mname = %s, user_sname = %s, user_suffixname = %s, user_id_num = %s,
-                user_livedname = %s, user_preferredpronouns = %s, user_bday = %s, user_bloodtype = %s,
+                user_livedname = %s, user_preferredpronouns = %s, user_bday = %s, user_placeofbirth = %s, user_bloodtype = %s,
                 user_phone_num = %s, user_position = %s, user_email = %s, user_password = %s
             WHERE user_id = %s
             """
             values = (
                 fname, mname, sname, suffixname, id_num,
-                livedname, pronouns, bday,
+                livedname, pronouns, bday, placeofbirth,
                 bloodtype, phone_num, position, email,
                 hashed, current_userid
             )
@@ -220,13 +219,13 @@ def save_profile_changes(save_btn, cancel_btn, confirm_btn, current_userid, fnam
             sql_b = """
             UPDATE maindashboard.users
             SET user_fname = %s, user_mname = %s, user_sname = %s, user_suffixname = %s, user_id_num = %s,
-                user_livedname = %s, user_preferredpronouns = %s, user_bday = %s, user_bloodtype = %s,
+                user_livedname = %s, user_preferredpronouns = %s, user_bday = %s, user_placeofbirth = %s, user_bloodtype = %s,
                 user_phone_num = %s, user_position = %s, user_email = %s
             WHERE user_id = %s
             """
             values_b = (
                 fname, mname, sname, suffixname, id_num,
-                livedname, pronouns, bday,
+                livedname, pronouns, bday, placeofbirth,
                 bloodtype, phone_num, position, email,
                 current_userid
             )
@@ -354,7 +353,7 @@ form = dbc.Form(
                     ],
                     width=4),
                 dbc.Col(
-                    dbc.Input(type="text", id='userprof_placeofbirth', disabled=True),
+                    dbc.Input(type="text", id='userprof_placeofbirth'),
                     width=6,
                 ),
             ],

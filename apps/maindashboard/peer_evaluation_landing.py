@@ -17,9 +17,9 @@ import flask
 
 # Define the highlight colors for styling
 highlight_colors = {
-    'primary': "#00573F",    # Main headers
-    'secondary': "#8A1538",  # Section titles
-    'accent': "#FFB81C"      # Accent for borders/emphasis
+    'primary': "#0a4323",    # Main headers
+    'secondary': "#7a0911",  # Section titles
+    'accent': "#f8b237"      # Accent for borders/emphasis
 }
 
 # Function to generate a custom table with fixed column widths.
@@ -75,10 +75,6 @@ allowed_layout = html.Div(
                             ],
                             style={"marginBottom": "-10px"}
                         ),
-                        html.Div(
-                            id="landing_period"
-                        ),
-
                         html.Hr(),
 
                         dbc.Row(
@@ -134,10 +130,7 @@ allowed_layout = html.Div(
 )
 
 @app.callback(
-    [
-        Output('eval_list', 'children'),
-        Output('landing_period', 'children')
-    ],
+    Output('eval_list', 'children'),
     [
         Input('url', 'pathname'),
         Input('eval_name_filter', 'value'),
@@ -153,8 +146,7 @@ def staffprofiles_loaduserlist(pathname, searchterm, currentuserid):
                 pe.evaluation_id AS "ID",
                 CONCAT(u.user_fname, ' ', LEFT(u.user_mname, 1), '. ', u.user_sname, ' ', u.user_suffixname) AS "Full Name",
                 q.qao_team_names as "QAO Team",
-                u.user_position AS "Position",
-                evaluation_period_id
+                u.user_position AS "Position"
             FROM director.peer_evaluations pe
             LEFT JOIN maindashboard.users u ON u.user_id = pe.evaluatee_id
             LEFT JOIN maindashboard.offices o ON u.user_office = o.office_id
@@ -170,7 +162,7 @@ def staffprofiles_loaduserlist(pathname, searchterm, currentuserid):
             AND pe.peer_eval_delete_ind =FALSE
         """
         values = [currentuserid]
-        cols = ['ID', 'Full Name', 'QAO Team', 'Position', 'EvalID']
+        cols = ['ID', 'Full Name', 'QAO Team', 'Position']
 
         if searchterm:
             sql += """ AND (u.user_sname ILIKE %s OR u.user_fname ILIKE %s OR u.user_mname ILIKE %s) """
@@ -180,26 +172,6 @@ def staffprofiles_loaduserlist(pathname, searchterm, currentuserid):
             values += []
 
         df = db.querydatafromdatabase(sql, values, cols)
-
-        #Retrieve current period
-        sql_period = """
-            SELECT
-			'From ' ||
-                to_char(lower(period_details), 'Mon DD, YYYY') ||
-                ' to ' ||
-                to_char(upper(period_details) - INTERVAL '1 day', 'Mon DD, YYYY')
-                AS label,
-                period_id   AS value
-            FROM director.evaluation_periods
-            WHERE active_status = TRUE
-            AND period_del_ind = FALSE
-
-        """
-        period_df = db.querydatafromdatabase(sql_period, [], ['EvalPeriod', 'value'])
-        if period_df.shape[0] > 0 :
-            period_label = period_df['EvalPeriod'][0]
-        else:
-            period_label = "No Evaluation Period selected."
 
         if df.shape[0] > 0:
             # Create separate "View" and "Edit" buttons for each evaluation.
@@ -260,10 +232,9 @@ def staffprofiles_loaduserlist(pathname, searchterm, currentuserid):
                 accordion_items,
                 always_open=True  # adjust this if you prefer single-open behavior
             )
-            
-            return [accordion, html.Div(html.H3(period_label))]
+            return accordion
         else:
-            return [html.Div("No peer evaluations submitted for the current period"), html.Div(html.H3(period_label))]
+            return html.Div("No peer evaluations submitted for the current period")
     else:
         raise PreventUpdate
 
