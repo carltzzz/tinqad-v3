@@ -411,19 +411,33 @@ layout = html.Div(
                         remarks_section,
                         html.Br(),
                         dbc.Alert(id='response_summary_alert', is_open=False), # For feedback purpose
-                        html.Div(
+                        dbc.Row(
                             [
                                 dbc.Col(
                                     dbc.Button(
-                                        "Download PDF",
-                                        id="download_pdf_btn",
+                                        "Evaluate",
+                                        id="evaluate_button",
                                         n_clicks=0,
-                                        color="secondary",
-                                        style={"margin-left": "10px"}
-                                    )
-                                )
+                                        color="success",
+                                    ),
+                                    width="auto",
+                                ),
+                                dbc.Col(
+                                    html.Div(
+                                        dbc.Button(
+                                            "Download PDF",
+                                            id="download_pdf_btn",
+                                            n_clicks=0,
+                                            color="secondary",
+                                        ),
+                                    ),
+                                    id="download_style_div",
+                                    width="auto",
+                                    className="ms-auto",
+                                ),
                             ],
-                            id="download_style_div"
+                            align="center",
+                            className="mb-2",
                         ),
                         html.Div(
                             dbc.Row(
@@ -599,6 +613,8 @@ def load_conducted_by(pathname, search):
         Output('response_to_load', 'data'),
         Output('summary_buttons_div', 'style'),
         Output('back_button', 'style'),
+        Output('evaluate_button', 'style'),
+        Output('opportunities_text', 'disabled'),
     ],
     [
         Input('url', 'pathname'),
@@ -615,18 +631,24 @@ def peereval_get_userid(pathname, search):
             to_load = 1
             button_style = {'display': 'flex', 'justifyContent': 'flex-end'}
             back_btn_div_style = {'display': 'none'}
+            evaluate_btn_style = {'display': 'none'}
+            opp_disabled = False
         elif create_mode == 'view':
             to_load = 1
             button_style = {'display': 'none'}
             back_btn_div_style = {'display': 'flex', 'justifyContent': 'flex-end'}
+            evaluate_btn_style = {}
+            opp_disabled = True
         else:
             to_load = 0
             button_style = {'display': 'flex', 'justifyContent': 'flex-end'}
             back_btn_div_style = {'display': 'none'}
+            evaluate_btn_style = {'display': 'none'}
+            opp_disabled = True
     else:  
         raise PreventUpdate
     
-    return [to_load, button_style, back_btn_div_style]
+    return [to_load, button_style, back_btn_div_style, evaluate_btn_style, opp_disabled]
 
 # evaluatee_id = parse_qs(parsed.query).get('id', [None])[0]
 
@@ -1005,7 +1027,6 @@ def save_opportunity_summary(save_button, cancel_button, confirm_button, search,
     eventid = ctx.triggered[0]['prop_id'].split('.')[0]
 
     parsed = urlparse(search)
-    create_mode = parse_qs(parsed.query).get('mode', [None])[0]
     evaluatee_user_id = parse_qs(parsed.query).get('id', [None])[0]
 
     opportunities_text_class = ''
@@ -1046,8 +1067,7 @@ def save_opportunity_summary(save_button, cancel_button, confirm_button, search,
             conducted_by_class = 'red-border' if not conducted_by else 'form-control'
             received_by_class = 'red-border' if not received_by else 'form-control'
         else:
-            if create_mode == 'edit':
-                initial_modal_open = True
+            initial_modal_open = True
 
     elif eventid == 'summary_initial_modal_confirm' and confirm_button and checker < 1:
         sql = """
@@ -1160,27 +1180,37 @@ def load_summary(timestamp, to_load, search):
     
     return [summary_text, conducted_by, conducted_date, received_by, received_date]
 
+
 @app.callback(
-    [ 
-        Output('conducted_by', 'disabled'),
-        Output('conducted_date', 'disabled'),
-        Output('received_by', 'disabled'),
-        Output('received_date', 'disabled'),
+    [
+        Output('opportunities_text', 'disabled', allow_duplicate=True),
+        Output('conducted_by', 'disabled', allow_duplicate=True),
+        Output('conducted_date', 'disabled', allow_duplicate=True),
+        Output('received_by', 'disabled', allow_duplicate=True),
+        Output('received_date', 'disabled', allow_duplicate=True),
+        Output('evaluate_button', 'style', allow_duplicate=True),
+        Output('summary_buttons_div', 'style', allow_duplicate=True),
+        Output('back_button', 'style', allow_duplicate=True),
     ],
     [
-        Input('url', 'search')
-    ]
+        Input('evaluate_button', 'n_clicks'),
+    ],
+    prevent_initial_call=True
 )
-def addexpense_inputs_disabled(search):
-    if search:
-        parsed = urlparse(search)
-        create_mode = parse_qs(parsed.query).get('mode', [None])[0]
-        if create_mode == 'edit':
-            return [False, False, False, False] 
-        elif create_mode == 'view':
-            return [True, True, True, True] 
-        
-    return [True, True, True, True]
+def handle_evaluate_click(n_clicks):
+    if not n_clicks:
+        raise PreventUpdate
+
+    return [
+        False,   # opportunities_text disabled
+        False,   # conducted_by disabled
+        False,   # conducted_date disabled
+        False,   # received_by disabled
+        False,   # received_date disabled
+        {'display': 'none'},           # hide Evaluate button
+        {'display': 'flex', 'justifyContent': 'flex-end'},  # show Save/Cancel
+        {'display': 'none'},           # hide Back button
+    ]
 
 
 

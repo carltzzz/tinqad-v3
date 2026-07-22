@@ -43,8 +43,9 @@ layout = dbc.Row(
                             ),
                         ],
                         style={
+                            'background-color': 'rgba(255,255,255,0.5)',
                             'top': '10rem',
-                            'right': '25rem',
+                            'right': '22rem',
                             'position': 'relative',
                             'z-index': 1,
                             'max-width': '70vw',
@@ -122,7 +123,7 @@ layout = dbc.Row(
                         'width': '100%',
                         'height': '100%',
                         'min-height': 'calc(100% + 20rem)',  # Ensure content is scrollable
-                        'background-image': 'url("' + app.get_asset_url('icons/bg.png') + '")',
+                        'background-image':'url("' + app.get_asset_url('icons/bg-gray.png') + '")',
                         'background-size': 'cover',
                         'background-position': 'center bottom',
                         'mask-image': 'linear-gradient(to bottom, rgba(0, 0, 0, 1.0) 50%, transparent 100%)',

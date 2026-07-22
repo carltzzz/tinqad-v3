@@ -24,9 +24,9 @@ highlight_colors = {
 
 def generate_table(df):
     """Builds the HTML table, injecting per-row modals & alerts keyed by user_id."""
-    columns = ['Full Name','Position','QAO Team','View','Edit','Mark as Checked']
+    columns = ['Full Name','Position','QAO Team','View','Mark as Checked']
     widths = {'Full Name':'30%','Position':'20%','QAO Team':'20%',
-              'View':'10%','Edit':'10%','Mark as Checked':'10%'}
+              'View':'15%','Mark as Checked':'15%'}
 
     header = [html.Th(col, style={'width':widths[col],'textAlign':'center'}) for col in columns]
     rows = []
@@ -137,9 +137,8 @@ def render_table(pathname, searchterm):
     cols = ['ID','Full Name','QAO Team','Position','Checked']
     df = db.querydatafromdatabase(sql, values, cols)
 
-    # --- 2) Build View/Edit buttons ---
+    # --- 2) Build View button ---
     view_buttons = []
-    edit_buttons = []
     for uid in df['ID']:
         view_buttons.append(
             dbc.Button(
@@ -148,22 +147,14 @@ def render_table(pathname, searchterm):
                 size="sm", color="warning"
             )
         )
-        edit_buttons.append(
-            dbc.Button(
-                "Edit",
-                href=f"/peer_evaluation_responses/evaluation_summary?mode=edit&id={uid}",
-                size="sm", color="danger"
-            )
-        )
 
     # --- 3) Inject into DataFrame ---
     df['View'] = view_buttons
-    df['Edit'] = edit_buttons
     # Rename 'Done' to 'Mark as Done' so generate_table sees it
     df = df.rename(columns={'Checked':'Mark as Checked'})
 
     # --- 4) Re-order columns for generate_table ---
-    df = df[['ID','Full Name','Position','QAO Team','View','Edit','Mark as Checked']]
+    df = df[['ID','Full Name','Position','QAO Team','View','Mark as Checked']]
 
     # Pass to your generator (which ignores the ID column internally)
     return generate_table(df)
