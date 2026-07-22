@@ -586,8 +586,8 @@ def save_inventory(submit_button, confirm, cancel, removerecord, name, lifespan,
 
             sql = """
                 INSERT INTO adminteam.inventory_tracker (
-                    item_name, 
-                    item_image_path, item_image_name, item_lifespan, item_image_type, item_image_size,
+                    item_name, item_lifespan,
+                    item_image_path, item_image_name, item_image_type, item_image_size,
                     item_barcode_number, item_brand, item_qa_initial_property_no, item_qa_updated_property_no,
                     item_description, item_supplier, item_po_number, item_unit_cost, item_staff_responsibile, item_assigned_to,
                     item_company_name, item_company_contact_number, item_company_email,
