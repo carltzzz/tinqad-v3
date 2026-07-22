@@ -40,7 +40,13 @@ form = dbc.Form(
                     [
                         dbc.Row(
                             [
-                                dbc.Col([dbc.Label("Item Name"), dbc.Input(id="item_name", type="text", required=True)]),
+                                dbc.Col(
+                                    [dbc.Row([
+                                        dbc.Label("Item Name"), dbc.Input(id="item_name", type="text", required=True)
+                                        ]),
+                                     dbc.Row([
+                                         dbc.Label("Lifespan"), dbc.Input(id="item_lifespan", type="text")])],
+                                    ),
                                 dbc.Col([
                                     dbc.Label("Image Upload"),
                                     dcc.Upload(
@@ -458,6 +464,7 @@ def inventory_tracker_loaddropdown(pathname, search):
     [
         State('inventorytracker_removerecord', 'value'),
         State('item_name', 'value'),
+        State('item_lifespan', 'value'),
         State('item_image', 'contents'),
         State('item_image', 'filename'),
         State('item_barcode_number', 'value'),
@@ -476,7 +483,7 @@ def inventory_tracker_loaddropdown(pathname, search):
         State('url', 'search')
     ]
 )
-def save_inventory(submit_button, confirm, cancel, removerecord, name, item_image_contents, item_image_filename, barcode, brand, initial_property_no, updated_property_no, description, supplier, 
+def save_inventory(submit_button, confirm, cancel, removerecord, name, lifespan, item_image_contents, item_image_filename, barcode, brand, initial_property_no, updated_property_no, description, supplier, 
                    po_number, company_name, contact_number, email, unit_cost,
                  staff_responsible, assigned_to, search):
     ctx = dash.callback_context 
@@ -580,7 +587,7 @@ def save_inventory(submit_button, confirm, cancel, removerecord, name, item_imag
             sql = """
                 INSERT INTO adminteam.inventory_tracker (
                     item_name, 
-                    item_image_path, item_image_name, item_image_type, item_image_size,
+                    item_image_path, item_image_name, item_lifespan, item_image_type, item_image_size,
                     item_barcode_number, item_brand, item_qa_initial_property_no, item_qa_updated_property_no,
                     item_description, item_supplier, item_po_number, item_unit_cost, item_staff_responsibile, item_assigned_to,
                     item_company_name, item_company_contact_number, item_company_email,
@@ -588,7 +595,7 @@ def save_inventory(submit_button, confirm, cancel, removerecord, name, item_imag
                 )
                 VALUES (
                     %s,
-                    %s, %s, %s, %s,
+                    %s, %s, %s, %s, %s,
                     %s, %s, %s, %s,
                     %s, %s, %s, %s, %s, %s,
                     %s, %s, %s,
@@ -596,7 +603,7 @@ def save_inventory(submit_button, confirm, cancel, removerecord, name, item_imag
                 )
             """
 
-            values = (name, 
+            values = (name, lifespan, 
                       item_image_data[0]["path"] if item_image_data else None, item_image_data[0]["name"] if item_image_data else None,
                       item_image_data[0]["type"] if item_image_data else None, item_image_data[0]["size"] if item_image_data else None,
                       barcode, brand, initial_property_no, updated_property_no,
@@ -620,6 +627,7 @@ def save_inventory(submit_button, confirm, cancel, removerecord, name, item_imag
             
             update_fields = [
                 "item_name = %s",
+                "item_lifespan = %s",
                 "item_barcode_number = %s",
                 "item_brand = %s",
                 "item_qa_initial_property_no = %s",
@@ -635,7 +643,7 @@ def save_inventory(submit_button, confirm, cancel, removerecord, name, item_imag
                 "item_company_email = %s"            
             ]
             values = [
-                name, barcode, brand, initial_property_no, updated_property_no, description, supplier, po_number, unit_cost, staff_responsible, assigned_to, company_name, contact_number, email
+                name, lifespan, barcode, brand, initial_property_no, updated_property_no, description, supplier, po_number, unit_cost, staff_responsible, assigned_to, company_name, contact_number, email
             ]
 
             # Now, conditionally add file upload updates:
@@ -684,6 +692,7 @@ def save_inventory(submit_button, confirm, cancel, removerecord, name, item_imag
 @app.callback(
     [
         Output('item_name', 'value'),
+        Output('item_lifespan', 'value'),
         Output('item_image', 'filename'),
         Output('item_barcode_number', 'value'),
         Output('item_brand', 'value'),
@@ -714,7 +723,7 @@ def inventorytracker_load(timestamp, toload, search):
 
         sql = """
             SELECT 
-                item_name, item_image_name as item_image, item_barcode_number, item_brand,
+                item_name, item_lifespan, item_image_name as item_image, item_barcode_number, item_brand,
                 item_qa_initial_property_no, item_qa_updated_property_no, item_description, 
                 item_supplier, item_po_number, item_unit_cost, item_staff_responsibile,
                 item_assigned_to, item_company_name, item_company_contact_number, item_company_email
@@ -724,7 +733,7 @@ def inventorytracker_load(timestamp, toload, search):
         values = [load_item_id]
 
         cols = [
-            'item_name', 'item_image',  'item_barcode_number', 'item_brand',
+            'item_name', 'item_lifespan', 'item_image',  'item_barcode_number', 'item_brand',
             'item_qa_initial_property_no', 'item_qa_updated_property_no', 'item_description', 
             'item_supplier', 'item_po_number',  'item_unit_cost', 'item_staff_responsibile',
             'item_assigned_to', 'item_company_name', 'item_company_contact_number', 'item_company_email'
@@ -736,6 +745,7 @@ def inventorytracker_load(timestamp, toload, search):
 
 
         item_name = df['item_name'][0]
+        item_lifespan = df['item_lifespan'][0]
         item_image = df['item_image'][0]
         item_barcode_number = df['item_barcode_number'][0]
         item_brand = df['item_brand'][0]
@@ -756,7 +766,7 @@ def inventorytracker_load(timestamp, toload, search):
         item_company_contact_number = df['item_company_contact_number'][0]
         item_company_email = df['item_company_email'][0]
 
-        return [item_name, item_image, item_barcode_number, item_brand, item_qa_initial_property_no, item_qa_updated_property_no, item_description, item_supplier,
+        return [item_name, item_lifespan, item_image, item_barcode_number, item_brand, item_qa_initial_property_no, item_qa_updated_property_no, item_description, item_supplier,
                 item_po_number, item_unit_cost, item_staff_responsibile, item_assigned_to, item_company_name, item_company_contact_number, item_company_email]
     else:
         raise PreventUpdate
