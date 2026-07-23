@@ -1966,31 +1966,30 @@ layout = html.Div(
                                 [
                                     dbc.Col(
                                         html.H1(id="page_header"),
-                                        width=6
+                                        width=8
                                     ),
                                     dbc.Col(
-                                        dbc.Button(
-                                            "Edit",
-                                            color="primary",
-                                            id="edit_toggle_btn",
-                                            n_clicks=0,
-                                        ),
-                                        width="auto",
-                                        id="edit_toggle_div",
-                                        style={"display": "none", "justifyContent": "flex-end"}
-                                    ),
-                                    dbc.Col(
-                                        dbc.Button(
-                                            "Back",
-                                            color="success",
-                                            href="/staff_profiles"
-                                        ),
+                                        [
+                                            dbc.Button(
+                                                "Edit",
+                                                color="primary",
+                                                id="edit_toggle_btn",
+                                                n_clicks=0,
+                                                className="me-2"
+                                            ),
+                                            dbc.Button(
+                                                "Back",
+                                                color="success",
+                                                href="/staff_profiles"
+                                            ),
+                                        ],
                                         width="auto",
                                         id="staff_profiles_back_btn_div",
-                                        style={"display": "none", "justifyContent": "flex-end"}
+                                        style={"display": "none"}
                                     )
                                 ],
-                                align="center"
+                                align="center",
+                                justify="between"
                             ),
                         ],
                         className="mb-0"
@@ -2277,7 +2276,6 @@ def update_current_mode(to_load_ts, n_clicks, search):
 @app.callback(
     [
         Output('page_header', 'children'),
-        Output('edit_toggle_div', 'style'),
         Output('staff_profiles_back_btn_div', 'style'),
         Output('staff_profiles_buttons_div', 'style'),
         Output('remove_record_div', 'style'),
@@ -2287,25 +2285,22 @@ def update_current_mode(to_load_ts, n_clicks, search):
 def update_mode_ui(mode):
     if mode == 'add':
         header = "Add a Staff Profile Data"
-        edit_toggle_style = {"display": "none", "justifyContent": "flex-end"}
         back_btn_style = {"display": "none", "justifyContent": "flex-end"}
         buttons_div_style = {"display": "flex", "justifyContent": "flex-end"}
         remove_div_style = {"display": "none"}
     elif mode == 'edit':
         header = "Staff Profile Data Editing"
-        edit_toggle_style = {"display": "none", "justifyContent": "flex-end"}
         back_btn_style = {"display": "none", "justifyContent": "flex-end"}
         buttons_div_style = {"display": "flex", "justifyContent": "flex-end"}
         remove_div_style = None
     elif mode == 'view':
         header = "Staff Profile Data Viewing"
-        edit_toggle_style = {"display": "flex", "justifyContent": "flex-end"}
         back_btn_style = {"display": "flex", "justifyContent": "flex-end"}
         buttons_div_style = {"display": "none"}
         remove_div_style = {"display": "none"}
     else:
         raise PreventUpdate
-    return [header, edit_toggle_style, back_btn_style, buttons_div_style, remove_div_style]
+    return [header, back_btn_style, buttons_div_style, remove_div_style]
     
 
 
