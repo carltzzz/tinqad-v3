@@ -3790,6 +3790,15 @@ def set_country_value(barangay_options, loaded_barangay):
         Output('emergency_contact', 'style'),
         Output('orientation_checklist', 'style'),
         Output('resume_info', 'style'),
+        Output('personal_info', 'className'),
+        Output('current_address', 'className'),
+        Output('govt_ids', 'className'),
+        Output('degrees_earned', 'className'),
+        Output('eligibility', 'className'),
+        Output('landbank_account', 'className'),
+        Output('emergency_contact', 'className'),
+        Output('orientation_checklist', 'className'),
+        Output('resume_info', 'className'),
     ],
     [Input('current_mode', 'data')],
 )
@@ -3811,19 +3820,27 @@ def staff_profile_disabled(mode):
     if mode == 'add':
         user_id = False
         staff_image = False
+        personal_info = current_address = govt_ids = degrees_earned = eligibility = landbank_account = emergency_contact = orientation_checklist = resume_info = {}
+        card_class = "mb-4"
     elif mode == 'edit':
         user_id = True
         staff_image = False
         
         personal_info = current_address = govt_ids = degrees_earned = eligibility = landbank_account = emergency_contact = orientation_checklist = resume_info = {}
+        card_class = "mb-4"
 
     elif mode == 'view':
         user_id = True
         staff_image = True
     
         personal_info = current_address = govt_ids = degrees_earned = eligibility = landbank_account = emergency_contact = orientation_checklist = resume_info = editable_disabled_style
+        card_class = "mb-4 view-mode-section"
 
-    return [user_id, staff_image, personal_info, current_address, govt_ids, degrees_earned, eligibility, landbank_account, emergency_contact, orientation_checklist, resume_info]
+    return [
+        user_id, staff_image,
+        personal_info, current_address, govt_ids, degrees_earned, eligibility, landbank_account, emergency_contact, orientation_checklist, resume_info,
+        card_class, card_class, card_class, card_class, card_class, card_class, card_class, card_class, card_class,
+    ]
 
 @app.callback(
     Output('profile_image', 'src'),
