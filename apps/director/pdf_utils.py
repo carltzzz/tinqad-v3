@@ -4,7 +4,7 @@ from flask import render_template
 from apps import dbconnect as db  
 from urllib.parse import urlparse, parse_qs
 
-def generate_pdf_bytes(evaluatee_id):
+def generate_pdf_bytes(evaluatee_id, accessrole):
     # — 1) BASIC INFO & REVIEWERS —
     sql_basic = """
         SELECT DISTINCT 
@@ -31,7 +31,10 @@ def generate_pdf_bytes(evaluatee_id):
         reviewers_text = "No peer review evaluations found."
     else:
         evaluation_period = df_basic.at[0, 'evaluation_period']
-        reviewers_text = ", ".join(df_basic['full_name'].unique())
+        if accessrole == 2:
+            reviewers_text = ", ".join(df_basic['full_name'].unique())
+        else:
+            reviewers_text = "Anonymous"
 
     # — 2) SCORES & WEIGHTED AVERAGES —
     sql_scores = """
