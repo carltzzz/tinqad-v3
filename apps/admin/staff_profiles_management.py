@@ -1574,15 +1574,11 @@ main_dashboard = dbc.Container(
 @app.callback(
     Output("staff_image_output", "children"),
     [Input("staff_image", "filename"),
-     State("url", "search")]
+     Input('current_mode', 'data')]
 )
-def display_staff_image(filenames, search):
+def display_staff_image(filenames, mode):
     if not filenames:
         return "No files uploaded."
-    
-    # Parse the query parameter to check for mode
-    parsed = urlparse(search)
-    mode = parse_qs(parsed.query).get('mode', [None])[0]
     
     # Calculate relative path for linking the file in edit mode
     assets_folder = os.path.normpath("./assets")
@@ -1607,15 +1603,11 @@ def display_staff_image(filenames, search):
 @app.callback(
     Output("govt_id_photo_output", "children"),
     [Input("govt_id_photo", "filename"),
-     State('url', 'search'),]
+     Input('current_mode', 'data'),]
 )
-def display_govt_id_photo_file(filenames, search):
+def display_govt_id_photo_file(filenames, mode):
     if not filenames:
         return "No files uploaded. Compress files first if uploading multiple items."
-    
-    # Parse the query parameter to check for mode
-    parsed = urlparse(search)
-    mode = parse_qs(parsed.query).get('mode', [None])[0]
     
     # Calculate relative path for linking the file in edit mode
     assets_folder = os.path.normpath("./assets")
@@ -1641,15 +1633,11 @@ def display_govt_id_photo_file(filenames, search):
 @app.callback(
     Output("landbank_photo_output", "children"),
     [Input("landbank_photo", "filename"),
-     State('url', 'search'),]
+     Input('current_mode', 'data'),]
 )
-def display_landbank_photo_file(filenames, search):
+def display_landbank_photo_file(filenames, mode):
     if not filenames:
         return "No files uploaded. Compress files first if uploading multiple items."
-    
-    # Parse the query parameter to check for mode
-    parsed = urlparse(search)
-    mode = parse_qs(parsed.query).get('mode', [None])[0]
     
     # Calculate relative path for linking the file in edit mode
     assets_folder = os.path.normpath("./assets")
@@ -1674,15 +1662,11 @@ def display_landbank_photo_file(filenames, search):
 @app.callback(
     Output("ob_w_admin_output", "children"),
     [Input("ob_w_admin", "filename"),
-     State('url', 'search'),]
+     Input('current_mode', 'data'),]
 )
-def display_ob_w_admin_file(filenames, search):
+def display_ob_w_admin_file(filenames, mode):
     if not filenames:
         return "No files uploaded. Compress files first if uploading multiple items."
-    
-    # Parse the query parameter to check for mode
-    parsed = urlparse(search)
-    mode = parse_qs(parsed.query).get('mode', [None])[0]
     
     # Calculate relative path for linking the file in edit mode
     assets_folder = os.path.normpath("./assets")
@@ -1707,15 +1691,11 @@ def display_ob_w_admin_file(filenames, search):
 @app.callback(
     Output("ob_w_home_team_output", "children"),
     [Input("ob_w_home_team", "filename"),
-     State('url', 'search'),]
+     Input('current_mode', 'data'),]
 )
-def display_ob_w_home_team_file(filenames, search):
+def display_ob_w_home_team_file(filenames, mode):
     if not filenames:
         return "No files uploaded. Compress files first if uploading multiple items."
-    
-    # Parse the query parameter to check for mode
-    parsed = urlparse(search)
-    mode = parse_qs(parsed.query).get('mode', [None])[0]
     
     # Calculate relative path for linking the file in edit mode
     assets_folder = os.path.normpath("./assets")
@@ -1739,15 +1719,11 @@ def display_ob_w_home_team_file(filenames, search):
 @app.callback(
     Output("gender_sensitivity_training_output", "children"),
     [Input("gender_sensitivity_training", "filename"),
-     State('url', 'search'),]
+     Input('current_mode', 'data'),]
 )
-def display_gender_sensitivity_training_file(filenames, search):
+def display_gender_sensitivity_training_file(filenames, mode):
     if not filenames:
         return "No files uploaded. Compress files first if uploading multiple items."
-    
-    # Parse the query parameter to check for mode
-    parsed = urlparse(search)
-    mode = parse_qs(parsed.query).get('mode', [None])[0]
     
     # Calculate relative path for linking the file in edit mode
     assets_folder = os.path.normpath("./assets")
@@ -1771,15 +1747,11 @@ def display_gender_sensitivity_training_file(filenames, search):
 @app.callback(
     Output("gender_dev_training_output", "children"),
     [Input("gender_dev_training", "filename"),
-     State('url', 'search'),]
+     Input('current_mode', 'data'),]
 )
-def display_gender_dev_training_file(filenames, search):
+def display_gender_dev_training_file(filenames, mode):
     if not filenames:
         return "No files uploaded. Compress files first if uploading multiple items."
-    
-    # Parse the query parameter to check for mode
-    parsed = urlparse(search)
-    mode = parse_qs(parsed.query).get('mode', [None])[0]
     
     # Calculate relative path for linking the file in edit mode
     assets_folder = os.path.normpath("./assets")
@@ -1803,15 +1775,11 @@ def display_gender_dev_training_file(filenames, search):
 @app.callback(
     Output("open_up_fcisdg_output", "children"),
     [Input("open_up_fcisdg", "filename"),
-     State('url', 'search'),]
+     Input('current_mode', 'data'),]
 )
-def display_open_up_fcisdg_file(filenames, search):
+def display_open_up_fcisdg_file(filenames, mode):
     if not filenames:
         return "No files uploaded. Compress files first if uploading multiple items."
-    
-    # Parse the query parameter to check for mode
-    parsed = urlparse(search)
-    mode = parse_qs(parsed.query).get('mode', [None])[0]
     
     # Calculate relative path for linking the file in edit mode
     assets_folder = os.path.normpath("./assets")
@@ -1835,15 +1803,11 @@ def display_open_up_fcisdg_file(filenames, search):
 @app.callback(
     Output("open_up_ppi_output", "children"),
     [Input("open_up_ppi", "filename"),
-     State('url', 'search'),]
+     Input('current_mode', 'data'),]
 )
-def display_open_up_ppi_file(filenames, search):
+def display_open_up_ppi_file(filenames, mode):
     if not filenames:
         return "No files uploaded. Compress files first if uploading multiple items."
-    
-    # Parse the query parameter to check for mode
-    parsed = urlparse(search)
-    mode = parse_qs(parsed.query).get('mode', [None])[0]
     
     # Calculate relative path for linking the file in edit mode
     assets_folder = os.path.normpath("./assets")
@@ -1867,15 +1831,11 @@ def display_open_up_ppi_file(filenames, search):
 @app.callback(
     Output("open_up_iwsh_output", "children"),
     [Input("open_up_iwsh", "filename"),
-     State('url', 'search'),]
+     Input('current_mode', 'data'),]
 )
-def display_open_up_iwsh_file(filenames, search):
+def display_open_up_iwsh_file(filenames, mode):
     if not filenames:
         return "No files uploaded. Compress files first if uploading multiple items."
-    
-    # Parse the query parameter to check for mode
-    parsed = urlparse(search)
-    mode = parse_qs(parsed.query).get('mode', [None])[0]
     
     # Calculate relative path for linking the file in edit mode
     assets_folder = os.path.normpath("./assets")
@@ -1900,15 +1860,11 @@ def display_open_up_iwsh_file(filenames, search):
 @app.callback(
     Output("open_up_ashp_output", "children"),
     [Input("open_up_ashp", "filename"),
-     State('url', 'search'),]
+     Input('current_mode', 'data'),]
 )
-def display_open_up_ashp_file(filenames, search):
+def display_open_up_ashp_file(filenames, mode):
     if not filenames:
         return "No files uploaded. Compress files first if uploading multiple items."
-    
-    # Parse the query parameter to check for mode
-    parsed = urlparse(search)
-    mode = parse_qs(parsed.query).get('mode', [None])[0]
     
     # Calculate relative path for linking the file in edit mode
     assets_folder = os.path.normpath("./assets")
@@ -1932,15 +1888,11 @@ def display_open_up_ashp_file(filenames, search):
 @app.callback(
     Output("others_orientation_trainings_output", "children"),
     [Input("others_orientation_trainings", "filename"),
-     State('url', 'search'),]
+     Input('current_mode', 'data'),]
 )
-def display_others_orientation_trainings_file(filenames, search):
+def display_others_orientation_trainings_file(filenames, mode):
     if not filenames:
         return "No files uploaded. Compress files first if uploading multiple items."
-    
-    # Parse the query parameter to check for mode
-    parsed = urlparse(search)
-    mode = parse_qs(parsed.query).get('mode', [None])[0]
     
     # Calculate relative path for linking the file in edit mode
     assets_folder = os.path.normpath("./assets")
@@ -1964,15 +1916,11 @@ def display_others_orientation_trainings_file(filenames, search):
 @app.callback(
     Output("upload_resume_file_output", "children"),
     [Input("upload_resume_file", "filename"),
-     State('url', 'search'),]
+     Input('current_mode', 'data'),]
 )
-def display_upload_resume_file(filenames, search):
+def display_upload_resume_file(filenames, mode):
     if not filenames:
         return "No files uploaded. Compress files first if uploading multiple items."
-    
-    # Parse the query parameter to check for mode
-    parsed = urlparse(search)
-    mode = parse_qs(parsed.query).get('mode', [None])[0]
     
     # Calculate relative path for linking the file in edit mode
     assets_folder = os.path.normpath("./assets")
@@ -2009,6 +1957,7 @@ layout = html.Div(
                                 dcc.Store(id='loaded_municipality', storage_type='memory'),
                                 dcc.Store(id='loaded_barangay', storage_type='memory'),
                                 dcc.Store(id='degree_count', data=0, storage_type='memory'),
+                                dcc.Store(id='current_mode', storage_type='memory'),
                             ]
                     ),
                     html.Div(
@@ -2017,7 +1966,18 @@ layout = html.Div(
                                 [
                                     dbc.Col(
                                         html.H1(id="page_header"),
-                                        width=8
+                                        width=6
+                                    ),
+                                    dbc.Col(
+                                        dbc.Button(
+                                            "Edit",
+                                            color="primary",
+                                            id="edit_toggle_btn",
+                                            n_clicks=0,
+                                        ),
+                                        width="auto",
+                                        id="edit_toggle_div",
+                                        style={"display": "none", "justifyContent": "flex-end"}
                                     ),
                                     dbc.Col(
                                         dbc.Button(
@@ -2025,9 +1985,9 @@ layout = html.Div(
                                             color="success",
                                             href="/staff_profiles"
                                         ),
-                                        width=4,
+                                        width="auto",
                                         id="staff_profiles_back_btn_div",
-                                        style={"display": "flex", "justifyContent": "flex-end"}
+                                        style={"display": "none", "justifyContent": "flex-end"}
                                     )
                                 ],
                                 align="center"
@@ -2198,11 +2158,7 @@ def display_additional_degrees(count):
     [
         Output('user_id', 'options'),
         Output('country', 'options'),
-        Output('page_header', 'children'),
         Output('to_load', 'data'),
-        Output('remove_record_div', 'style'),
-        Output('staff_profiles_buttons_div', 'style'),
-        Output('staff_profiles_back_btn_div', 'style'),
     ],
     [
         Input('url', 'pathname')
@@ -2287,27 +2243,69 @@ def registeruser_loaddropdown(pathname, search):
         create_mode = parse_qs(parsed.query)['mode'][0]
 
         if create_mode == 'add':
-            header = "Add a Staff Profile Data" 
             to_load = 0
-            removediv_style = {'display': 'none'}
-            button_style = {'display': 'flex', 'justifyContent': 'flex-end'}
-            staff_profiles_back_btn_div_style = {'display': 'none'}
-        elif create_mode == 'edit':
-            header = "Staff Profile Data Editing"
+        elif create_mode in ('edit', 'view'):
             to_load = 1
-            removediv_style = None
-            button_style = {'display': 'flex', 'justifyContent': 'flex-end'}
-            staff_profiles_back_btn_div_style = {'display': 'none'}
-        elif create_mode == 'view':
-            header = "Staff Profile Data Viewing"
-            to_load = 1
-            removediv_style = {'display': 'none'}
-            button_style = {'display': 'none'}
-            staff_profiles_back_btn_div_style = {'display': 'flex', 'justifyContent': 'flex-end'}
 
     else:
         raise PreventUpdate
-    return [user_options, country_options, header, to_load, removediv_style, button_style, staff_profiles_back_btn_div_style]
+    return [user_options, country_options, to_load]
+
+
+@app.callback(
+    Output('current_mode', 'data'),
+    [Input('to_load', 'modified_timestamp'),
+     Input('edit_toggle_btn', 'n_clicks')],
+    [State('url', 'search')],
+    prevent_initial_call=False
+)
+def update_current_mode(to_load_ts, n_clicks, search):
+    ctx = dash.callback_context
+    if not ctx.triggered:
+        raise PreventUpdate
+    trigger = ctx.triggered[0]['prop_id'].split('.')[0]
+
+    if trigger == 'to_load':
+        parsed = urlparse(search)
+        mode = parse_qs(parsed.query).get('mode', ['view'])[0]
+        return mode
+    elif trigger == 'edit_toggle_btn' and n_clicks > 0:
+        return 'edit'
+    raise PreventUpdate
+
+
+@app.callback(
+    [
+        Output('page_header', 'children'),
+        Output('edit_toggle_div', 'style'),
+        Output('staff_profiles_back_btn_div', 'style'),
+        Output('staff_profiles_buttons_div', 'style'),
+        Output('remove_record_div', 'style'),
+    ],
+    [Input('current_mode', 'data')]
+)
+def update_mode_ui(mode):
+    if mode == 'add':
+        header = "Add a Staff Profile Data"
+        edit_toggle_style = {"display": "none", "justifyContent": "flex-end"}
+        back_btn_style = {"display": "none", "justifyContent": "flex-end"}
+        buttons_div_style = {"display": "flex", "justifyContent": "flex-end"}
+        remove_div_style = {"display": "none"}
+    elif mode == 'edit':
+        header = "Staff Profile Data Editing"
+        edit_toggle_style = {"display": "none", "justifyContent": "flex-end"}
+        back_btn_style = {"display": "none", "justifyContent": "flex-end"}
+        buttons_div_style = {"display": "flex", "justifyContent": "flex-end"}
+        remove_div_style = None
+    elif mode == 'view':
+        header = "Staff Profile Data Viewing"
+        edit_toggle_style = {"display": "flex", "justifyContent": "flex-end"}
+        back_btn_style = {"display": "flex", "justifyContent": "flex-end"}
+        buttons_div_style = {"display": "none"}
+        remove_div_style = {"display": "none"}
+    else:
+        raise PreventUpdate
+    return [header, edit_toggle_style, back_btn_style, buttons_div_style, remove_div_style]
     
 
 
@@ -2501,6 +2499,7 @@ def populate_college_dropdown(selected_municipality):
     ],
     [
         State('remove_record', 'value'),
+        State('current_mode', 'data'),
         State('url', 'search'),
         State('user_id', 'value'),
         State('country', 'value'),
@@ -2618,7 +2617,7 @@ def populate_college_dropdown(selected_municipality):
     ],
 )
 
-def save_staff_profile(submitbtn, cancelbtn, confirmbtn, remove_record, search, user_id, country, region, province, municipality, barangay, subdivision, house_number, street, zip_code,
+def save_staff_profile(submitbtn, cancelbtn, confirmbtn, remove_record, current_mode, search, user_id, country, region, province, municipality, barangay, subdivision, house_number, street, zip_code,
                        gsis_bp_no, pagibig_id_no, sss_no, philhealth_no, tin_no, govt_id, govt_id_no, govt_id_date_of_issuance, govt_id_place_of_issuance,
                        govt_id_photo_contents, govt_id_photo_filename,
                        degrees_earned_a, university_school_a, year_obtained_a, degrees_earned_b, university_school_b, year_obtained_b, degrees_earned_c, university_school_c, year_obtained_c,
@@ -2665,8 +2664,7 @@ def save_staff_profile(submitbtn, cancelbtn, confirmbtn, remove_record, search, 
     
     eventid = ctx.triggered[0]['prop_id'].split('.')[0]
 
-    parsed = urlparse(search)
-    create_mode = parse_qs(parsed.query).get('mode', [None])[0]
+    create_mode = current_mode
     
     # Set default outputs
     alert_open = False
@@ -3030,6 +3028,7 @@ def save_staff_profile(submitbtn, cancelbtn, confirmbtn, remove_record, search, 
             last_modal_header = "Staff Profile Successfully Added"
 
         elif create_mode == 'edit':
+            parsed = urlparse(search)
             staffprofilesid = parse_qs(parsed.query).get('id', [None])[0]
             if staffprofilesid is None:
                 raise PreventUpdate
@@ -3792,10 +3791,9 @@ def set_country_value(barangay_options, loaded_barangay):
         Output('orientation_checklist', 'style'),
         Output('resume_info', 'style'),
     ],
-    [Input('to_load', 'modified_timestamp')],
-    [State('url', 'search')]
+    [Input('current_mode', 'data')],
 )
-def staff_profile_disabled(to_load_ts, search):
+def staff_profile_disabled(mode):
 
     editable_disabled_style = {
         "background-color": "white",
@@ -3810,23 +3808,20 @@ def staff_profile_disabled(to_load_ts, search):
     
     personal_info = current_address = govt_ids = degrees_earned = eligibility = landbank_account = emergency_contact = orientation_checklist = resume_info = {}
 
-    if search:
-        parsed = urlparse(search)
-        create_mode = parse_qs(parsed.query).get('mode', [None])[0]
-        if create_mode == 'add':
-            user_id = False
-            staff_image = False
-        elif create_mode == 'edit':
-            user_id = True
-            staff_image = False
-            
-            personal_info = current_address = govt_ids = degrees_earned = eligibility = landbank_account = emergency_contact = orientation_checklist = resume_info = {}
-
-        elif create_mode == 'view':
-            user_id = True
-            staff_image = True
+    if mode == 'add':
+        user_id = False
+        staff_image = False
+    elif mode == 'edit':
+        user_id = True
+        staff_image = False
         
-            personal_info = current_address = govt_ids = degrees_earned = eligibility = landbank_account = emergency_contact = orientation_checklist = resume_info = editable_disabled_style
+        personal_info = current_address = govt_ids = degrees_earned = eligibility = landbank_account = emergency_contact = orientation_checklist = resume_info = {}
+
+    elif mode == 'view':
+        user_id = True
+        staff_image = True
+    
+        personal_info = current_address = govt_ids = degrees_earned = eligibility = landbank_account = emergency_contact = orientation_checklist = resume_info = editable_disabled_style
 
     return [user_id, staff_image, personal_info, current_address, govt_ids, degrees_earned, eligibility, landbank_account, emergency_contact, orientation_checklist, resume_info]
 
@@ -3837,9 +3832,9 @@ def staff_profile_disabled(to_load_ts, search):
         Input('staff_image', 'filename'),
         Input('to_load', 'modified_timestamp'),
     ],
-    [State('url', 'search')]
+    [State('current_mode', 'data')]
 )
-def update_image_preview(contents, filename, to_load_ts, search):
+def update_image_preview(contents, filename, to_load_ts, current_mode):
     # 1) New upload: show instantly
     if contents:
         # If list, pick first
@@ -3848,11 +3843,8 @@ def update_image_preview(contents, filename, to_load_ts, search):
         return contents
 
     # 2) No new upload → maybe in view/edit mode?
-    if filename and search:
-        # Extract mode from URL
-        parsed = urlparse(search)
-        mode = parse_qs(parsed.query).get('mode', [None])[0]
-        if mode in ('view', 'edit'):
+    if filename and current_mode:
+        if current_mode in ('view', 'edit'):
             # If multiple filenames, pick first
             fname = filename[0] if isinstance(filename, list) else filename
             # Build the relative assets path (same logic you used in display callback)
