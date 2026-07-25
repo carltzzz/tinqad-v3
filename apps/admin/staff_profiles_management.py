@@ -26,6 +26,70 @@ highlight_colors = {
     'accent': "#f8b237"      # Accent color for borders and emphasis
 }
 
+ORIENTATION_TRAINING_NAMES = [
+    "Onboarding with Administrative Team",
+    "Onboarding with Home Team",
+    "Gender and Sensitivity Training",
+    "Gender and Development Training",
+    "[OPEN UP] Fundamental Concepts in Integrity and Service Delivery in Government",
+    "[OPEN UP] Processing of Personal Information",
+    "[OPEN UP] Introduction to Workplace Safety and Health",
+    "[OPEN UP] Introduction to UP Anti-Sexual Harassment Policy",
+    "Others",
+]
+
+
+def make_orientation_cert_row(i):
+    return html.Div(
+        children=[
+            dbc.Row(
+                [
+                    dbc.Col(
+                        [
+                            html.Label("Training Name"),
+                            dcc.Input(
+                                id=f"orientation_cert_name_{i}",
+                                type="text",
+                                placeholder="Select from dropdown or enter custom name",
+                                className="mb-2",
+                                style={"width": "100%"}
+                            )
+                        ],
+                        md=4
+                    ),
+                    dbc.Col(
+                        [
+                            html.Label("Date of Training"),
+                            dcc.DatePickerSingle(
+                                id=f"orientation_cert_date_{i}",
+                                placeholder="mm/dd/yyyy",
+                                className="SingleDatePicker mb-2",
+                                style={"width": "100%"},
+                            ),
+                        ],
+                        md=4
+                    ),
+                    dbc.Col(
+                        [
+                            html.Label("Link to Certificate"),
+                            dcc.Input(
+                                id=f"orientation_cert_link_{i}",
+                                type="text",
+                                placeholder="Certificate URL",
+                                className="mb-2",
+                                style={"width": "100%"}
+                            )
+                        ],
+                        md=4
+                    )
+                ]
+            ),
+        ],
+        id=f"orientation_cert_row_{i}",
+        style={"display": "none"}
+    )
+
+
 First_Header = dbc.Card(
     [
         dbc.Row(
@@ -1046,446 +1110,40 @@ main_dashboard = dbc.Container(
             id="orientation_checklist",
             children=[
                 dbc.CardHeader(
-                    "Orientation/Training Checklist",
+                    html.Div(
+                        [
+                            html.Span("Orientation/Training Checklist"),
+                            html.Div(
+                                [
+                                    dbc.DropdownMenu(
+                                        id="add_orientation_cert_dropdown",
+                                        label="+",
+                                        children=[
+                                            dbc.DropdownMenuItem(name, id=f"add_cert_{idx}", n_clicks=0)
+                                            for idx, name in enumerate(ORIENTATION_TRAINING_NAMES)
+                                        ] + [
+                                            dbc.DropdownMenuItem(divider=True),
+                                            dbc.DropdownMenuItem("Custom Training...", id="add_cert_custom", n_clicks=0),
+                                        ],
+                                        direction="down",
+                                        size="sm",
+                                        className="me-2 d-inline-block",
+                                    ),
+                                    dbc.Button("–", id="remove_orientation_cert_button",
+                                               n_clicks=0, size="sm"),
+                                ],
+                                className="hstack ms-auto align-items-center"
+                            ),
+                        ],
+                        className="d-flex align-items-center"
+                    ),
                     style={
                         "backgroundColor": highlight_colors['secondary'],
                         "color": "white"
                     }
                 ),
                 dbc.CardBody(
-                    [
-                        dbc.Table(
-                            [
-                                html.Thead(
-                                    html.Tr(
-                                        [
-                                            html.Th("ORIENTATION/TRAINING CHECKLIST", style={"width": "25%"}),
-                                            html.Th("Attachments", style={"width": "25%"}),
-                                            html.Th("Date of Training"),
-                                            html.Th("Link to Certificate", style={"width": "35%"})
-                                        ],
-                                        style={
-                                            "backgroundColor": highlight_colors['accent'],
-                                            "color": "white"
-                                        }
-                                    )
-                                ),
-                                html.Tbody(
-                                    [
-                                        html.Tr(
-                                            [
-                                                html.Td("Onboarding with Administrative Team"),
-                                                html.Td(
-                                                    [
-                                                        dcc.Upload(
-                                                            id="ob_w_admin",
-                                                            children=html.Div(
-                                                                [
-                                                                    "Drag and Drop or ",
-                                                                    html.A("Select a File")
-                                                                ]
-                                                            ),
-                                                            style={
-                                                                "width": "100%",
-                                                                "height": "30px",
-                                                                "lineHeight": "30px",
-                                                                "borderWidth": "1px",
-                                                                "borderStyle": "dashed",
-                                                                "borderRadius": "5px",
-                                                                "textAlign": "center"
-                                                            },
-                                                            multiple=True
-                                                        ),
-                                                        html.Div(id="ob_w_admin_output")
-                                                    ]
-                                                ),
-                                                html.Td(
-                                                    dcc.DatePickerSingle(
-                                                        id='ob_date_w_admin',
-                                                        placeholder="mm/dd/yyyy",
-                                                        className='SingleDatePicker mb-2',
-                                                        style={"width": "100%"},
-                                                    ),
-                                                ),
-                                                html.Td(
-                                                    dcc.Input(
-                                                        id="link_ob_w_admin",
-                                                        type="text",
-                                                        placeholder="Certificate URL",
-                                                        style={"width": "100%"}
-                                                    )
-                                                )
-                                            ]
-                                        ),
-                                        html.Tr(
-                                            [
-                                                html.Td("Onboarding with Home Team"),
-                                                html.Td(
-                                                    [
-                                                        dcc.Upload(
-                                                            id="ob_w_home_team",
-                                                            children=html.Div(
-                                                                [
-                                                                    "Drag and Drop or ",
-                                                                    html.A("Select a File")
-                                                                ]
-                                                            ),
-                                                            style={
-                                                                "width": "100%",
-                                                                "height": "30px",
-                                                                "lineHeight": "30px",
-                                                                "borderWidth": "1px",
-                                                                "borderStyle": "dashed",
-                                                                "borderRadius": "5px",
-                                                                "textAlign": "center"
-                                                            },
-                                                            multiple=True
-                                                        ),
-                                                        html.Div(id="ob_w_home_team_output")
-                                                    ]
-                                                ),
-                                                html.Td(
-                                                    dcc.DatePickerSingle(
-                                                        id='ob_date_w_home',
-                                                        placeholder="mm/dd/yyyy",
-                                                        className='SingleDatePicker mb-2',
-                                                        style={"width": "100%"},
-                                                    ),
-                                                ),
-                                                html.Td(
-                                                    dcc.Input(
-                                                        id="link_ob_w_home",
-                                                        type="text",
-                                                        placeholder="Certificate URL",
-                                                        style={"width": "100%"}
-                                                    )
-                                                )
-                                            ]
-                                        ),
-                                        html.Tr(
-                                            [
-                                                html.Td("Gender and Sensitivity Training"),
-                                                html.Td(
-                                                    [
-                                                        dcc.Upload(
-                                                            id="gender_sensitivity_training",
-                                                            children=html.Div(
-                                                                [
-                                                                    "Drag and Drop or ",
-                                                                    html.A("Select a File")
-                                                                ]
-                                                            ),
-                                                            style={
-                                                                "width": "100%",
-                                                                "height": "30px",
-                                                                "lineHeight": "30px",
-                                                                "borderWidth": "1px",
-                                                                "borderStyle": "dashed",
-                                                                "borderRadius": "5px",
-                                                                "textAlign": "center"
-                                                            },
-                                                            multiple=True
-                                                        ),
-                                                        html.Div(id="gender_sensitivity_training_output")
-                                                    ]
-                                                ),
-                                                html.Td(
-                                                    dcc.DatePickerSingle(
-                                                        id='gender_sensitivity_date',
-                                                        placeholder="mm/dd/yyyy",
-                                                        className='SingleDatePicker mb-2',
-                                                        style={"width": "100%"},
-                                                    ),
-                                                ),
-                                                html.Td(
-                                                    dcc.Input(
-                                                        id="link_gender_sensitivity",
-                                                        type="text",
-                                                        placeholder="Certificate URL",
-                                                        style={"width": "100%"}
-                                                    )
-                                                )
-                                            ]
-                                        ),
-                                        html.Tr(
-                                            [
-                                                html.Td("Gender and Development Training"),
-                                                html.Td(
-                                                    [
-                                                        dcc.Upload(
-                                                            id="gender_dev_training",
-                                                            children=html.Div(
-                                                                [
-                                                                    "Drag and Drop or ",
-                                                                    html.A("Select a File")
-                                                                ]
-                                                            ),
-                                                            style={
-                                                                "width": "100%",
-                                                                "height": "30px",
-                                                                "lineHeight": "30px",
-                                                                "borderWidth": "1px",
-                                                                "borderStyle": "dashed",
-                                                                "borderRadius": "5px",
-                                                                "textAlign": "center"
-                                                            },
-                                                            multiple=True
-                                                        ),
-                                                        html.Div(id="gender_dev_training_output")
-                                                    ]
-                                                ),
-                                                html.Td(
-                                                    dcc.DatePickerSingle(
-                                                        id='gender_dev_training_date',
-                                                        placeholder="mm/dd/yyyy",
-                                                        className='SingleDatePicker mb-2',
-                                                        style={"width": "100%"},
-                                                    ),
-                                                ),
-                                                html.Td(
-                                                    dcc.Input(
-                                                        id="link_gender_dev_training",
-                                                        type="text",
-                                                        placeholder="Certificate URL",
-                                                        style={"width": "100%"}
-                                                    )
-                                                )
-                                            ]
-                                        ),
-                                        html.Tr(
-                                            [
-                                                html.Td("[OPEN UP] Fundamental Concepts in Integrity and Service Delivery in Government"),
-                                                html.Td(
-                                                    [
-                                                        dcc.Upload(
-                                                            id="open_up_fcisdg",
-                                                            children=html.Div(
-                                                                [
-                                                                    "Drag and Drop or ",
-                                                                    html.A("Select a File")
-                                                                ]
-                                                            ),
-                                                            style={
-                                                                "width": "100%",
-                                                                "height": "30px",
-                                                                "lineHeight": "30px",
-                                                                "borderWidth": "1px",
-                                                                "borderStyle": "dashed",
-                                                                "borderRadius": "5px",
-                                                                "textAlign": "center"
-                                                            },
-                                                            multiple=True
-                                                        ),
-                                                        html.Div(id="open_up_fcisdg_output")
-                                                    ]
-                                                ),
-                                                html.Td(
-                                                    dcc.DatePickerSingle(
-                                                        id='open_up_fcisdg_date',
-                                                        placeholder="mm/dd/yyyy",
-                                                        className='SingleDatePicker mb-2',
-                                                        style={"width": "100%"},
-                                                    ),
-                                                ),
-                                                html.Td(
-                                                    dcc.Input(
-                                                        id="link_open_up_fcisdg",
-                                                        type="text",
-                                                        placeholder="Certificate URL",
-                                                        style={"width": "100%"}
-                                                    )
-                                                )
-                                            ]
-                                        ),
-                                        html.Tr(
-                                            [
-                                                html.Td("[OPEN UP] Processing of Personal Information"),
-                                                html.Td(
-                                                    [
-                                                        dcc.Upload(
-                                                            id="open_up_ppi",
-                                                            children=html.Div(
-                                                                [
-                                                                    "Drag and Drop or ",
-                                                                    html.A("Select a File")
-                                                                ]
-                                                            ),
-                                                            style={
-                                                                "width": "100%",
-                                                                "height": "30px",
-                                                                "lineHeight": "30px",
-                                                                "borderWidth": "1px",
-                                                                "borderStyle": "dashed",
-                                                                "borderRadius": "5px",
-                                                                "textAlign": "center"
-                                                            },
-                                                            multiple=True
-                                                        ),
-                                                        html.Div(id="open_up_ppi_output")
-                                                    ]
-                                                ),
-                                                html.Td(
-                                                    dcc.DatePickerSingle(
-                                                        id='open_up_ppi_date',
-                                                        placeholder="mm/dd/yyyy",
-                                                        className='SingleDatePicker mb-2',
-                                                        style={"width": "100%"},
-                                                    ),
-                                                ),
-                                                html.Td(
-                                                    dcc.Input(
-                                                        id="link_open_up_ppi",
-                                                        type="text",
-                                                        placeholder="Certificate URL",
-                                                        style={"width": "100%"}
-                                                    )
-                                                )
-                                            ]
-                                        ),
-                                        html.Tr(
-                                            [
-                                                html.Td("[OPEN UP] Introduction to Workplace Safety and Health"),
-                                                html.Td(
-                                                    [
-                                                        dcc.Upload(
-                                                            id="open_up_iwsh",
-                                                            children=html.Div(
-                                                                [
-                                                                    "Drag and Drop or ",
-                                                                    html.A("Select a File")
-                                                                ]
-                                                            ),
-                                                            style={
-                                                                "width": "100%",
-                                                                "height": "30px",
-                                                                "lineHeight": "30px",
-                                                                "borderWidth": "1px",
-                                                                "borderStyle": "dashed",
-                                                                "borderRadius": "5px",
-                                                                "textAlign": "center"
-                                                            },
-                                                            multiple=True
-                                                        ),
-                                                        html.Div(id="open_up_iwsh_output")
-                                                    ]
-                                                ),
-                                                html.Td(
-                                                    dcc.DatePickerSingle(
-                                                        id='open_up_iwsh_date',
-                                                        placeholder="mm/dd/yyyy",
-                                                        className='SingleDatePicker mb-2',
-                                                        style={"width": "100%"},
-                                                    ),
-                                                ),
-                                                html.Td(
-                                                    dcc.Input(
-                                                        id="link_open_up_iwsh",
-                                                        type="text",
-                                                        placeholder="Certificate URL",
-                                                        style={"width": "100%"}
-                                                    )
-                                                )
-                                            ]
-                                        ),
-                                        html.Tr(
-                                            [
-                                                html.Td("[OPEN UP] Introduction to UP Anti-Sexual Harassment Policy"),
-                                                html.Td(
-                                                    [
-                                                        dcc.Upload(
-                                                            id="open_up_ashp",
-                                                            children=html.Div(
-                                                                [
-                                                                    "Drag and Drop or ",
-                                                                    html.A("Select a File")
-                                                                ]
-                                                            ),
-                                                            style={
-                                                                "width": "100%",
-                                                                "height": "30px",
-                                                                "lineHeight": "30px",
-                                                                "borderWidth": "1px",
-                                                                "borderStyle": "dashed",
-                                                                "borderRadius": "5px",
-                                                                "textAlign": "center"
-                                                            },
-                                                            multiple=True
-                                                        ),
-                                                        html.Div(id="open_up_ashp_output")
-                                                    ]
-                                                ),
-                                                html.Td(
-                                                    dcc.DatePickerSingle(
-                                                        id='open_up_ashp_date',
-                                                        placeholder="mm/dd/yyyy",
-                                                        className='SingleDatePicker mb-2',
-                                                        style={"width": "100%"},
-                                                    ),
-                                                ),
-                                                html.Td(
-                                                    dcc.Input(
-                                                        id="link_open_up_ashp",
-                                                        type="text",
-                                                        placeholder="Certificate URL",
-                                                        style={"width": "100%"}
-                                                    )
-                                                )
-                                            ]
-                                        ),
-                                        html.Tr(
-                                            [
-                                                html.Td("Others:"),
-                                                html.Td(
-                                                    [
-                                                        dcc.Upload(
-                                                            id="others_orientation_trainings",
-                                                            children=html.Div(
-                                                                [
-                                                                    "Drag and Drop or ",
-                                                                    html.A("Select a File")
-                                                                ]
-                                                            ),
-                                                            style={
-                                                                "width": "100%",
-                                                                "height": "30px",
-                                                                "lineHeight": "30px",
-                                                                "borderWidth": "1px",
-                                                                "borderStyle": "dashed",
-                                                                "borderRadius": "5px",
-                                                                "textAlign": "center"
-                                                            },
-                                                            multiple=True
-                                                        ),
-                                                        html.Div(id="others_orientation_trainings_output")
-                                                    ]
-                                                ),
-                                                html.Td(
-                                                    dcc.DatePickerSingle(
-                                                        id='others_orientation_trainings_date',
-                                                        placeholder="mm/dd/yyyy",
-                                                        className='SingleDatePicker mb-2',
-                                                        style={"width": "100%"},
-                                                    ),
-                                                ),
-                                                html.Td(
-                                                    dcc.Input(
-                                                        id="link_others_orientation_trainings",
-                                                        type="text",
-                                                        placeholder="Certificate URL",
-                                                        style={"width": "100%"}
-                                                    )
-                                                )
-                                            ]
-                                        )
-                                    ]
-                                )
-                            ],
-                            bordered=True,
-                            hover=True,
-                            responsive=True,
-                            striped=True
-                        )
-                    ]
+                    [make_orientation_cert_row(i) for i in range(1, 21)]
                 )
             ],
             className="mb-4"
@@ -1660,260 +1318,6 @@ def display_landbank_photo_file(filenames, mode):
 
 
 @app.callback(
-    Output("ob_w_admin_output", "children"),
-    [Input("ob_w_admin", "filename"),
-     Input('current_mode', 'data'),]
-)
-def display_ob_w_admin_file(filenames, mode):
-    if not filenames:
-        return "No files uploaded. Compress files first if uploading multiple items."
-    
-    # Calculate relative path for linking the file in edit mode
-    assets_folder = os.path.normpath("./assets")
-    upload_relative_path = os.path.relpath(UPLOAD_DIRECTORY, assets_folder)
-    upload_relative_path = upload_relative_path.replace(os.path.sep, "/")
-    
-    def build_file_message(fname):
-        base_name = os.path.basename(fname)
-        message = f"📑File Uploaded: {base_name}"
-        if mode == "edit":
-            file_url = f"/assets/{upload_relative_path}/{base_name}"
-            return html.A(message, href=file_url, target="_blank")
-        return message
-    
-    if isinstance(filenames, list):
-        # Process each uploaded file
-        return [build_file_message(fname) for fname in filenames]
-    else:
-        return build_file_message(filenames)
-
-
-@app.callback(
-    Output("ob_w_home_team_output", "children"),
-    [Input("ob_w_home_team", "filename"),
-     Input('current_mode', 'data'),]
-)
-def display_ob_w_home_team_file(filenames, mode):
-    if not filenames:
-        return "No files uploaded. Compress files first if uploading multiple items."
-    
-    # Calculate relative path for linking the file in edit mode
-    assets_folder = os.path.normpath("./assets")
-    upload_relative_path = os.path.relpath(UPLOAD_DIRECTORY, assets_folder)
-    upload_relative_path = upload_relative_path.replace(os.path.sep, "/")
-    
-    def build_file_message(fname):
-        base_name = os.path.basename(fname)
-        message = f"📑File Uploaded: {base_name}"
-        if mode == "edit":
-            file_url = f"/assets/{upload_relative_path}/{base_name}"
-            return html.A(message, href=file_url, target="_blank")
-        return message
-    
-    if isinstance(filenames, list):
-        # Process each uploaded file
-        return [build_file_message(fname) for fname in filenames]
-    else:
-        return build_file_message(filenames)
-
-@app.callback(
-    Output("gender_sensitivity_training_output", "children"),
-    [Input("gender_sensitivity_training", "filename"),
-     Input('current_mode', 'data'),]
-)
-def display_gender_sensitivity_training_file(filenames, mode):
-    if not filenames:
-        return "No files uploaded. Compress files first if uploading multiple items."
-    
-    # Calculate relative path for linking the file in edit mode
-    assets_folder = os.path.normpath("./assets")
-    upload_relative_path = os.path.relpath(UPLOAD_DIRECTORY, assets_folder)
-    upload_relative_path = upload_relative_path.replace(os.path.sep, "/")
-    
-    def build_file_message(fname):
-        base_name = os.path.basename(fname)
-        message = f"📑File Uploaded: {base_name}"
-        if mode == "edit":
-            file_url = f"/assets/{upload_relative_path}/{base_name}"
-            return html.A(message, href=file_url, target="_blank")
-        return message
-    
-    if isinstance(filenames, list):
-        # Process each uploaded file
-        return [build_file_message(fname) for fname in filenames]
-    else:
-        return build_file_message(filenames)
-
-@app.callback(
-    Output("gender_dev_training_output", "children"),
-    [Input("gender_dev_training", "filename"),
-     Input('current_mode', 'data'),]
-)
-def display_gender_dev_training_file(filenames, mode):
-    if not filenames:
-        return "No files uploaded. Compress files first if uploading multiple items."
-    
-    # Calculate relative path for linking the file in edit mode
-    assets_folder = os.path.normpath("./assets")
-    upload_relative_path = os.path.relpath(UPLOAD_DIRECTORY, assets_folder)
-    upload_relative_path = upload_relative_path.replace(os.path.sep, "/")
-    
-    def build_file_message(fname):
-        base_name = os.path.basename(fname)
-        message = f"📑File Uploaded: {base_name}"
-        if mode == "edit":
-            file_url = f"/assets/{upload_relative_path}/{base_name}"
-            return html.A(message, href=file_url, target="_blank")
-        return message
-    
-    if isinstance(filenames, list):
-        # Process each uploaded file
-        return [build_file_message(fname) for fname in filenames]
-    else:
-        return build_file_message(filenames)
-
-@app.callback(
-    Output("open_up_fcisdg_output", "children"),
-    [Input("open_up_fcisdg", "filename"),
-     Input('current_mode', 'data'),]
-)
-def display_open_up_fcisdg_file(filenames, mode):
-    if not filenames:
-        return "No files uploaded. Compress files first if uploading multiple items."
-    
-    # Calculate relative path for linking the file in edit mode
-    assets_folder = os.path.normpath("./assets")
-    upload_relative_path = os.path.relpath(UPLOAD_DIRECTORY, assets_folder)
-    upload_relative_path = upload_relative_path.replace(os.path.sep, "/")
-    
-    def build_file_message(fname):
-        base_name = os.path.basename(fname)
-        message = f"📑File Uploaded: {base_name}"
-        if mode == "edit":
-            file_url = f"/assets/{upload_relative_path}/{base_name}"
-            return html.A(message, href=file_url, target="_blank")
-        return message
-    
-    if isinstance(filenames, list):
-        # Process each uploaded file
-        return [build_file_message(fname) for fname in filenames]
-    else:
-        return build_file_message(filenames)
-
-@app.callback(
-    Output("open_up_ppi_output", "children"),
-    [Input("open_up_ppi", "filename"),
-     Input('current_mode', 'data'),]
-)
-def display_open_up_ppi_file(filenames, mode):
-    if not filenames:
-        return "No files uploaded. Compress files first if uploading multiple items."
-    
-    # Calculate relative path for linking the file in edit mode
-    assets_folder = os.path.normpath("./assets")
-    upload_relative_path = os.path.relpath(UPLOAD_DIRECTORY, assets_folder)
-    upload_relative_path = upload_relative_path.replace(os.path.sep, "/")
-    
-    def build_file_message(fname):
-        base_name = os.path.basename(fname)
-        message = f"📑File Uploaded: {base_name}"
-        if mode == "edit":
-            file_url = f"/assets/{upload_relative_path}/{base_name}"
-            return html.A(message, href=file_url, target="_blank")
-        return message
-    
-    if isinstance(filenames, list):
-        # Process each uploaded file
-        return [build_file_message(fname) for fname in filenames]
-    else:
-        return build_file_message(filenames)
-
-@app.callback(
-    Output("open_up_iwsh_output", "children"),
-    [Input("open_up_iwsh", "filename"),
-     Input('current_mode', 'data'),]
-)
-def display_open_up_iwsh_file(filenames, mode):
-    if not filenames:
-        return "No files uploaded. Compress files first if uploading multiple items."
-    
-    # Calculate relative path for linking the file in edit mode
-    assets_folder = os.path.normpath("./assets")
-    upload_relative_path = os.path.relpath(UPLOAD_DIRECTORY, assets_folder)
-    upload_relative_path = upload_relative_path.replace(os.path.sep, "/")
-    
-    def build_file_message(fname):
-        base_name = os.path.basename(fname)
-        message = f"📑File Uploaded: {base_name}"
-        if mode == "edit":
-            file_url = f"/assets/{upload_relative_path}/{base_name}"
-            return html.A(message, href=file_url, target="_blank")
-        return message
-    
-    if isinstance(filenames, list):
-        # Process each uploaded file
-        return [build_file_message(fname) for fname in filenames]
-    else:
-        return build_file_message(filenames)
-
-
-@app.callback(
-    Output("open_up_ashp_output", "children"),
-    [Input("open_up_ashp", "filename"),
-     Input('current_mode', 'data'),]
-)
-def display_open_up_ashp_file(filenames, mode):
-    if not filenames:
-        return "No files uploaded. Compress files first if uploading multiple items."
-    
-    # Calculate relative path for linking the file in edit mode
-    assets_folder = os.path.normpath("./assets")
-    upload_relative_path = os.path.relpath(UPLOAD_DIRECTORY, assets_folder)
-    upload_relative_path = upload_relative_path.replace(os.path.sep, "/")
-    
-    def build_file_message(fname):
-        base_name = os.path.basename(fname)
-        message = f"📑File Uploaded: {base_name}"
-        if mode == "edit":
-            file_url = f"/assets/{upload_relative_path}/{base_name}"
-            return html.A(message, href=file_url, target="_blank")
-        return message
-    
-    if isinstance(filenames, list):
-        # Process each uploaded file
-        return [build_file_message(fname) for fname in filenames]
-    else:
-        return build_file_message(filenames)
-
-@app.callback(
-    Output("others_orientation_trainings_output", "children"),
-    [Input("others_orientation_trainings", "filename"),
-     Input('current_mode', 'data'),]
-)
-def display_others_orientation_trainings_file(filenames, mode):
-    if not filenames:
-        return "No files uploaded. Compress files first if uploading multiple items."
-    
-    # Calculate relative path for linking the file in edit mode
-    assets_folder = os.path.normpath("./assets")
-    upload_relative_path = os.path.relpath(UPLOAD_DIRECTORY, assets_folder)
-    upload_relative_path = upload_relative_path.replace(os.path.sep, "/")
-    
-    def build_file_message(fname):
-        base_name = os.path.basename(fname)
-        message = f"📑File Uploaded: {base_name}"
-        if mode == "edit":
-            file_url = f"/assets/{upload_relative_path}/{base_name}"
-            return html.A(message, href=file_url, target="_blank")
-        return message
-    
-    if isinstance(filenames, list):
-        # Process each uploaded file
-        return [build_file_message(fname) for fname in filenames]
-    else:
-        return build_file_message(filenames)
-
-@app.callback(
     Output("upload_resume_file_output", "children"),
     [Input("upload_resume_file", "filename"),
      Input('current_mode', 'data'),]
@@ -1941,6 +1345,7 @@ def display_upload_resume_file(filenames, mode):
     else:
         return build_file_message(filenames)
 
+
 layout = html.Div(
     [
         dbc.Row(
@@ -1957,6 +1362,7 @@ layout = html.Div(
                                 dcc.Store(id='loaded_municipality', storage_type='memory'),
                                 dcc.Store(id='loaded_barangay', storage_type='memory'),
                                 dcc.Store(id='degree_count', data=0, storage_type='memory'),
+                                dcc.Store(id='orientation_cert_count', data=0, storage_type='memory'),
                                 dcc.Store(id='current_mode', storage_type='memory'),
                             ]
                     ),
@@ -2151,6 +1557,105 @@ def display_additional_degrees(count):
     style_b = {"display": "block"} if count >= 1 else {"display": "none"}
     style_c = {"display": "block"} if count >= 2 else {"display": "none"}
     return style_b, style_c
+
+
+@app.callback(
+    [Output(f"orientation_cert_row_{i}", "style") for i in range(1, 21)],
+    Input('orientation_cert_count', 'data'),
+)
+def display_orientation_certs(count):
+    count = int(count or 0)
+    return [{"display": "block"} if i <= count else {"display": "none"} for i in range(1, 21)]
+
+
+@app.callback(
+    Output('orientation_cert_count', 'data'),
+    [Output(f"orientation_cert_name_{i}", "value") for i in range(1, 21)]
+    + [Output(f"orientation_cert_date_{i}", "date") for i in range(1, 21)]
+    + [Output(f"orientation_cert_link_{i}", "value") for i in range(1, 21)],
+    [
+        Input('to_load', 'modified_timestamp'),
+        Input('remove_orientation_cert_button', 'n_clicks'),
+    ] + [
+        Input(f"add_cert_{i}", "n_clicks") for i in range(len(ORIENTATION_TRAINING_NAMES))
+    ] + [
+        Input("add_cert_custom", "n_clicks"),
+    ],
+    [
+        State('to_load', 'data'),
+        State('url', 'search'),
+        State('orientation_cert_count', 'data'),
+        State('current_mode', 'data'),
+    ],
+    prevent_initial_call=True,
+)
+def manage_cert_fields(to_load_ts, remove_clicks, *cert_trigger_args):
+    trigger = callback_context.triggered_id
+    cert_triggers = cert_trigger_args[:len(ORIENTATION_TRAINING_NAMES) + 1]
+    to_load_data, search, current_count, mode = cert_trigger_args[len(ORIENTATION_TRAINING_NAMES) + 1:]
+    count = int(current_count or 0)
+
+    empty_names = [None] * 20
+    empty_dates = [None] * 20
+    empty_links = [None] * 20
+
+    if trigger == 'to_load' and to_load_data:
+        parsed = urlparse(search or "")
+        staff_profile_id = parse_qs(parsed.query).get('id', [None])[0]
+        if not staff_profile_id:
+            raise PreventUpdate
+        cert_sql = """
+            SELECT training_name, date_of_training, certificate_link
+            FROM adminteam.staff_orientation_certificates
+            WHERE staff_profile_id = %s
+            ORDER BY created_at
+        """
+        cert_df = db.querydatafromdatabase(cert_sql, [staff_profile_id], ['training_name', 'date_of_training', 'certificate_link'])
+        cert_count = len(cert_df)
+        cert_names = [None] * 20
+        cert_dates = [None] * 20
+        cert_links = [None] * 20
+        for i in range(min(cert_count, 20)):
+            cert_names[i] = cert_df.loc[i, 'training_name']
+            cert_dates[i] = cert_df.loc[i, 'date_of_training']
+            cert_links[i] = cert_df.loc[i, 'certificate_link']
+        return [cert_count] + cert_names + cert_dates + cert_links
+
+    elif trigger == 'remove_orientation_cert_button':
+        if count < 1:
+            raise PreventUpdate
+        row_to_clear = count
+        name_values = [no_update] * 20
+        date_values = [no_update] * 20
+        link_values = [no_update] * 20
+        name_values[row_to_clear - 1] = ""
+        date_values[row_to_clear - 1] = None
+        link_values[row_to_clear - 1] = ""
+        return [count - 1] + name_values + date_values + link_values
+
+    elif trigger.startswith('add_cert_') and trigger != 'add_cert_custom':
+        idx = int(trigger.replace('add_cert_', ''))
+        training_name = ORIENTATION_TRAINING_NAMES[idx] if idx < len(ORIENTATION_TRAINING_NAMES) else ""
+        if count >= 20:
+            raise PreventUpdate
+        name_values = [no_update] * 20
+        date_values = [no_update] * 20
+        link_values = [no_update] * 20
+        name_values[count] = training_name
+        return [count + 1] + name_values + date_values + link_values
+
+    elif trigger == 'add_cert_custom':
+        if count >= 20:
+            raise PreventUpdate
+        name_values = [no_update] * 20
+        date_values = [no_update] * 20
+        link_values = [no_update] * 20
+        name_values[count] = ""
+        return [count + 1] + name_values + date_values + link_values
+
+    raise PreventUpdate
+
+    raise PreventUpdate
 
 
 @app.callback(
@@ -2540,76 +2045,22 @@ def populate_college_dropdown(selected_municipality):
         State('emergency_contact_name', 'value'),
         State('emergency_contact_number', 'value'),
         State('emergency_contact_address', 'value'),
-        State('ob_date_w_admin', 'date'),
-        
-        State('ob_w_admin', 'contents'),
-        State('ob_w_admin', 'filename'),
 
-        State('link_ob_w_admin', 'value'),
-
-        State('ob_date_w_home', 'date'),
-
-        State('ob_w_home_team', 'contents'),
-        State('ob_w_home_team', 'filename'),
-
-        State('link_ob_w_home', 'value'),
-        State('gender_sensitivity_date', 'date'),
-
-        State('gender_sensitivity_training', 'contents'),
-        State('gender_sensitivity_training', 'filename'),
-
-        State('link_gender_sensitivity', 'value'),
-
-        State('gender_dev_training_date', 'date'),
-
-        State('gender_dev_training', 'contents'),
-        State('gender_dev_training', 'filename'),
-
-        State('link_gender_dev_training', 'value'),
-
-        State('open_up_fcisdg_date', 'date'),
-
-        State('open_up_fcisdg', 'contents'),
-        State('open_up_fcisdg', 'filename'),
-
-        State('link_open_up_fcisdg', 'value'),
-
-        State('open_up_ppi_date', 'date'),
-
-        State('open_up_ppi', 'contents'),
-        State('open_up_ppi', 'filename'),
-
-        State('link_open_up_ppi', 'value'),
-        
-        State('open_up_iwsh_date', 'date'),
-
-        State('open_up_iwsh', 'contents'),
-        State('open_up_iwsh', 'filename'),
-
-        State('link_open_up_iwsh', 'value'),
-
-        State('open_up_ashp_date', 'date'),
-
-        State('open_up_ashp', 'contents'),
-        State('open_up_ashp', 'filename'),
-
-        State('link_open_up_ashp', 'value'),
-
-        State('others_orientation_trainings_date', 'date'),
-
-        State('others_orientation_trainings', 'contents'),
-        State('others_orientation_trainings', 'filename'),
-
-        State('link_others_orientation_trainings', 'value'),
-
-        
         State('upload_resume_file', 'contents'),
         State('upload_resume_file', 'filename'),
         State('resume_last_update', 'date'),
         State('cv_link', 'value'),
         State('staff_image', 'contents'),
         State('staff_image', 'filename'),
-    ],
+
+        State('orientation_cert_count', 'data'),
+        ] + [
+        State(f'orientation_cert_name_{i}', 'value') for i in range(1, 21)
+        ] + [
+        State(f'orientation_cert_date_{i}', 'date') for i in range(1, 21)
+        ] + [
+        State(f'orientation_cert_link_{i}', 'value') for i in range(1, 21)
+        ],
 )
 
 def save_staff_profile(submitbtn, cancelbtn, confirmbtn, remove_record, current_mode, search, user_id, country, region, province, municipality, barangay, subdivision, house_number, street, zip_code,
@@ -2620,38 +2071,16 @@ def save_staff_profile(submitbtn, cancelbtn, confirmbtn, remove_record, current_
                        landbank_account_number, 
                        landbank_photo_contents, landbank_photo_filename,
                        emergency_contact_name, emergency_contact_number, emergency_contact_address,
-                       ob_date_w_admin, 
-                       ob_w_admin_contents, ob_w_admin_filename,
-                       link_ob_w_admin, 
-                       ob_date_w_home, 
-                       ob_w_home_team_contents, ob_w_home_team_filename,
-                       link_ob_w_home, 
-                       gender_sensitivity_date, 
-                       gender_sensitivity_training_contents, gender_sensitivity_training_filename,
-                       link_gender_sensitivity, 
-                       gender_dev_training_date, 
-                       gender_dev_training_contents, gender_dev_training_filename,
-                       link_gender_dev_training, 
-                       open_up_fcisdg_date,
-                       open_up_fcisdg_contents, open_up_fcisdg_filename,
-                       link_open_up_fcisdg, 
-                       open_up_ppi_date, 
-                       open_up_ppi_contents, open_up_ppi_filename,
-                       link_open_up_ppi, 
-                       open_up_iwsh_date, 
-                       open_up_iwsh_contents, open_up_iwsh_filename,
-                       link_open_up_iwsh, 
-                       open_up_ashp_date,
-                       open_up_ashp_contents, open_up_ashp_filename,
-                       link_open_up_ashp, 
-                       others_orientation_trainings_date, 
-                       others_orientation_trainings_contents, others_orientation_trainings_filename,
-                       link_others_orientation_trainings, 
                        upload_resume_file_contents, upload_resume_file_filename,
                        resume_last_update,
                        cv_link,
-                       staff_image_contents, staff_image_filename
+                       staff_image_contents, staff_image_filename,
+                       orientation_cert_count,
+                       *orientation_cert_args
                        ):
+    orientation_cert_names = list(orientation_cert_args[0:20])
+    orientation_cert_dates = list(orientation_cert_args[20:40])
+    orientation_cert_links = list(orientation_cert_args[40:60])
     ctx = dash.callback_context
     
     if not ctx.triggered:
@@ -2768,78 +2197,6 @@ def save_staff_profile(submitbtn, cancelbtn, confirmbtn, remove_record, current_
                 alert_color = 'danger'
                 alert_text = error
 
-            if ob_w_admin_contents is None or ob_w_admin_filename is None:
-                ob_w_admin_contents, ob_w_admin_filename = ["1"], ["1"]
-            ob_w_admin_data, error = process_files(ob_w_admin_contents, ob_w_admin_filename)
-            if error:
-                alert_open = True
-                alert_color = 'danger'
-                alert_text = error
-            
-            if ob_w_home_team_contents is None or ob_w_home_team_filename is None:
-                ob_w_home_team_contents, ob_w_home_team_filename = ["1"], ["1"]
-            ob_w_home_team_data, error = process_files(ob_w_home_team_contents, ob_w_home_team_filename)
-            if error:
-                alert_open = True
-                alert_color = 'danger'
-                alert_text = error
-
-            if gender_sensitivity_training_contents is None or gender_sensitivity_training_filename is None:
-                gender_sensitivity_training_contents, gender_sensitivity_training_filename = ["1"], ["1"]
-            gender_sensitivity_training_data, error = process_files(gender_sensitivity_training_contents, gender_sensitivity_training_filename)
-            if error:
-                alert_open = True
-                alert_color = 'danger'
-                alert_text = error
-            
-            if gender_dev_training_contents is None or gender_dev_training_filename is None:
-                gender_dev_training_contents, gender_dev_training_filename = ["1"], ["1"]
-            gender_dev_training_data, error = process_files(gender_dev_training_contents, gender_dev_training_filename)
-            if error:
-                alert_open = True
-                alert_color = 'danger'
-                alert_text = error
-
-            if open_up_fcisdg_contents is None or open_up_fcisdg_filename is None:
-                open_up_fcisdg_contents, open_up_fcisdg_filename = ["1"], ["1"]
-            open_up_fcisdg_data, error = process_files(open_up_fcisdg_contents, open_up_fcisdg_filename)
-            if error:
-                alert_open = True
-                alert_color = 'danger'
-                alert_text = error
-
-            if open_up_ppi_contents is None or open_up_ppi_filename is None:
-                open_up_ppi_contents, open_up_ppi_filename = ["1"], ["1"]
-            open_up_ppi_data, error = process_files(open_up_ppi_contents, open_up_ppi_filename)
-            if error:
-                alert_open = True
-                alert_color = 'danger'
-                alert_text = error
-
-            if open_up_iwsh_contents is None or open_up_iwsh_filename is None:
-                open_up_iwsh_contents, open_up_iwsh_filename = ["1"], ["1"]
-            open_up_iwsh_data, error = process_files(open_up_iwsh_contents, open_up_iwsh_filename)
-            if error:
-                alert_open = True
-                alert_color = 'danger'
-                alert_text = error
-
-            if open_up_ashp_contents is None or open_up_ashp_filename is None:
-                open_up_ashp_contents, open_up_ashp_filename = ["1"], ["1"]
-            open_up_ashp_data, error = process_files(open_up_ashp_contents, open_up_ashp_filename)
-            if error:
-                alert_open = True
-                alert_color = 'danger'
-                alert_text = error
-
-            if others_orientation_trainings_contents is None or others_orientation_trainings_filename is None:
-                others_orientation_trainings_contents, others_orientation_trainings_filename = ["1"], ["1"]
-            others_orientation_trainings_data, error = process_files(others_orientation_trainings_contents, others_orientation_trainings_filename)
-            if error:
-                alert_open = True
-                alert_color = 'danger'
-                alert_text = error
-
             if upload_resume_file_contents is None or upload_resume_file_filename is None:
                 upload_resume_file_contents, upload_resume_file_filename = ["1"], ["1"]
             upload_resume_file_data, error = process_files(upload_resume_file_contents, upload_resume_file_filename)
@@ -2865,33 +2222,6 @@ def save_staff_profile(submitbtn, cancelbtn, confirmbtn, remove_record, current_
                     staff_landbank_acct_num, 
                     landbank_photo_path, landbank_photo_name, landbank_photo_type, landbank_photo_size,
                     staff_emgcy_contact_name, staff_emgcy_contact_number, staff_emgcy_contact_address,
-                    ob_w_admin_date, 
-                    ob_w_admin_path, ob_w_admin_name, ob_w_admin_type, ob_w_admin_size,
-                    ob_w_admin_link, 
-                    ob_w_home_team_date, 
-                    ob_w_home_team_path, ob_w_home_team_name, ob_w_home_team_type, ob_w_home_team_size,
-                    ob_w_home_team_link, 
-                    gender_sensitivity_training_date, 
-                    gender_sensitivity_training_path, gender_sensitivity_training_name, gender_sensitivity_training_type, gender_sensitivity_training_size,
-                    gender_sensitivity_training_link,
-                    gender_dev_training_date, 
-                    gender_dev_training_path, gender_dev_training_name, gender_dev_training_type, gender_dev_training_size,
-                    gender_dev_training_link, 
-                    open_up_fcisdg_date,
-                    open_up_fcisdg_path, open_up_fcisdg_name, open_up_fcisdg_type, open_up_fcisdg_size, 
-                    open_up_fcisdg_link, 
-                    open_up_ppi_date,
-                    open_up_ppi_path, open_up_ppi_name, open_up_ppi_type, open_up_ppi_size,
-                    open_up_ppi_link,
-                    open_up_iwsh_date,
-                    open_up_iwsh_path, open_up_iwsh_name, open_up_iwsh_type, open_up_iwsh_size,
-                    open_up_iwsh_link, 
-                    open_up_ashp_date, 
-                    open_up_ashp_path, open_up_ashp_name, open_up_ashp_type, open_up_ashp_size,
-                    open_up_ashp_link, 
-                    others_orientation_trainings_date, 
-                    others_orientation_trainings_path, others_orientation_trainings_name, others_orientation_trainings_type, others_orientation_trainings_size,
-                    others_orientation_trainings_link,
                     staff_cv_path, staff_cv_name, staff_cv_type, staff_cv_size,
                     staff_cv_update,
                     staff_cv_link,
@@ -2904,34 +2234,7 @@ def save_staff_profile(submitbtn, cancelbtn, confirmbtn, remove_record, current_
                     %s, %s, %s,
                     %s, 
                     %s, %s, %s, %s, 
-                    %s, %s, %s, 
-                    %s,
-                    %s, %s, %s, %s, 
-                    %s,
-                    %s,
-                    %s, %s, %s, %s,
-                    %s,
-                    %s,
-                    %s, %s, %s, %s,
-                    %s,
-                    %s,
-                    %s, %s, %s, %s,
-                    %s,
-                    %s,
-                    %s, %s, %s, %s,
-                    %s,
-                    %s,
-                    %s, %s, %s, %s,
-                    %s,
-                    %s,
-                    %s, %s, %s, %s,
-                    %s,
-                    %s,
-                    %s, %s, %s, %s,
-                    %s,
-                    %s,
-                    %s, %s, %s, %s,
-                    %s,
+                    %s, %s, %s,
                     %s, %s, %s, %s,
                     %s,
                     %s,
@@ -2949,42 +2252,6 @@ def save_staff_profile(submitbtn, cancelbtn, confirmbtn, remove_record, current_
                     landbank_photo_data[0]["path"] if landbank_photo_data else None, landbank_photo_data[0]["name"] if landbank_photo_data else None,
                     landbank_photo_data[0]["type"] if landbank_photo_data else None, landbank_photo_data[0]["size"] if landbank_photo_data else None, 
                     emergency_contact_name, emergency_contact_number, emergency_contact_address,
-                    ob_date_w_admin, 
-                    ob_w_admin_data[0]["path"] if ob_w_admin_data else None, ob_w_admin_data[0]["name"] if ob_w_admin_data else None,
-                    ob_w_admin_data[0]["type"] if ob_w_admin_data else None, ob_w_admin_data[0]["size"] if ob_w_admin_data else None,
-                    link_ob_w_admin, 
-                    ob_date_w_home, 
-                    ob_w_home_team_data[0]["path"] if ob_w_home_team_data else None, ob_w_home_team_data[0]["name"] if ob_w_home_team_data else None,
-                    ob_w_home_team_data[0]["type"] if ob_w_home_team_data else None, ob_w_home_team_data[0]["size"] if ob_w_home_team_data else None,
-                    link_ob_w_home, 
-                    gender_sensitivity_date, 
-                    gender_sensitivity_training_data[0]["path"] if gender_sensitivity_training_data else None, gender_sensitivity_training_data[0]["name"] if gender_sensitivity_training_data else None,
-                    gender_sensitivity_training_data[0]["type"] if gender_sensitivity_training_data else None, gender_sensitivity_training_data[0]["size"] if gender_sensitivity_training_data else None,
-                    link_gender_sensitivity,
-                    gender_dev_training_date, 
-                    gender_dev_training_data[0]["path"] if gender_dev_training_data else None, gender_dev_training_data[0]["name"] if gender_dev_training_data else None,
-                    gender_dev_training_data[0]["type"] if gender_dev_training_data else None, gender_dev_training_data[0]["size"] if gender_dev_training_data else None,
-                    link_gender_dev_training, 
-                    open_up_fcisdg_date, 
-                    open_up_fcisdg_data[0]["path"] if open_up_fcisdg_data else None, open_up_fcisdg_data[0]["name"] if open_up_fcisdg_data else None,
-                    open_up_fcisdg_data[0]["type"] if open_up_fcisdg_data else None, open_up_fcisdg_data[0]["size"] if open_up_fcisdg_data else None,
-                    link_open_up_fcisdg, 
-                    open_up_ppi_date, 
-                    open_up_ppi_data[0]["path"] if open_up_ppi_data else None, open_up_ppi_data[0]["name"] if open_up_ppi_data else None,
-                    open_up_ppi_data[0]["type"] if open_up_ppi_data else None, open_up_ppi_data[0]["size"] if open_up_ppi_data else None,
-                    link_open_up_ppi, 
-                    open_up_iwsh_date, 
-                    open_up_iwsh_data[0]["path"] if open_up_iwsh_data else None, open_up_iwsh_data[0]["name"] if open_up_iwsh_data else None,
-                    open_up_iwsh_data[0]["type"] if open_up_iwsh_data else None, open_up_iwsh_data[0]["size"] if open_up_iwsh_data else None,
-                    link_open_up_iwsh, 
-                    open_up_ashp_date,
-                    open_up_ashp_data[0]["path"] if open_up_ashp_data else None, open_up_ashp_data[0]["name"] if open_up_ashp_data else None,
-                    open_up_ashp_data[0]["type"] if open_up_ashp_data else None, open_up_ashp_data[0]["size"] if open_up_ashp_data else None, 
-                    link_open_up_ashp, 
-                    others_orientation_trainings_date, 
-                    others_orientation_trainings_data[0]["path"] if others_orientation_trainings_data else None, others_orientation_trainings_data[0]["name"] if others_orientation_trainings_data else None,
-                    others_orientation_trainings_data[0]["type"] if others_orientation_trainings_data else None, others_orientation_trainings_data[0]["size"] if others_orientation_trainings_data else None,
-                    link_others_orientation_trainings,
                     upload_resume_file_data[0]["path"] if upload_resume_file_data else None, upload_resume_file_data[0]["name"] if upload_resume_file_data else None,
                     upload_resume_file_data[0]["type"] if upload_resume_file_data else None, upload_resume_file_data[0]["size"] if upload_resume_file_data else None,
                     resume_last_update, 
@@ -3018,6 +2285,19 @@ def save_staff_profile(submitbtn, cancelbtn, confirmbtn, remove_record, current_
             # Batch-insert all
             for vals in degree_inserts:
                 db.modifydatabase(degree_sql, vals)
+
+            # Insert orientation/training certificates
+            cert_sql = """
+                INSERT INTO adminteam.staff_orientation_certificates
+                (staff_profile_id, training_name, date_of_training, certificate_link)
+                VALUES (%s, %s, %s, %s)
+            """
+            for i in range(min(int(orientation_cert_count or 0), 20)):
+                name = orientation_cert_names[i] if i < len(orientation_cert_names) else None
+                date = orientation_cert_dates[i] if i < len(orientation_cert_dates) else None
+                link = orientation_cert_links[i] if i < len(orientation_cert_links) else None
+                if name:
+                    db.modifydatabase(cert_sql, [staff_profile_id, name, date or None, link or None])
 
             last_modal_open = True
             last_modal_header = "Staff Profile Successfully Added"
@@ -3055,24 +2335,6 @@ def save_staff_profile(submitbtn, cancelbtn, confirmbtn, remove_record, current_
                 "staff_emgcy_contact_name = %s",
                 "staff_emgcy_contact_number = %s",
                 "staff_emgcy_contact_address = %s",
-                "ob_w_admin_date = %s",
-                "ob_w_admin_link = %s",
-                "ob_w_home_team_date = %s",
-                "ob_w_home_team_link = %s",
-                "gender_sensitivity_training_date = %s",
-                "gender_sensitivity_training_link = %s",
-                "gender_dev_training_date = %s",
-                "gender_dev_training_link = %s",
-                "open_up_fcisdg_date = %s",
-                "open_up_fcisdg_link = %s",
-                "open_up_ppi_date = %s",
-                "open_up_ppi_link = %s",
-                "open_up_iwsh_date = %s",
-                "open_up_iwsh_link = %s",
-                "open_up_ashp_date = %s",
-                "open_up_ashp_link = %s",
-                "others_orientation_trainings_date = %s",
-                "others_orientation_trainings_link = %s",
                 "staff_cv_update = %s",
                 "staff_cv_link = %s"
             ]
@@ -3081,11 +2343,6 @@ def save_staff_profile(submitbtn, cancelbtn, confirmbtn, remove_record, current_
                 gsis_bp_no, pagibig_id_no, sss_no, philhealth_no, tin_no, govt_id, govt_id_no, govt_id_date_of_issuance, govt_id_place_of_issuance,
                 eligibility_earned, eligibility_start_date, eligibility_end_date,
                 landbank_account_number, emergency_contact_name, emergency_contact_number, emergency_contact_address,
-                ob_date_w_admin, link_ob_w_admin, ob_date_w_home, link_ob_w_home,
-                gender_sensitivity_date, link_gender_sensitivity, gender_dev_training_date, link_gender_dev_training,
-                open_up_fcisdg_date, link_open_up_fcisdg, open_up_ppi_date, link_open_up_ppi,
-                open_up_iwsh_date, link_open_up_iwsh, open_up_ashp_date, link_open_up_ashp,
-                others_orientation_trainings_date, link_others_orientation_trainings,
                 resume_last_update, cv_link
             ]
 
@@ -3097,7 +2354,9 @@ def save_staff_profile(submitbtn, cancelbtn, confirmbtn, remove_record, current_
                     alert_open = True
                     alert_color = 'danger'
                     alert_text = error
-                    return [alert_open, alert_color, alert_text, initial_modal_open, initial_modal_message, btn_color, last_modal_open, last_modal_header]
+                    return [alert_open, alert_color, alert_text, initial_modal_open, initial_modal_message, btn_color, last_modal_open, last_modal_header,
+                            user_id_class, country_class, region_class, province_class, municipality_class, barangay_class, zip_code_class,
+                            philhealth_no_class, tin_no_class, govt_id_class, govt_id_no_class, emergency_contact_name_class, emergency_contact_number_class, emergency_contact_address_class]
                 update_fields.extend([
                     "govt_id_photo_path = %s",
                     "govt_id_photo_name = %s",
@@ -3117,7 +2376,9 @@ def save_staff_profile(submitbtn, cancelbtn, confirmbtn, remove_record, current_
                     alert_open = True
                     alert_color = 'danger'
                     alert_text = error
-                    return [alert_open, alert_color, alert_text, initial_modal_open, initial_modal_message, btn_color, last_modal_open, last_modal_header]
+                    return [alert_open, alert_color, alert_text, initial_modal_open, initial_modal_message, btn_color, last_modal_open, last_modal_header,
+                            user_id_class, country_class, region_class, province_class, municipality_class, barangay_class, zip_code_class,
+                            philhealth_no_class, tin_no_class, govt_id_class, govt_id_no_class, emergency_contact_name_class, emergency_contact_number_class, emergency_contact_address_class]
                 update_fields.extend([
                     "landbank_photo_path = %s",
                     "landbank_photo_name = %s",
@@ -3131,195 +2392,6 @@ def save_staff_profile(submitbtn, cancelbtn, confirmbtn, remove_record, current_
                     landbank_photo_data[0]["size"],
                 ])
 
-            # For ob_w_admin:
-            if ob_w_admin_contents is not None and ob_w_admin_contents != ["1"]:
-                ob_w_admin_data, error = process_files(ob_w_admin_contents, ob_w_admin_filename)
-                if error:
-                    alert_open = True
-                    alert_color = 'danger'
-                    alert_text = error
-                    return [alert_open, alert_color, alert_text, initial_modal_open, initial_modal_message, btn_color, last_modal_open, last_modal_header]
-                update_fields.extend([
-                    "ob_w_admin_path = %s",
-                    "ob_w_admin_name = %s",
-                    "ob_w_admin_type = %s",
-                    "ob_w_admin_size = %s"
-                ])
-                values.extend([
-                    ob_w_admin_data[0]["path"],
-                    ob_w_admin_data[0]["name"],
-                    ob_w_admin_data[0]["type"],
-                    ob_w_admin_data[0]["size"],
-                ])
-
-            # For ob_w_home_team:
-            if ob_w_home_team_contents is not None and ob_w_home_team_contents != ["1"]:
-                ob_w_home_team_data, error = process_files(ob_w_home_team_contents, ob_w_home_team_filename)
-                if error:
-                    alert_open = True
-                    alert_color = 'danger'
-                    alert_text = error
-                    return [alert_open, alert_color, alert_text, initial_modal_open, initial_modal_message, btn_color, last_modal_open, last_modal_header]
-                update_fields.extend([
-                    "ob_w_home_team_path = %s",
-                    "ob_w_home_team_name = %s",
-                    "ob_w_home_team_type = %s",
-                    "ob_w_home_team_size = %s"
-                ])
-                values.extend([
-                    ob_w_home_team_data[0]["path"],
-                    ob_w_home_team_data[0]["name"],
-                    ob_w_home_team_data[0]["type"],
-                    ob_w_home_team_data[0]["size"],
-                ])
-
-            # For gender_sensitivity_training:
-            if gender_sensitivity_training_contents is not None and gender_sensitivity_training_contents != ["1"]:
-                gender_sensitivity_training_data, error = process_files(gender_sensitivity_training_contents, gender_sensitivity_training_filename)
-                if error:
-                    alert_open = True
-                    alert_color = 'danger'
-                    alert_text = error
-                    return [alert_open, alert_color, alert_text, initial_modal_open, initial_modal_message, btn_color, last_modal_open, last_modal_header]
-                update_fields.extend([
-                    "gender_sensitivity_training_path = %s",
-                    "gender_sensitivity_training_name = %s",
-                    "gender_sensitivity_training_type = %s",
-                    "gender_sensitivity_training_size = %s"
-                ])
-                values.extend([
-                    gender_sensitivity_training_data[0]["path"],
-                    gender_sensitivity_training_data[0]["name"],
-                    gender_sensitivity_training_data[0]["type"],
-                    gender_sensitivity_training_data[0]["size"],
-                ])
-
-            # For gender_dev_training:
-            if gender_dev_training_contents is not None and gender_dev_training_contents != ["1"]:
-                gender_dev_training_data, error = process_files(gender_dev_training_contents, gender_dev_training_filename)
-                if error:
-                    alert_open = True
-                    alert_color = 'danger'
-                    alert_text = error
-                    return [alert_open, alert_color, alert_text, initial_modal_open, initial_modal_message, btn_color, last_modal_open, last_modal_header]
-                update_fields.extend([
-                    "gender_dev_training_path = %s",
-                    "gender_dev_training_name = %s",
-                    "gender_dev_training_type = %s",
-                    "gender_dev_training_size = %s"
-                ])
-                values.extend([
-                    gender_dev_training_data[0]["path"],
-                    gender_dev_training_data[0]["name"],
-                    gender_dev_training_data[0]["type"],
-                    gender_dev_training_data[0]["size"],
-                ])
-
-            # For open_up_fcisdg:
-            if open_up_fcisdg_contents is not None and open_up_fcisdg_contents != ["1"]:
-                open_up_fcisdg_data, error = process_files(open_up_fcisdg_contents, open_up_fcisdg_filename)
-                if error:
-                    alert_open = True
-                    alert_color = 'danger'
-                    alert_text = error
-                    return [alert_open, alert_color, alert_text, initial_modal_open, initial_modal_message, btn_color, last_modal_open, last_modal_header]
-                update_fields.extend([
-                    "open_up_fcisdg_path = %s",
-                    "open_up_fcisdg_name = %s",
-                    "open_up_fcisdg_type = %s",
-                    "open_up_fcisdg_size = %s"
-                ])
-                values.extend([
-                    open_up_fcisdg_data[0]["path"],
-                    open_up_fcisdg_data[0]["name"],
-                    open_up_fcisdg_data[0]["type"],
-                    open_up_fcisdg_data[0]["size"],
-                ])
-
-            # For open_up_ppi:
-            if open_up_ppi_contents is not None and open_up_ppi_contents != ["1"]:
-                open_up_ppi_data, error = process_files(open_up_ppi_contents, open_up_ppi_filename)
-                if error:
-                    alert_open = True
-                    alert_color = 'danger'
-                    alert_text = error
-                    return [alert_open, alert_color, alert_text, initial_modal_open, initial_modal_message, btn_color, last_modal_open, last_modal_header]
-                update_fields.extend([
-                    "open_up_ppi_path = %s",
-                    "open_up_ppi_name = %s",
-                    "open_up_ppi_type = %s",
-                    "open_up_ppi_size = %s"
-                ])
-                values.extend([
-                    open_up_ppi_data[0]["path"],
-                    open_up_ppi_data[0]["name"],
-                    open_up_ppi_data[0]["type"],
-                    open_up_ppi_data[0]["size"],
-                ])
-
-            # For open_up_iwsh:
-            if open_up_iwsh_contents is not None and open_up_iwsh_contents != ["1"]:
-                open_up_iwsh_data, error = process_files(open_up_iwsh_contents, open_up_iwsh_filename)
-                if error:
-                    alert_open = True
-                    alert_color = 'danger'
-                    alert_text = error
-                    return [alert_open, alert_color, alert_text, initial_modal_open, initial_modal_message, btn_color, last_modal_open, last_modal_header]
-                update_fields.extend([
-                    "open_up_iwsh_path = %s",
-                    "open_up_iwsh_name = %s",
-                    "open_up_iwsh_type = %s",
-                    "open_up_iwsh_size = %s"
-                ])
-                values.extend([
-                    open_up_iwsh_data[0]["path"],
-                    open_up_iwsh_data[0]["name"],
-                    open_up_iwsh_data[0]["type"],
-                    open_up_iwsh_data[0]["size"],
-                ])
-
-            # For open_up_ashp:
-            if open_up_ashp_contents is not None and open_up_ashp_contents != ["1"]:
-                open_up_ashp_data, error = process_files(open_up_ashp_contents, open_up_ashp_filename)
-                if error:
-                    alert_open = True
-                    alert_color = 'danger'
-                    alert_text = error
-                    return [alert_open, alert_color, alert_text, initial_modal_open, initial_modal_message, btn_color, last_modal_open, last_modal_header]
-                update_fields.extend([
-                    "open_up_ashp_path = %s",
-                    "open_up_ashp_name = %s",
-                    "open_up_ashp_type = %s",
-                    "open_up_ashp_size = %s"
-                ])
-                values.extend([
-                    open_up_ashp_data[0]["path"],
-                    open_up_ashp_data[0]["name"],
-                    open_up_ashp_data[0]["type"],
-                    open_up_ashp_data[0]["size"],
-                ])
-
-            # For others_orientation_trainings:
-            if others_orientation_trainings_contents is not None and others_orientation_trainings_contents != ["1"]:
-                others_orientation_trainings_data, error = process_files(others_orientation_trainings_contents, others_orientation_trainings_filename)
-                if error:
-                    alert_open = True
-                    alert_color = 'danger'
-                    alert_text = error
-                    return [alert_open, alert_color, alert_text, initial_modal_open, initial_modal_message, btn_color, last_modal_open, last_modal_header]
-                update_fields.extend([
-                    "others_orientation_trainings_path = %s",
-                    "others_orientation_trainings_name = %s",
-                    "others_orientation_trainings_type = %s",
-                    "others_orientation_trainings_size = %s"
-                ])
-                values.extend([
-                    others_orientation_trainings_data[0]["path"],
-                    others_orientation_trainings_data[0]["name"],
-                    others_orientation_trainings_data[0]["type"],
-                    others_orientation_trainings_data[0]["size"],
-                ])
-
             # For upload_resume_file:
             if upload_resume_file_contents is not None and upload_resume_file_contents != ["1"]:
                 upload_resume_file_data, error = process_files(upload_resume_file_contents, upload_resume_file_filename)
@@ -3327,7 +2399,9 @@ def save_staff_profile(submitbtn, cancelbtn, confirmbtn, remove_record, current_
                     alert_open = True
                     alert_color = 'danger'
                     alert_text = error
-                    return [alert_open, alert_color, alert_text, initial_modal_open, initial_modal_message, btn_color, last_modal_open, last_modal_header]
+                    return [alert_open, alert_color, alert_text, initial_modal_open, initial_modal_message, btn_color, last_modal_open, last_modal_header,
+                            user_id_class, country_class, region_class, province_class, municipality_class, barangay_class, zip_code_class,
+                            philhealth_no_class, tin_no_class, govt_id_class, govt_id_no_class, emergency_contact_name_class, emergency_contact_number_class, emergency_contact_address_class]
                 update_fields.extend([
                     "staff_cv_path = %s",
                     "staff_cv_name = %s",
@@ -3348,7 +2422,9 @@ def save_staff_profile(submitbtn, cancelbtn, confirmbtn, remove_record, current_
                     alert_open = True
                     alert_color = 'danger'
                     alert_text = error
-                    return [alert_open, alert_color, alert_text, initial_modal_open, initial_modal_message, btn_color, last_modal_open, last_modal_header]
+                    return [alert_open, alert_color, alert_text, initial_modal_open, initial_modal_message, btn_color, last_modal_open, last_modal_header,
+                            user_id_class, country_class, region_class, province_class, municipality_class, barangay_class, zip_code_class,
+                            philhealth_no_class, tin_no_class, govt_id_class, govt_id_no_class, emergency_contact_name_class, emergency_contact_number_class, emergency_contact_address_class]
                 update_fields.extend([
                     "staff_image_path = %s",
                     "staff_image_name = %s",
@@ -3393,6 +2469,22 @@ def save_staff_profile(submitbtn, cancelbtn, confirmbtn, remove_record, current_
                 if deg:
                     db.modifydatabase(degree_sql, [staffprofilesid, deg, school or '', year or None])
 
+            # Remove old orientation certificates and re-insert
+            del_cert_sql = "DELETE FROM adminteam.staff_orientation_certificates WHERE staff_profile_id = %s"
+            db.modifydatabase(del_cert_sql, [staffprofilesid])
+
+            cert_sql = """
+                INSERT INTO adminteam.staff_orientation_certificates
+                (staff_profile_id, training_name, date_of_training, certificate_link)
+                VALUES (%s, %s, %s, %s)
+            """
+            for i in range(min(int(orientation_cert_count or 0), 20)):
+                name = orientation_cert_names[i] if i < len(orientation_cert_names) else None
+                date = orientation_cert_dates[i] if i < len(orientation_cert_dates) else None
+                link = orientation_cert_links[i] if i < len(orientation_cert_links) else None
+                if name:
+                    db.modifydatabase(cert_sql, [staffprofilesid, name, date or None, link or None])
+
             last_modal_open = True
             last_modal_header = "Staff Profile Successfully Updated"
     
@@ -3434,33 +2526,6 @@ def save_staff_profile(submitbtn, cancelbtn, confirmbtn, remove_record, current_
         Output('emergency_contact_name', 'value'),
         Output('emergency_contact_number', 'value'),
         Output('emergency_contact_address', 'value'),
-        Output('ob_date_w_admin', 'date'),
-        Output('ob_w_admin', 'filename'),
-        Output('link_ob_w_admin', 'value'),
-        Output('ob_date_w_home', 'date'),
-        Output('ob_w_home_team', 'filename'),
-        Output('link_ob_w_home', 'value'),
-        Output('gender_sensitivity_date', 'date'),
-        Output('gender_sensitivity_training', 'filename'),
-        Output('link_gender_sensitivity', 'value'),
-        Output('gender_dev_training_date', 'date'),
-        Output('gender_dev_training', 'filename'),
-        Output('link_gender_dev_training', 'value'),
-        Output('open_up_fcisdg_date', 'date'),
-        Output('open_up_fcisdg', 'filename'),
-        Output('link_open_up_fcisdg', 'value'),
-        Output('open_up_ppi_date', 'date'),
-        Output('open_up_ppi', 'filename'),
-        Output('link_open_up_ppi', 'value'),
-        Output('open_up_iwsh_date', 'date'),
-        Output('open_up_iwsh', 'filename'),
-        Output('link_open_up_iwsh', 'value'),
-        Output('open_up_ashp_date', 'date'),
-        Output('open_up_ashp', 'filename'),
-        Output('link_open_up_ashp', 'value'),
-        Output('others_orientation_trainings_date', 'date'),
-        Output('others_orientation_trainings', 'filename'),
-        Output('link_others_orientation_trainings', 'value'),
         Output('upload_resume_file', 'filename'),
         Output('resume_last_update', 'date'),
         Output('cv_link', 'value'),
@@ -3481,7 +2546,7 @@ def save_staff_profile(submitbtn, cancelbtn, confirmbtn, remove_record, current_
     [
         State('to_load', 'data'),
         State('url', 'search')
-    ]
+    ],
 )
 
 
@@ -3501,33 +2566,6 @@ def staff_profiles_load(timestamp, to_load, search):
                 staff_landbank_acct_num, 
                 landbank_photo_name as landbank_photo, 
                 staff_emgcy_contact_name, staff_emgcy_contact_number, staff_emgcy_contact_address,
-                ob_w_admin_date, 
-                ob_w_admin_name as ob_w_admin, 
-                ob_w_admin_link, 
-                ob_w_home_team_date, 
-                ob_w_home_team_name as ob_w_home_team,
-                ob_w_home_team_link, 
-                gender_sensitivity_training_date, 
-                gender_sensitivity_training_name as gender_sensitivity_training,
-                gender_sensitivity_training_link,
-                gender_dev_training_date, 
-                gender_dev_training_name as gender_dev_training,
-                gender_dev_training_link, 
-                open_up_fcisdg_date,
-                open_up_fcisdg_name as open_up_fcisdg, 
-                open_up_fcisdg_link, 
-                open_up_ppi_date,
-                open_up_ppi_name as open_up_ppi,
-                open_up_ppi_link,
-                open_up_iwsh_date,
-                open_up_iwsh_name as open_up_iwsh, 
-                open_up_iwsh_link, 
-                open_up_ashp_date, 
-                open_up_ashp_name as open_up_ashp, 
-                open_up_ashp_link, 
-                others_orientation_trainings_date, 
-                others_orientation_trainings_name as others_orientation_trainings, 
-                others_orientation_trainings_link,
                 staff_cv_name as staff_cv,
                 staff_cv_update,
                 staff_cv_link,
@@ -3545,33 +2583,6 @@ def staff_profiles_load(timestamp, to_load, search):
             'staff_landbank_acct_num', 
             'landbank_photo',
             'staff_emgcy_contact_name', 'staff_emgcy_contact_number', 'staff_emgcy_contact_address',
-            'ob_w_admin_date', 
-            'ob_w_admin',
-            'ob_w_admin_link', 
-            'ob_w_home_team_date', 
-            'ob_w_home_team',
-            'ob_w_home_team_link', 
-            'gender_sensitivity_training_date', 
-            'gender_sensitivity_training',
-            'gender_sensitivity_training_link',
-            'gender_dev_training_date', 
-            'gender_dev_training',
-            'gender_dev_training_link', 
-            'open_up_fcisdg_date',
-            'open_up_fcisdg',  
-            'open_up_fcisdg_link', 
-            'open_up_ppi_date',
-            'open_up_ppi',
-            'open_up_ppi_link',
-            'open_up_iwsh_date',
-            'open_up_iwsh', 
-            'open_up_iwsh_link', 
-            'open_up_ashp_date', 
-            'open_up_ashp',
-            'open_up_ashp_link', 
-            'others_orientation_trainings_date', 
-            'others_orientation_trainings', 
-            'others_orientation_trainings_link',
             'staff_cv',
             'staff_cv_update',
             'staff_cv_link',
@@ -3608,33 +2619,6 @@ def staff_profiles_load(timestamp, to_load, search):
         staff_emgcy_contact_name = df['staff_emgcy_contact_name'][0]
         staff_emgcy_contact_number = df['staff_emgcy_contact_number'][0]
         staff_emgcy_contact_address = df['staff_emgcy_contact_address'][0]
-        ob_w_admin_date = df['ob_w_admin_date'][0]
-        ob_w_admin = df['ob_w_admin'][0]
-        ob_w_admin_link = df['ob_w_admin_link'][0]
-        ob_w_home_team_date = df['ob_w_home_team_date'][0]
-        ob_w_home_team = df['ob_w_home_team'][0]
-        ob_w_home_team_link = df['ob_w_home_team_link'][0]
-        gender_sensitivity_training_date = df['gender_sensitivity_training_date'][0]
-        gender_sensitivity_training = df['gender_sensitivity_training'][0]
-        gender_sensitivity_training_link = df['gender_sensitivity_training_link'][0]
-        gender_dev_training_date = df['gender_dev_training_date'][0]
-        gender_dev_training = df['gender_dev_training'][0]
-        gender_dev_training_link = df['gender_dev_training_link'][0]
-        open_up_fcisdg_date = df['open_up_fcisdg_date'][0]
-        open_up_fcisdg = df['open_up_fcisdg'][0]
-        open_up_fcisdg_link = df['open_up_fcisdg_link'][0]
-        open_up_ppi_date = df['open_up_ppi_date'][0]
-        open_up_ppi = df['open_up_ppi'][0]
-        open_up_ppi_link = df['open_up_ppi_link'][0]
-        open_up_iwsh_date = df['open_up_iwsh_date'][0]
-        open_up_iwsh = df['open_up_iwsh'][0]
-        open_up_iwsh_link = df['open_up_iwsh_link'][0]
-        open_up_ashp_date = df['open_up_ashp_date'][0]
-        open_up_ashp = df['open_up_ashp'][0]
-        open_up_ashp_link = df['open_up_ashp_link'][0]
-        others_orientation_trainings_date = df['others_orientation_trainings_date'][0]
-        others_orientation_trainings = df['others_orientation_trainings'][0]
-        others_orientation_trainings_link = df['others_orientation_trainings_link'][0]
         staff_cv = df['staff_cv'][0]    
         staff_cv_update = df['staff_cv_update'][0]
         staff_cv_link = df['staff_cv_link'][0]
@@ -3671,44 +2655,16 @@ def staff_profiles_load(timestamp, to_load, search):
                 staff_landbank_acct_num, 
                 landbank_photo,
                 staff_emgcy_contact_name, staff_emgcy_contact_number, staff_emgcy_contact_address,
-                ob_w_admin_date,
-                ob_w_admin,
-                ob_w_admin_link, 
-                ob_w_home_team_date, 
-                ob_w_home_team,
-                ob_w_home_team_link, 
-                gender_sensitivity_training_date, 
-                gender_sensitivity_training,
-                gender_sensitivity_training_link,
-                gender_dev_training_date, 
-                gender_dev_training,
-                gender_dev_training_link, 
-                open_up_fcisdg_date, 
-                open_up_fcisdg,
-                open_up_fcisdg_link, 
-                open_up_ppi_date, 
-                open_up_ppi,
-                open_up_ppi_link,
-                open_up_iwsh_date, 
-                open_up_iwsh,
-                open_up_iwsh_link, 
-                open_up_ashp_date, 
-                open_up_ashp,
-                open_up_ashp_link, 
-                others_orientation_trainings_date, 
-                others_orientation_trainings,
-                others_orientation_trainings_link,
                 staff_cv,
                 staff_cv_update, 
                 staff_cv_link,
                 staff_image_name,
                 deg_a, sch_a, yr_a,
                 deg_b, sch_b, yr_b,
-                deg_c, sch_c, yr_c,
-                ]
+                deg_c, sch_c, yr_c]
     else:
         raise PreventUpdate
-    
+
 
 @app.callback(
     Output('country', 'value'),
