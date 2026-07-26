@@ -10,7 +10,9 @@ import pandas as pd
 
 from apps import commonmodules as cm
 from app import app
-from apps import dbconnect as db 
+from apps import dbconnect as db
+
+from urllib.parse import urlparse, parse_qs
 
 
 form = dbc.Form(
@@ -76,6 +78,24 @@ form = dbc.Form(
             ],
             className="mb-1",
         ),
+        dbc.Row(
+            [
+                dbc.Label(
+                    ["Main Expense Budget Allocation (₱)", 
+                     html.Span("*", style={"color": "#F8B237"})],
+                    width=4,
+                ),
+                dbc.Col(
+                    dbc.Input(
+                        id="main_expense_budget",
+                        placeholder="0,000.00",
+                        type="text",
+                    ),
+                    width=8,
+                ),
+            ],
+            className="mb-1",
+        ),        
         dbc.Row(
               [
                dbc.Label(
@@ -185,6 +205,12 @@ form = dbc.Form(
 # Layout for the Dash app
 layout = html.Div(
     [
+        html.Div(  
+                [
+                    dcc.Store(id='expensetype_toload', storage_type='memory', data=0),
+                    dcc.Store(id='expensetype_edit_mode', storage_type='memory', data=0),
+                ]
+            ),
         dbc.Row(
             [
                 cm.sidebar,
@@ -243,6 +269,7 @@ def populate_mainexpensetype_dropdown(pathname):
     [
         Output('main_expense_name', 'disabled'),
         Output('main_expense_shortname', 'disabled'),
+        Output('main_expense_budget', 'disabled'),
         Output('main_expensetype_id', 'disabled'),
         Output('sub_expense_name', 'disabled'),
     ],
@@ -250,10 +277,10 @@ def populate_mainexpensetype_dropdown(pathname):
 )
 def toggle_types(expense_type):
     if expense_type == 'Main Expense':
-        return False, False, True, True
+        return False, False, False, True, True
     elif expense_type == 'Sub Expense':
-        return True, True, False, False
-    return True, True, True, True
+        return True, True, True, False, False
+    return True, True, True, True, True
 
  
 
@@ -263,6 +290,7 @@ def toggle_types(expense_type):
         Output('select_expense_type', 'className'),
         Output('main_expense_name', 'className'),
         Output('main_expense_shortname', 'className'),
+        Output('main_expense_budget', 'className'),
         Output('main_expensetype_id', 'className'),
         Output('sub_expense_name', 'className'),
         Output('expensetype_alert', 'is_open'),
@@ -282,11 +310,12 @@ def toggle_types(expense_type):
         State('select_expense_type', 'value'),
         State('main_expense_name', 'value'),
         State('main_expense_shortname', 'value'),
+        State('main_expense_budget', 'value'),
         State('main_expensetype_id', 'value'),
         State('sub_expense_name', 'value')
     ]
 )
-def add_expense(submitbtn, cancelbtn, confirmbtn, expense_type, main_expense_name, main_expense_shortname, main_expense_id, sub_expense_name):
+def add_expense(submitbtn, cancelbtn, confirmbtn, expense_type, main_expense_name, main_expense_shortname, main_expense_budget, main_expense_id, sub_expense_name):
     
     ctx = dash.callback_context
 
@@ -301,6 +330,7 @@ def add_expense(submitbtn, cancelbtn, confirmbtn, expense_type, main_expense_nam
     select_expense_type_class = ''
     main_expense_name_class = ''
     main_expense_shortname_class = ''
+    main_expense_budget_class = ''
     main_expensetype_id_class = ''
     sub_expense_name_class = ''
     alert_open = False
@@ -314,12 +344,13 @@ def add_expense(submitbtn, cancelbtn, confirmbtn, expense_type, main_expense_nam
     if eventid == 'save_button' and submitbtn:
         # Ensure required fields are filled
         if expense_type == 'Main Expense':
-            if not main_expense_name or not main_expense_shortname:
+            if not main_expense_name or not main_expense_shortname or not main_expense_budget:
                 alert_open = True
                 alert_color = "danger"
-                alert_text = "Check your inputs. Please add a Main Expense Name and Short Name."
+                alert_text = "Check your inputs. Please add a Main Expense Name, Short Name, and Budget."
                 main_expense_name_class = get_input_class(main_expense_name)
                 main_expense_shortname_class = get_input_class(main_expense_shortname)
+                main_expense_budget_class = get_input_class(main_expense_budget)
             else:
                 first_modal_open = True
                 first_modal_message = 'Are you sure you want to add this Main Expense?'
@@ -345,11 +376,11 @@ def add_expense(submitbtn, cancelbtn, confirmbtn, expense_type, main_expense_nam
         if expense_type == 'Main Expense':
             sql = """
                     INSERT INTO adminteam.main_expenses(
-                        main_expense_name, main_expense_shortname
+                        main_expense_name, main_expense_shortname, main_expense_budget
                     )
-                    VALUES (%s, %s)
+                    VALUES (%s, %s, %s)
                 """
-            values = (main_expense_name, main_expense_shortname)
+            values = (main_expense_name, main_expense_shortname, main_expense_budget)
             db.modifydatabase(sql, values)
             final_modal_open = True
             final_modal_header = "Main Expense Successfully Added"
@@ -373,5 +404,69 @@ def add_expense(submitbtn, cancelbtn, confirmbtn, expense_type, main_expense_nam
     else:
         raise PreventUpdate
 
-    return [select_expense_type_class, main_expense_name_class, main_expense_shortname_class, main_expensetype_id_class, sub_expense_name_class,
+    return [select_expense_type_class, main_expense_name_class, main_expense_shortname_class, main_expense_budget_class, main_expensetype_id_class, sub_expense_name_class,
             alert_open, alert_color, alert_text, first_modal_open, first_modal_message, final_modal_open, final_modal_header]
+
+# #Load existing type
+# @app.callback(
+#     [
+#         Output('select_expense_type', 'value'),
+#         Output('main_expense_name', 'value'),
+#         Output('main_expense_shortname', 'value'),
+#         Output('main_expense_budget', 'value'),
+#         Output('main_expensetype_id', 'value'),
+#         Output('sub_expense_name', 'value'),
+#     ],
+#     [
+#         Input('expensetype_toload', 'modified_timestamp')
+#     ],
+#     [
+#         State('expensetype_toload', 'data'),
+#         State('url', 'search')
+#     ]
+# )
+# def expensetype_load(timestamp, toload, search):
+#     if toload:
+#         parsed = urlparse(search)
+#         expidd = parse_qs(parsed.query)['id'][0]
+
+#         sql = """
+#             SELECT 
+#                 main_expense_id, main_expense_name, main_expense_shortname,
+#                 main_expense_budget, main_expensetype_id,
+#                 sub_expense_name
+#             FROM adminteam.expenses
+#             WHERE main_expense_id = %s
+#         """
+#         values = [expidd]
+
+#         cols = [
+#             'exp_date', 'exp_payee',  'main_expense_id', 'sub_expense_id',
+#             'exp_particulars', 'exp_amount', 'exp_status', 
+#             'exp_bur_no', 'exp_submitted_by', 'exp_funding_source',
+#             'exp_receipt'
+#         ]
+
+#         df = db.querydatafromdatabase(sql, values, cols)
+
+#         exp_date = df['exp_date'][0]
+#         exp_payee = df['exp_payee'][0]
+#         main_expense_id = df['main_expense_id'][0]
+#         sub_expense_id = df['sub_expense_id'][0]
+#         exp_particulars = df['exp_particulars'][0]
+#         exp_amount = df['exp_amount'][0]
+#         exp_status = df['exp_status'][0]
+#         exp_bur_no = df['exp_bur_no'][0]
+#         exp_submitted_by = df['exp_submitted_by'][0]
+#         exp_funding_source = df['exp_funding_source'][0]
+#         exp_receipt = df['exp_receipt'][0]
+         
+#         return [
+#             exp_date, exp_payee,
+#             main_expense_id, sub_expense_id, exp_particulars,
+#             exp_amount, exp_status,
+#             exp_bur_no, exp_submitted_by, exp_funding_source, exp_receipt
+#         ]
+
+#     else:
+#         raise PreventUpdate

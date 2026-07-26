@@ -1258,11 +1258,12 @@ def evaluation_summary_downloadbutton(pathname, search):
 @app.callback(
     Output("pdf-download", "data"),
     Input("download_pdf_btn", "n_clicks"),
-    State("url", "search"),
+    [State("url", "search"),
+     State('currentrole', 'data')],
     prevent_initial_call=True,
 )
 
-def serve_pdf(n_clicks, search):
+def serve_pdf(n_clicks, search, role):
     parsed = urlparse(search)
     eval_id = parse_qs(parsed.query)['id'][0]
     final_id = int(eval_id)
@@ -1280,6 +1281,6 @@ def serve_pdf(n_clicks, search):
     df = db.querydatafromdatabase(sql, values, cols)
     full_name =df['Full_Name'][0]
 
-    pdf = pdf_utils.generate_pdf_bytes(final_id)
+    pdf = pdf_utils.generate_pdf_bytes(final_id, role)
     return dcc.send_bytes(lambda buf: buf.write(pdf), filename=f"Peer_Evaluation_Report_{full_name}.pdf")
 

@@ -97,7 +97,54 @@ def charts_mainexp():
         ]
     )
 
+def charts_alloc(mextype):
+    current_year = datetime.now().year
 
+    pie_sql = """
+        SELECT 
+            me.main_expense_budget,
+            COALESCE(SUM(exp_amount),0),
+            (me.main_expense_budget - COALESCE(SUM(exp_amount),0)) AS total_diff
+        FROM adminteam.main_expenses AS me
+        LEFT JOIN adminteam.expenses AS e ON me.main_expense_id = e.main_expense_id
+        AND EXTRACT(YEAR FROM e.exp_date) = %s
+        AND e.exp_del_ind = FALSE
+        WHERE me.main_expense_del_ind = FALSE
+            AND me.main_expense_id = %s
+        GROUP BY me.main_expense_budget
+    """
+
+    pie_df = db.querydatafromdatabase(pie_sql, (current_year, mextype), ['main_expense_budget', 'total_spent', 'total_diff'])
+
+    if pie_df.empty:
+        pie_chart = html.Div("No data available for the pie chart")
+    else:
+        # Define custom colors
+        custom_colors = ['#D37157', '#39B54A', '#F8B237',]
+
+        pie_data = {'labels': ['Total Spent', 'Remaining Budget'],
+                    'values': [pie_df['total_spent'][0], pie_df['total_diff'][0]]}
+        df = pd.DataFrame(pie_data)
+
+        pie_fig = go.Figure(data=[go.Pie(
+            labels= df['labels'],
+            values= df['values'],
+            marker=dict(colors=custom_colors),
+            hole=0.4  # Adjust the value to change the size of the hole
+        )])
+        pie_fig.update_traces(textinfo='percent+label')  # Show percentage and label on pie chart
+        pie_fig.update_layout(
+            title=f"{get_year_range()}",  # Title with month and year
+            title_font=dict(size=18),
+            legend=dict(title_font=dict(size=12), orientation='h', yanchor='bottom', y=1.02, xanchor='right', x=1)
+        )
+        pie_chart = dcc.Graph(figure=pie_fig)
+
+    return dbc.Row(
+        [
+            dbc.Col(pie_chart, width=12),  # Equal width for both charts
+        ]
+    )
 
 
 def charts_subexp():
@@ -234,7 +281,36 @@ layout = html.Div(
                                     html.Div(id='charts_mainexp')
                                 )
                             ]
-                        ),  
+                        ),
+
+                        dbc.Row(
+                            [
+                                dbc.CardHeader(html.H3("Main Expenses Budget Allocation", className="mb-0")),
+                                dbc.CardBody([
+                                    dbc.Row([
+                                        dbc.Col(
+                                            dbc.Label(
+                                                ["Main Expense Type: "],
+                                            ),
+                                            width="auto",
+                                            align="end"
+                                        ),
+                                        dbc.Col(
+                                            dcc.Dropdown(
+                                                id="mex_types",
+                                                placeholder="Select Main Expense",
+                                                options = []
+                                            ),
+                                            width=5
+                                        ),
+                                    ],
+                                    style={'marginTop': '20px'}),
+                                    html.Br(),
+                                    html.Div(id='charts_alloc')
+                                ])
+                            ]
+                        ),
+
                         dbc.Row(
                             [
                                 dbc.CardHeader(html.H5("MOOE sub expenses overview", className="mb-0")),
@@ -282,21 +358,44 @@ layout = html.Div(
 )
 
 
+#Populate Dropdown
+@app.callback(
+    Output('mex_types', 'options'),
+    Input('url', 'pathname')
+)
+def mex_types_dropdown(pathname):
+    if pathname == '/administration_dashboard':
+        sql = """
+            SELECT main_expense_name as label,  main_expense_id  as value
+            FROM adminteam.main_expenses
+            WHERE main_expense_del_ind = False
+            ORDER BY main_expense_id
+        """
+        values = []
+        cols = ['label', 'value']
+        df = db.querydatafromdatabase(sql, values, cols)
+        main_expense_types = df.to_dict('records')
+    else:
+        raise PreventUpdate
+    return main_expense_types
 
-
+#Main
 @app.callback(
     [Output('charts_mainexp', 'children'),
+     Output('charts_alloc', 'children'),
      Output('charts_subexp', 'children'),
      Output('expensetypes_accordion', 'children')],
-    [Input('admindashboard_toload', 'modified_timestamp')],
+    [Input('admindashboard_toload', 'modified_timestamp'),
+     Input('mex_types', 'value')],
     [State('admindashboard_toload', 'data')]
 )
-def update_charts(timestamp, toload):
+def update_charts(timestamp, mextype, toload):
     if toload:
         main_exp_charts = charts_mainexp()
+        alloc_charts = charts_alloc(mextype)
         sub_exp_charts = charts_subexp()
         expensetypes = populate_accordion()
-        return main_exp_charts, sub_exp_charts, expensetypes
+        return main_exp_charts, alloc_charts, sub_exp_charts, expensetypes
     else:
         raise PreventUpdate
     

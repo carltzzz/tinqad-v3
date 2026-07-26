@@ -991,11 +991,12 @@ def evaluation_summary_downloadbutton(pathname, currentuserid):
     Output("pr_pdf-download", "data"),
     Input("pr_download_pdf_btn", "n_clicks"),
     [State("url", "search"),
-     State('currentuserid', 'data')],
+     State('currentuserid', 'data'),
+     State('currentrole', 'data')],
     prevent_initial_call=True,
 )
 
-def serve_pdf(n_clicks, search, currentuserid):
+def serve_pdf(n_clicks, search, currentuserid, role):
     eval_id = currentuserid
     final_id = int(eval_id)
 
@@ -1012,6 +1013,6 @@ def serve_pdf(n_clicks, search, currentuserid):
     df = db.querydatafromdatabase(sql, values, cols)
     full_name =df['Full_Name'][0]
 
-    pdf = pdf_utils.generate_pdf_bytes(final_id)
+    pdf = pdf_utils.generate_pdf_bytes(final_id, role)
     return dcc.send_bytes(lambda buf: buf.write(pdf), filename=f"Peer_Evaluation_Report_{full_name}.pdf")
 
