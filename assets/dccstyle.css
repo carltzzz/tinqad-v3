@@ -178,3 +178,14 @@
     text-decoration: underline;
     text-decoration-color: #000000;
 }
+
+.view-mode-section input,
+.view-mode-section .form-control,
+.view-mode-section .rbt-input-main,
+.view-mode-section .DashDropdown,
+.view-mode-section .Select__control,
+.view-mode-section .Select-value {
+    background-color: #e9ecef !important;
+    color: #6c757d !important;
+    border: none !important;
+}

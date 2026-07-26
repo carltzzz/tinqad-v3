@@ -374,11 +374,24 @@ layout = html.Div(
                                     style={"marginRight": "auto"}
                                 ),
                                 dbc.Col(
-                                    dbc.Button(
-                                        "Edit", color="warning",
-                                        id='registeruser_toggle_edit',
-                                        n_clicks=0,
-                                        style={'display': 'none'}
+                                    dbc.Row(
+                                        [
+                                            dbc.Col(
+                                                dbc.Button(
+                                                    "Edit", color="warning",
+                                                    id='registeruser_toggle_edit',
+                                                    n_clicks=0,
+                                                    style={'display': 'none'}
+                                                ),
+                                                width="auto",
+                                            ),
+                                            dbc.Col(
+                                                dbc.Button("Back", color="secondary", href="/search_users", id='registeruser_back_button_header'),
+                                                width="auto",
+                                            ),
+                                        ],
+                                        justify="end",
+                                        className="g-2",
                                     ),
                                     width="auto",
                                 ),
@@ -429,20 +442,7 @@ layout = html.Div(
                             ),
                             id='registeruser_actions_div'
                         ),
-                        html.Div(
-                            dbc.Row(
-                                [
-                                    dbc.Col(
-                                        dbc.Button("Back", color="secondary", href="/search_users"),
-                                        width="auto"
-                                    ),
-                                ],
-                                className="mb-2",
-                                justify="start",
-                            ),
-                            id='registeruser_back_div',
-                            style={'display': 'none'}
-                        ),
+
 
                         dbc.Modal(
                             [
@@ -1120,7 +1120,7 @@ def update_registeruser_title(search, edit_mode):
         Output('registeruser_actions_div', 'style'),
         Output('registeruser_removerecord_div', 'style'),
         Output('registeruser_toggle_edit', 'style'),
-        Output('registeruser_back_div', 'style'),
+        Output('registeruser_back_button_header', 'style'),
         Output('registeruser_registration_info_div', 'style'),
     ],
     [
