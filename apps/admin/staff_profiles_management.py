@@ -52,7 +52,7 @@ def make_orientation_cert_row(i):
                                 type="text",
                                 placeholder="Select from dropdown or enter custom name",
                                 className="mb-2",
-                                style={"width": "100%"}
+                                style={"width": "100%", "height": "38px"}
                             )
                         ],
                         md=4
@@ -64,7 +64,7 @@ def make_orientation_cert_row(i):
                                 id=f"orientation_cert_date_{i}",
                                 placeholder="mm/dd/yyyy",
                                 className="SingleDatePicker mb-2",
-                                style={"width": "100%"},
+                                style={"width": "100%", "height": "38px"},
                             ),
                         ],
                         md=4
@@ -77,7 +77,7 @@ def make_orientation_cert_row(i):
                                 type="text",
                                 placeholder="Certificate URL",
                                 className="mb-2",
-                                style={"width": "100%"}
+                                style={"width": "100%", "height": "38px"}
                             )
                         ],
                         md=4
@@ -675,7 +675,7 @@ main_dashboard = dbc.Container(
                                             id='govt_id_date_of_issuance',
                                             placeholder="mm/dd/yyyy",
                                             className='SingleDatePicker mb-2',
-                                            style={"width": "100%"},
+                                            style={"width": "100%", "height": "38px"},
                                         ),
                                     ],
                                     md=4
@@ -688,7 +688,7 @@ main_dashboard = dbc.Container(
                                             type="text",
                                             placeholder="Enter Place of Issuance",
                                             className="mb-2",
-                                            style={"width": "100%"}
+                                            style={"width": "100%", "height": "38px"}
                                         )
                                     ],
                                     md=4
@@ -938,7 +938,7 @@ main_dashboard = dbc.Container(
                                             type="text",
                                             placeholder="Enter Degree/s Earned",
                                             className="mb-2",
-                                            style={"width": "100%"}
+                                            style={"width": "100%", "height": "38px"}
                                         )
                                     ],
                                     md=4
@@ -950,7 +950,7 @@ main_dashboard = dbc.Container(
                                             id='eligibility_start_date',
                                             placeholder="mm/dd/yyyy",
                                             className='SingleDatePicker mb-2',
-                                            style={"width": "100%"},
+                                            style={"width": "100%", "height": "38px"},
                                         ),
                                     ],
                                     md=4
@@ -962,7 +962,7 @@ main_dashboard = dbc.Container(
                                             id='eligibility_end_date',
                                             placeholder="mm/dd/yyyy",
                                             className='SingleDatePicker mb-2',
-                                            style={"width": "100%"},
+                                            style={"width": "100%", "height": "38px"},
                                         ),
                                     ],
                                     md=4
@@ -1197,7 +1197,7 @@ main_dashboard = dbc.Container(
                                             id='resume_last_update',
                                             placeholder="mm/dd/yyyy",
                                             className='SingleDatePicker mb-2',
-                                            style={"width": "100%"},
+                                            style={"width": "100%", "height": "38px"},
                                         ),
                                     ],
                                     md=4
@@ -1210,7 +1210,7 @@ main_dashboard = dbc.Container(
                                             type="text",
                                             placeholder="CV URL",
                                             className="mb-2",
-                                            style={"width": "100%"}
+                                            style={"width": "100%", "height": "38px"}
                                         )
                                     ],
                                     md=4
@@ -1570,6 +1570,9 @@ def display_orientation_certs(count):
 
 @app.callback(
     Output('orientation_cert_count', 'data'),
+    Output('alert', 'is_open', allow_duplicate=True),
+    Output('alert', 'color', allow_duplicate=True),
+    Output('alert', 'children', allow_duplicate=True),
     [Output(f"orientation_cert_name_{i}", "value") for i in range(1, 21)]
     + [Output(f"orientation_cert_date_{i}", "date") for i in range(1, 21)]
     + [Output(f"orientation_cert_link_{i}", "value") for i in range(1, 21)],
@@ -1586,14 +1589,20 @@ def display_orientation_certs(count):
         State('url', 'search'),
         State('orientation_cert_count', 'data'),
         State('current_mode', 'data'),
+    ] + [
+        State(f"orientation_cert_name_{i}", "value") for i in range(1, 21)
     ],
     prevent_initial_call=True,
 )
 def manage_cert_fields(to_load_ts, remove_clicks, *cert_trigger_args):
     trigger = callback_context.triggered_id
     cert_triggers = cert_trigger_args[:len(ORIENTATION_TRAINING_NAMES) + 1]
-    to_load_data, search, current_count, mode = cert_trigger_args[len(ORIENTATION_TRAINING_NAMES) + 1:]
+    base_args = cert_trigger_args[len(ORIENTATION_TRAINING_NAMES) + 1:]
+    to_load_data, search, current_count, mode = base_args[:4]
+    current_names = list(base_args[4:24])
     count = int(current_count or 0)
+
+    no_alert = [False, '', '']
 
     empty_names = [None] * 20
     empty_dates = [None] * 20
@@ -1619,7 +1628,7 @@ def manage_cert_fields(to_load_ts, remove_clicks, *cert_trigger_args):
             cert_names[i] = cert_df.loc[i, 'training_name']
             cert_dates[i] = cert_df.loc[i, 'date_of_training']
             cert_links[i] = cert_df.loc[i, 'certificate_link']
-        return [cert_count] + cert_names + cert_dates + cert_links
+        return [cert_count] + no_alert + cert_names + cert_dates + cert_links
 
     elif trigger == 'remove_orientation_cert_button':
         if count < 1:
@@ -1631,18 +1640,21 @@ def manage_cert_fields(to_load_ts, remove_clicks, *cert_trigger_args):
         name_values[row_to_clear - 1] = ""
         date_values[row_to_clear - 1] = None
         link_values[row_to_clear - 1] = ""
-        return [count - 1] + name_values + date_values + link_values
+        return [count - 1] + no_alert + name_values + date_values + link_values
 
     elif trigger.startswith('add_cert_') and trigger != 'add_cert_custom':
         idx = int(trigger.replace('add_cert_', ''))
         training_name = ORIENTATION_TRAINING_NAMES[idx] if idx < len(ORIENTATION_TRAINING_NAMES) else ""
         if count >= 20:
             raise PreventUpdate
+        existing_names = [n.strip().lower() for n in current_names if n and n.strip()]
+        if training_name.strip().lower() in existing_names:
+            return [count] + [True, 'danger', f'Certificate "{training_name}" already exists.'] + [no_update] * 60
         name_values = [no_update] * 20
         date_values = [no_update] * 20
         link_values = [no_update] * 20
         name_values[count] = training_name
-        return [count + 1] + name_values + date_values + link_values
+        return [count + 1] + no_alert + name_values + date_values + link_values
 
     elif trigger == 'add_cert_custom':
         if count >= 20:
@@ -1651,7 +1663,7 @@ def manage_cert_fields(to_load_ts, remove_clicks, *cert_trigger_args):
         date_values = [no_update] * 20
         link_values = [no_update] * 20
         name_values[count] = ""
-        return [count + 1] + name_values + date_values + link_values
+        return [count + 1] + no_alert + name_values + date_values + link_values
 
     raise PreventUpdate
 
@@ -2287,6 +2299,20 @@ def save_staff_profile(submitbtn, cancelbtn, confirmbtn, remove_record, current_
                 db.modifydatabase(degree_sql, vals)
 
             # Insert orientation/training certificates
+            cert_names_list = []
+            for i in range(min(int(orientation_cert_count or 0), 20)):
+                name = orientation_cert_names[i] if i < len(orientation_cert_names) else None
+                if name and name.strip():
+                    cert_names_list.append(name.strip())
+            lower_names = [n.lower() for n in cert_names_list]
+            if len(lower_names) != len(set(lower_names)):
+                alert_open = True
+                alert_color = 'danger'
+                alert_text = 'Duplicate certificate names found. Please remove duplicates before saving.'
+                return [alert_open, alert_color, alert_text, initial_modal_open, initial_modal_message, btn_color, last_modal_open, last_modal_header,
+                        user_id_class, country_class, region_class, province_class, municipality_class, barangay_class, zip_code_class,
+                        philhealth_no_class, tin_no_class, govt_id_class, govt_id_no_class, emergency_contact_name_class, emergency_contact_number_class, emergency_contact_address_class]
+
             cert_sql = """
                 INSERT INTO adminteam.staff_orientation_certificates
                 (staff_profile_id, training_name, date_of_training, certificate_link)
@@ -2470,6 +2496,20 @@ def save_staff_profile(submitbtn, cancelbtn, confirmbtn, remove_record, current_
                     db.modifydatabase(degree_sql, [staffprofilesid, deg, school or '', year or None])
 
             # Remove old orientation certificates and re-insert
+            cert_names_list = []
+            for i in range(min(int(orientation_cert_count or 0), 20)):
+                name = orientation_cert_names[i] if i < len(orientation_cert_names) else None
+                if name and name.strip():
+                    cert_names_list.append(name.strip())
+            lower_names = [n.lower() for n in cert_names_list]
+            if len(lower_names) != len(set(lower_names)):
+                alert_open = True
+                alert_color = 'danger'
+                alert_text = 'Duplicate certificate names found. Please remove duplicates before saving.'
+                return [alert_open, alert_color, alert_text, initial_modal_open, initial_modal_message, btn_color, last_modal_open, last_modal_header,
+                        user_id_class, country_class, region_class, province_class, municipality_class, barangay_class, zip_code_class,
+                        philhealth_no_class, tin_no_class, govt_id_class, govt_id_no_class, emergency_contact_name_class, emergency_contact_number_class, emergency_contact_address_class]
+
             del_cert_sql = "DELETE FROM adminteam.staff_orientation_certificates WHERE staff_profile_id = %s"
             db.modifydatabase(del_cert_sql, [staffprofilesid])
 

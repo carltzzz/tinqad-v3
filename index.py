@@ -242,8 +242,8 @@ def displaypage(pathname, sessionlogout, user_id, accesstype, search):
 
     return [returnlayout, sessionlogout]
 if __name__ == '__main__':
-#    webbrowser.open('http://127.0.0.1:8050/', new=0, autoraise=True)
-   app.run(debug=True)
+   webbrowser.open('http://127.0.0.1:8050/', new=0, autoraise=True)
+   app.run(debug=False)
 
 # if __name__ == '__main__':
 #     # Open the web browser to the correct URL 
