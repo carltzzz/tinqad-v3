@@ -24,7 +24,9 @@ form = dbc.Form(
             
             dbc.Row(
                 [
-                    dbc.Label("First Name ", width=3),
+                    dbc.Label(["First Name ", 
+                              html.Span("*", style={"color": "#F8B237"})],
+                              width=3),
                     dbc.Col(
                         dbc.Input(type="text", id='user_fname', value='', disabled=False),
                         width=6,
@@ -34,7 +36,9 @@ form = dbc.Form(
             ),
             dbc.Row(
                 [
-                    dbc.Label("Middle Name ", width=3),
+                    dbc.Label(["Middle Name ", 
+                              html.Span("*", style={"color": "#F8B237"})],
+                              width=3),
                     dbc.Col(
                         dbc.Input(type="text", id='user_mname', disabled=False),
                         width=6,
@@ -44,7 +48,9 @@ form = dbc.Form(
             ),
             dbc.Row(
                 [
-                    dbc.Label("Surname ", width=3),
+                    dbc.Label(["Surname ", 
+                              html.Span("*", style={"color": "#F8B237"})],
+                              width=3),
                     dbc.Col(
                         dbc.Input(type="text", id='user_sname', disabled=False),
                         width=6,
@@ -75,7 +81,9 @@ form = dbc.Form(
             
             dbc.Row(
                 [
-                    dbc.Label("Birthday ", width=3),
+                    dbc.Label(["Birthday ", 
+                              html.Span("*", style={"color": "#F8B237"})],
+                              width=3),
                     dbc.Col(
                         dbc.Input(type="date", id='user_bday', disabled=False),
                         width=4,
@@ -85,7 +93,9 @@ form = dbc.Form(
             ),
             dbc.Row(
                 [
-                    dbc.Label("Sex at Birth", width=3),
+                    dbc.Label(["Sex at Birth", 
+                              html.Span("*", style={"color": "#F8B237"})],
+                              width=3),
                     dbc.Col(
                         dbc.Select(
                             id='user_sexatbirth',
@@ -101,6 +111,7 @@ form = dbc.Form(
                 ],
                 className="mb-2",
             ),
+
             dbc.Row(
                 [
                     dbc.Label(["Place of Birth", 
@@ -111,7 +122,6 @@ form = dbc.Form(
                             id="user_placeofbirth",
                             options=[],
                             placeholder="Search for City/Municipality",
-                            # persistence=True,
                             className="mb-2",
                             # style={"width": "100%"}
                         ),
@@ -120,6 +130,7 @@ form = dbc.Form(
                 ],
                 className="mb-2",
             ),
+
             dbc.Row(
                 [
                     dbc.Label("Blood Type", width=3),
@@ -142,7 +153,9 @@ form = dbc.Form(
             ),
             dbc.Row(
                 [
-                    dbc.Label("Phone Number ", width=3),
+                    dbc.Label(["Phone Number ", 
+                              html.Span("*", style={"color": "#F8B237"})],
+                              width=3),
                     dbc.Col(
                         dbc.Input(type="text", id='user_phone_num',  
                                   placeholder="0000-000-0000", maxLength=13, disabled=False),
@@ -153,7 +166,9 @@ form = dbc.Form(
             ),
             dbc.Row(
                 [
-                    dbc.Label("ID Number ", width=3),
+                    dbc.Label(["ID Number ", 
+                              html.Span("*", style={"color": "#F8B237"})],
+                              width=3),
                     dbc.Col(
                         dbc.Input(type="text", id='user_id_num', 
                                   placeholder="0000-00000", maxLength=13, disabled=False),
@@ -744,7 +759,6 @@ def register_user(submitbtn, cancelbtn, confirmbtn, removerecord,
                     user_sname_class= get_input_class(sname)
                     user_sexatbirth_class= get_input_class(sexatbirth)
                     user_placeofbirth_class= get_input_class(placeofbirth)
-                    user_bloodtype_class= get_input_class(bloodtype)
                     user_phone_num_class= get_input_class(phone_num)
                     user_id_num_class= get_input_class(id_num)
                     user_qao_team_id_class= get_input_class(user_qao_team_id)
@@ -763,7 +777,6 @@ def register_user(submitbtn, cancelbtn, confirmbtn, removerecord,
                     user_sname_class= get_input_class(sname)
                     user_sexatbirth_class= get_input_class(sexatbirth)
                     user_placeofbirth_class= get_input_class(placeofbirth)
-                    user_bloodtype_class= get_input_class(bloodtype)
                     user_phone_num_class= get_input_class(phone_num)
                     user_id_num_class= get_input_class(id_num)
                     user_qao_team_id_class= get_input_class(user_qao_team_id)
