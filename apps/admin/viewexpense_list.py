@@ -65,6 +65,7 @@ layout = html.Div(
                             [
                                 dbc.ModalHeader(html.H3("Edit Expense Type"), className="bg-primary"),
                                 dbc.ModalBody([
+                                    html.Div(id="allex_name"),
                                     dbc.Row([
                                         dbc.Col(
                                             dbc.Label(
@@ -82,7 +83,8 @@ layout = html.Div(
                                             ),
                                             width=4
                                         )
-                                    ]),
+                                    ],
+                                    style={'marginTop': '20px'}),
                                     html.Br(),
                                     dbc.Row([
                                         dbc.Checklist(
@@ -288,7 +290,8 @@ def process_removal(n_clicks_list, confirm_btn, cancel_btn, button_id_list, budg
 
 # displaying the choices for the text area
 @app.callback(
-    [Output('edit_main_budget', 'value'),
+    [Output('allex_name', 'children'),
+     Output('edit_main_budget', 'value'),
      Output('edit_main_budget', 'disabled')],
     Input({'type': 'edit-button', 'index': dash.dependencies.ALL}, 'n_clicks'),
     [State({'type': 'edit-button', 'index': dash.dependencies.ALL}, 'id'),
@@ -310,19 +313,29 @@ def update_textarea_on_option_change(n_clicks_list, button_id_list, confirm_moda
                 exp_type, expensetype_id = index_str.split('_', 1)
                 if exp_type == 'main':
                     sql = """
-                        SELECT main_expense_budget
+                        SELECT main_expense_name, main_expense_budget
                         FROM adminteam.main_expenses
                         WHERE main_expense_id = %s
                     """
                     values = [expensetype_id]
-                    cols = ['Budget']
+                    cols = ['Name', 'Budget']
                     df = db.querydatafromdatabase(sql, values, cols)
+                    namestr = html.H5(df['Name'][0])
                     if not df.empty:
-                        return [df['Budget'][0], False]
+                        return [namestr, df['Budget'][0], False]
                     else:
-                        return ["", False]
+                        return [namestr, "", False]
                 else:
-                    return ["", True]
+                    sql = """
+                        SELECT sub_expense_name
+                        FROM adminteam.sub_expenses
+                        WHERE sub_expense_id = %s
+                    """
+                    values = [expensetype_id]
+                    cols = ['Name']
+                    df = db.querydatafromdatabase(sql, values, cols)
+                    namestr = html.H5(df['Name'][0])
+                    return [namestr, "", True]
     return ""
 
 # # Callback to process confirmation modals
