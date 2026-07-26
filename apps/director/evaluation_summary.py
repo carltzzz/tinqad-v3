@@ -69,7 +69,7 @@ summary = dbc.Container(
                                     style=border_style
                                 ),
                                 html.Td(
-                                    dbc.Textarea(id="reviewers", placeholder="List of Reviewers", disabled=True, style={**editable_disabled_style, "fontWeight": "bold"}),
+                                    dbc.Textarea(id="reviewers", placeholder="List of Reviewers", disabled=True, style=editable_disabled_style),
                                     rowSpan=2,
                                     style=border_style
                                 ),
@@ -195,7 +195,8 @@ summary = dbc.Container(
                     dbc.Textarea(
                         id="opportunities_text",
                         placeholder="Enter opportunities for improvement here...",
-                        style={**editable_disabled_style, "width": "100%", "height": "100px"},
+                        disabled=True,
+                        style={"width": "100%", "height": "100px"},
                     )
                 ],
                 width=12
@@ -218,7 +219,7 @@ summary = dbc.Container(
                                 html.Td([
                                     html.Div("Date:", style={"margin-bottom": "5px"}),
                                     dcc.DatePickerSingle(id="conducted_date", className='SingleDatePicker', date=str(pd.to_datetime("today").date()),
-                                                          placeholder="mm/dd/yyyy", disabled=False, style=editable_disabled_style),
+                                                          placeholder="mm/dd/yyyy", disabled=False),
                                 ], style=border_style),
                                 html.Td([
                                     html.Div("Received by:", style={"margin-bottom": "5px"}),
@@ -226,7 +227,7 @@ summary = dbc.Container(
                                 ], style=border_style),
                                 html.Td([
                                     html.Div("Date:", style={"margin-bottom": "5px"}),
-                                    dcc.DatePickerSingle(id="received_date", className='SingleDatePicker', placeholder="mm/dd/yyyy", disabled=False, style=editable_disabled_style),
+                                    dcc.DatePickerSingle(id="received_date", className='SingleDatePicker', placeholder="mm/dd/yyyy", disabled=False),
                                 ], style=border_style),
                             ])
                         ])
@@ -371,7 +372,8 @@ layout = html.Div(
                         html.Div(  
                             [
                                 dcc.Store(id='response_to_load', storage_type='memory', data=0),
-                                dcc.Download(id="pdf-download")
+                                dcc.Download(id="pdf-download"),
+                                dcc.Location(id='url_loc', refresh=True)
                             ]
                         ),
                         html.Div(
@@ -392,9 +394,9 @@ layout = html.Div(
                                                         "font-size": "1.5rem",
                                                         "color": highlight_colors['accent']
                                                     }
-                                            ),
+                                            )
                                         ],
-                                        style={"margin-bottom": "0px"}  # reduce bottom margin of the header container
+                                        style={"margin-bottom": "5px"}  # reduce bottom margin of the header container
                                     ),
                                     width=12,
                                 ),
@@ -411,33 +413,19 @@ layout = html.Div(
                         remarks_section,
                         html.Br(),
                         dbc.Alert(id='response_summary_alert', is_open=False), # For feedback purpose
-                        dbc.Row(
+                        html.Div(
                             [
                                 dbc.Col(
                                     dbc.Button(
-                                        "Evaluate",
-                                        id="evaluate_button",
+                                        "Download PDF",
+                                        id="download_pdf_btn",
                                         n_clicks=0,
-                                        color="success",
-                                    ),
-                                    width="auto",
-                                ),
-                                dbc.Col(
-                                    html.Div(
-                                        dbc.Button(
-                                            "Download PDF",
-                                            id="download_pdf_btn",
-                                            n_clicks=0,
-                                            color="secondary",
-                                        ),
-                                    ),
-                                    id="download_style_div",
-                                    width="auto",
-                                    className="ms-auto",
-                                ),
+                                        color="secondary",
+                                        style={"margin-left": "10px"}
+                                    )
+                                )
                             ],
-                            align="center",
-                            className="mb-2",
+                            id="download_style_div"
                         ),
                         html.Div(
                             dbc.Row(
@@ -463,9 +451,21 @@ layout = html.Div(
                                     html.Div(
                                         [
                                             dbc.Button(
+                                                "Evaluate",
+                                                id="edit_btn",
+                                                n_clicks=0,
+                                                className="me-2",
+                                                style={
+                                                    "display": "flex",          # make the button a flex container
+                                                    "justifyContent": "center",# center horizontally
+                                                    "alignItems": "center",    # center vertically
+                                                    "fontWeight": "bold",      # bold text
+                                                }
+                                            ),
+                                            dbc.Button(
                                                 "Back",
                                                 id="back_button",
-                                                color="primary",
+                                                color="secondary",
                                                 className="me-2",
                                                 href="/peer_evaluation_responses",
                                                 style={
@@ -543,6 +543,32 @@ layout = html.Div(
     ]
 )
 
+#Edit mode button
+@app.callback(
+    [   
+        Output('url_loc', 'href'),
+    ],
+    [
+        Input('url', 'pathname'),
+        Input('edit_btn', 'n_clicks')
+    ],
+    [
+        State('url', 'search')
+    ],
+    prevent_initial_call=True
+)
+
+def load_conducted_by(pathname, nclicks, search):
+    if pathname == '/peer_evaluation_responses/evaluation_summary':
+        parsed = urlparse(search)
+        evaluatee_id = parse_qs(parsed.query)['id'][0]
+    else:
+        raise PreventUpdate
+    if nclicks>0:
+        return [f"/peer_evaluation_responses/evaluation_summary?mode=edit&id={evaluatee_id}"]
+
+#---------------
+
 @app.callback(
     [   
         Output('conducted_by', 'options'),
@@ -613,8 +639,6 @@ def load_conducted_by(pathname, search):
         Output('response_to_load', 'data'),
         Output('summary_buttons_div', 'style'),
         Output('back_button', 'style'),
-        Output('evaluate_button', 'style'),
-        Output('opportunities_text', 'disabled'),
     ],
     [
         Input('url', 'pathname'),
@@ -631,24 +655,18 @@ def peereval_get_userid(pathname, search):
             to_load = 1
             button_style = {'display': 'flex', 'justifyContent': 'flex-end'}
             back_btn_div_style = {'display': 'none'}
-            evaluate_btn_style = {'display': 'none'}
-            opp_disabled = False
         elif create_mode == 'view':
             to_load = 1
             button_style = {'display': 'none'}
             back_btn_div_style = {'display': 'flex', 'justifyContent': 'flex-end'}
-            evaluate_btn_style = {}
-            opp_disabled = True
         else:
             to_load = 0
             button_style = {'display': 'flex', 'justifyContent': 'flex-end'}
             back_btn_div_style = {'display': 'none'}
-            evaluate_btn_style = {'display': 'none'}
-            opp_disabled = True
     else:  
         raise PreventUpdate
     
-    return [to_load, button_style, back_btn_div_style, evaluate_btn_style, opp_disabled]
+    return [to_load, button_style, back_btn_div_style]
 
 # evaluatee_id = parse_qs(parsed.query).get('id', [None])[0]
 
@@ -842,8 +860,7 @@ def peereval_load(timestamp, to_load, search):
     [
         Output('period_input', 'value'),
         Output('dates_conducted_input', 'value'),
-        Output('reviewers', 'value'),
-        Output('reviewers', 'style')
+        Output('reviewers', 'value')
     ],
     [
         Input('response_to_load', 'modified_timestamp')
@@ -897,12 +914,6 @@ def update_reviewers(timestamp, to_load, search):
             evaluation_period = ""
             dates_conducted = ""
             reviewers_text= "No peer review evaluations found."
-            reviewers_style = {
-                "background-color": "white",
-                "color": "black",
-                "opacity": "1",
-                "fontWeight": "bold"
-            }
 
         if not df.empty:
             evaluation_period = df['evaluation_period'][0]
@@ -910,10 +921,9 @@ def update_reviewers(timestamp, to_load, search):
             # Combine the distinct evaluator names into a single string, separated by commas.
             evaluator_names = df['full_name'].unique().tolist()
             reviewers_text = ", ".join(evaluator_names)   
-            reviewers_style = default_style
 
     
-    return [evaluation_period, dates_conducted, reviewers_text, reviewers_style]
+    return [evaluation_period, dates_conducted, reviewers_text]
 
 @app.callback(
     [
@@ -1027,6 +1037,7 @@ def save_opportunity_summary(save_button, cancel_button, confirm_button, search,
     eventid = ctx.triggered[0]['prop_id'].split('.')[0]
 
     parsed = urlparse(search)
+    create_mode = parse_qs(parsed.query).get('mode', [None])[0]
     evaluatee_user_id = parse_qs(parsed.query).get('id', [None])[0]
 
     opportunities_text_class = ''
@@ -1067,7 +1078,8 @@ def save_opportunity_summary(save_button, cancel_button, confirm_button, search,
             conducted_by_class = 'red-border' if not conducted_by else 'form-control'
             received_by_class = 'red-border' if not received_by else 'form-control'
         else:
-            initial_modal_open = True
+            if create_mode == 'edit':
+                initial_modal_open = True
 
     elif eventid == 'summary_initial_modal_confirm' and confirm_button and checker < 1:
         sql = """
@@ -1180,37 +1192,41 @@ def load_summary(timestamp, to_load, search):
     
     return [summary_text, conducted_by, conducted_date, received_by, received_date]
 
-
 @app.callback(
-    [
-        Output('opportunities_text', 'disabled', allow_duplicate=True),
-        Output('conducted_by', 'disabled', allow_duplicate=True),
-        Output('conducted_date', 'disabled', allow_duplicate=True),
-        Output('received_by', 'disabled', allow_duplicate=True),
-        Output('received_date', 'disabled', allow_duplicate=True),
-        Output('evaluate_button', 'style', allow_duplicate=True),
-        Output('summary_buttons_div', 'style', allow_duplicate=True),
-        Output('back_button', 'style', allow_duplicate=True),
+    [ 
+        Output('opportunities_text', 'disabled'),
+        Output('conducted_by', 'disabled'),
+        Output('conducted_date', 'disabled'),
+        Output('received_by', 'disabled'),
+        Output('received_date', 'disabled'),
+        Output('conducted_by', 'style'),
+        Output('received_by', 'style'),
+        Output('edit_btn', 'style')
     ],
     [
-        Input('evaluate_button', 'n_clicks'),
-    ],
-    prevent_initial_call=True
-)
-def handle_evaluate_click(n_clicks):
-    if not n_clicks:
-        raise PreventUpdate
-
-    return [
-        False,   # opportunities_text disabled
-        False,   # conducted_by disabled
-        False,   # conducted_date disabled
-        False,   # received_by disabled
-        False,   # received_date disabled
-        {'display': 'none'},           # hide Evaluate button
-        {'display': 'flex', 'justifyContent': 'flex-end'},  # show Save/Cancel
-        {'display': 'none'},           # hide Back button
+        Input('url', 'search')
     ]
+)
+def addexpense_inputs_disabled(search):
+    enabled_style = {
+        "background-color": "white",
+        "color": "black",
+        "opacity": "1",
+    }
+    default_style = {
+        "background-color": 'rgba(0,0,0,0)',
+        "color": "black",
+        "opacity": "1",
+    }
+    if search:
+        parsed = urlparse(search)
+        create_mode = parse_qs(parsed.query).get('mode', [None])[0]
+        if create_mode == 'edit':
+            return [False, False, False, False, False, enabled_style, enabled_style, {'display': 'none'}] 
+        elif create_mode == 'view':
+            return [True, True, True, True, True, default_style, default_style, {'display': 'flex'}] 
+        
+    return [True, True, True, True, True, default_style, default_style, {'display': 'flex'}]
 
 
 
@@ -1283,4 +1299,3 @@ def serve_pdf(n_clicks, search, role):
 
     pdf = pdf_utils.generate_pdf_bytes(final_id, role)
     return dcc.send_bytes(lambda buf: buf.write(pdf), filename=f"Peer_Evaluation_Report_{full_name}.pdf")
-
