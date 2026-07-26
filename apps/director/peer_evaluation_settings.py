@@ -797,7 +797,7 @@ layout = html.Div(
                     ),   
                     dbc.Modal(
                         [
-                            dbc.ModalHeader(html.H3("Please specify the dates fort the new evaluation period"), close_button=False, className="bg-primary"),
+                            dbc.ModalHeader(html.H3("Please specify the dates for the new evaluation period"), close_button=False, className="bg-primary"),
                             dbc.ModalBody(
                                 [
                                     dbc.Row(
