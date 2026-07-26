@@ -11,10 +11,10 @@ from apps import dbconnect as db
 # Function to generate a custom table with fixed column widths.
 def generate_table(df):
     # define column order & widths
-    columns = ['ID number','Last Name','First Name','QAO Team','Position','View','Edit']
+    columns = ['ID number','Last Name','First Name','QAO Team','Position','Open']
     widths = {
         'ID number': '20%', 'Last Name': '15%', 'First Name': '15%',
-        'QAO Team':   '15%', 'Position':  '15%', 'View': '10%', 'Edit': '15%'
+        'QAO Team':   '15%', 'Position':  '20%', 'Open': '15%'
     }
 
     # header
@@ -156,38 +156,24 @@ def staffprofiles_loaduserlist(pathname, searchterm):
         df = db.querydatafromdatabase(sql, values, cols)
 
         if df.shape[0] > 0:
-            # Create Edit buttons for each user and add as a new column.
-            view_buttons = []
-            edit_buttons = []
+            # Create a single Open button for each user (opens in view mode).
+            open_buttons = []
             for staff_profile_id in df['ID']:
-                view_buttons.append(
+                open_buttons.append(
                     html.Div(
                         dbc.Button(
-                            'View',
+                            'Open',
                             href=f'staff_profiles_management?mode=view&id={staff_profile_id}',
                             size='sm',
-                            color='warning'
+                            color='primary'
                         ),
                         style={'text-align': 'center'}
                     )
                 )
-            for staff_profile_id in df['ID']:
-                edit_buttons.append(
-                    html.Div(
-                        dbc.Button(
-                            'Edit',
-                            href=f'staff_profiles_management?mode=edit&id={staff_profile_id}',
-                            size='sm',
-                            color='danger'
-                        ),
-                        style={'text-align': 'center'}
-                    )
-                )
-            df['View'] = view_buttons
-            df['Edit'] = edit_buttons
+            df['Open'] = open_buttons
             
             # Rearrange dataframe columns as desired.
-            df = df[['ID number', 'Last Name', 'First Name', 'QAO Team', 'Position', 'View', 'Edit']]
+            df = df[['ID number', 'Last Name', 'First Name', 'QAO Team', 'Position', 'Open']]
 
             # Retrieve teams with their ordering using both columns.
             sql_teams = """

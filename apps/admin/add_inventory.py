@@ -184,16 +184,12 @@ form = dbc.Form(
     ],
     [
         Input("item_image", "filename"),
-        Input("url", "search")
+        Input("inventory_current_mode", "data"),
     ],
 )
-def display_item_image_file(filenames, search):
+def display_item_image_file(filenames, mode):
     if not filenames:
         return ["No file uploaded"]
-    
-    # Parse the query parameter to check for mode
-    parsed = urlparse(search)
-    mode = parse_qs(parsed.query).get('mode', [None])[0]
     
     # Calculate relative path for linking the file in edit mode
     assets_folder = os.path.normpath("./assets")
@@ -225,6 +221,7 @@ layout = dbc.Container(
                     html.Div(  
                             [
                                 dcc.Store(id='inventory_eval_toload', storage_type='memory', data=0),
+                                dcc.Store(id='inventory_current_mode', storage_type='memory'),
                             ]
                         ),
                     html.Div(
@@ -236,17 +233,27 @@ layout = dbc.Container(
                                         width=8
                                     ),
                                     dbc.Col(
-                                        dbc.Button(
-                                            "Back",
-                                            color="success",
-                                            href="/inventory_tracker"
-                                        ),
-                                        width=4,
+                                        [
+                                            dbc.Button(
+                                                "Edit",
+                                                color="primary",
+                                                id="inventory_edit_toggle_btn",
+                                                n_clicks=0,
+                                                className="me-2"
+                                            ),
+                                            dbc.Button(
+                                                "Back",
+                                                color="success",
+                                                href="/inventory_tracker"
+                                            ),
+                                        ],
+                                        width="auto",
                                         id="inventory_tracker_back_btn_div",
-                                        style={"display": "flex", "justifyContent": "flex-end"}
+                                        style={"display": "none"}
                                     )
                                 ],
-                                align="center"
+                                align="center",
+                                justify="between"
                             ),
                         ],
                         className="mb-0"
@@ -356,13 +363,9 @@ layout = dbc.Container(
 
 @app.callback(
     [
-        Output('inventory_page_header', 'children'),
         Output('item_staff_responsibile', 'options'),
         Output('item_assigned_to', 'options'),
         Output('inventory_eval_toload', 'data'),
-        Output('inventorytracker_removerecord_div', 'style'),
-        Output('inventory_tracker_buttons_div', 'style'),
-        Output('inventory_tracker_back_btn_div','style')
     ],
     [
         Input('url', 'pathname')
@@ -404,30 +407,66 @@ def inventory_tracker_loaddropdown(pathname, search):
         cols_b = ['label', 'value']
         df_b = db.querydatafromdatabase(sql_b, values_b, cols_b)
         assigned_to_options = df_b.to_dict('records')
-        
-        
 
         if create_mode == 'add':
-            header = 'Add Inventory Record'
             to_load = 0
-            removediv_style = {'display': 'none'}
-            buttondiv_style = None
-            backbtn_div_style = {'display': 'none'}
-        elif create_mode == 'edit':
-            header = 'Edit Inventory Record'
+        elif create_mode in ('edit', 'view'):
             to_load = 1
-            removediv_style = None
-            buttondiv_style = None
-            backbtn_div_style = {'display': 'none'}
-        elif create_mode == 'view':
-            header = 'View Inventory Record'
-            to_load = 1
-            removediv_style = {'display': 'none'}
-            buttondiv_style = {'display': 'none'}
-            backbtn_div_style = {"display": "flex", "justifyContent": "flex-end"}
     else:
         raise PreventUpdate
-    return [header, staff_responsible_options, assigned_to_options, to_load, removediv_style, buttondiv_style, backbtn_div_style]
+    return [staff_responsible_options, assigned_to_options, to_load]
+
+
+@app.callback(
+    Output('inventory_current_mode', 'data'),
+    [Input('inventory_eval_toload', 'modified_timestamp'),
+     Input('inventory_edit_toggle_btn', 'n_clicks')],
+    [State('url', 'search')],
+    prevent_initial_call=False
+)
+def update_inventory_current_mode(to_load_ts, n_clicks, search):
+    ctx = dash.callback_context
+    if not ctx.triggered:
+        raise PreventUpdate
+    trigger = ctx.triggered[0]['prop_id'].split('.')[0]
+
+    if trigger == 'inventory_eval_toload':
+        parsed = urlparse(search)
+        mode = parse_qs(parsed.query).get('mode', ['view'])[0]
+        return mode
+    elif trigger == 'inventory_edit_toggle_btn' and n_clicks > 0:
+        return 'edit'
+    raise PreventUpdate
+
+
+@app.callback(
+    [
+        Output('inventory_page_header', 'children'),
+        Output('inventory_tracker_back_btn_div', 'style'),
+        Output('inventory_tracker_buttons_div', 'style'),
+        Output('inventorytracker_removerecord_div', 'style'),
+    ],
+    [Input('inventory_current_mode', 'data')]
+)
+def update_inventory_mode_ui(mode):
+    if mode == 'add':
+        header = "Add Inventory Record"
+        back_btn_style = {"display": "none", "justifyContent": "flex-end"}
+        buttons_div_style = None
+        remove_div_style = {"display": "none"}
+    elif mode == 'edit':
+        header = "Edit Inventory Record"
+        back_btn_style = {"display": "none", "justifyContent": "flex-end"}
+        buttons_div_style = None
+        remove_div_style = None
+    elif mode == 'view':
+        header = "View Inventory Record"
+        back_btn_style = {"display": "flex", "justifyContent": "flex-end"}
+        buttons_div_style = {"display": "none"}
+        remove_div_style = {"display": "none"}
+    else:
+        raise PreventUpdate
+    return [header, back_btn_style, buttons_div_style, remove_div_style]
 
 
 @app.callback(
@@ -480,12 +519,13 @@ def inventory_tracker_loaddropdown(pathname, search):
         State('item_unit_cost', 'value'),
         State('item_staff_responsibile', 'value'),
         State('item_assigned_to', 'value'),
+        State('inventory_current_mode', 'data'),
         State('url', 'search')
     ]
 )
 def save_inventory(submit_button, confirm, cancel, removerecord, name, lifespan, item_image_contents, item_image_filename, barcode, brand, initial_property_no, updated_property_no, description, supplier, 
                    po_number, company_name, contact_number, email, unit_cost,
-                 staff_responsible, assigned_to, search):
+                 staff_responsible, assigned_to, current_mode, search):
     ctx = dash.callback_context 
 
     if not ctx.triggered:
@@ -541,7 +581,7 @@ def save_inventory(submit_button, confirm, cancel, removerecord, name, lifespan,
         return file_data, None
     
     parsed = urlparse(search)
-    create_mode = parse_qs(parsed.query).get('mode', [None])[0]
+    create_mode = current_mode
 
     if eventid == 'inventory_tacker_save_button' and submit_button:
         # Ensure required fields are filled
@@ -777,13 +817,17 @@ def inventorytracker_load(timestamp, toload, search):
         Output('card_2', 'style'),
         Output('card_3', 'style'),
         Output('card_4', 'style'),
+        Output('card_1', 'className'),
+        Output('card_2', 'className'),
+        Output('card_3', 'className'),
+        Output('card_4', 'className'),
     ],
     [
-        Input('url', 'search')
+        Input('inventory_current_mode', 'data'),
     ]
 )
 
-def inventory_tracker_disabled(search):
+def inventory_tracker_disabled(mode):
 
     editable_disabled_style = {
         "background-color": "white",
@@ -792,18 +836,17 @@ def inventory_tracker_disabled(search):
         "pointer-events": "none"
     }
     card_1 = card_2 = card_3 = card_4 = {}
+    card_class = "mb-4"
 
-    if search:
-        parsed = urlparse(search)
-        create_mode = parse_qs(parsed.query).get('mode', [None])[0]
-        if create_mode == 'add':
-            pass
-        elif create_mode == 'edit':
-            pass
-        elif create_mode == 'view':
-            card_1 = card_2 = card_3 = card_4 = editable_disabled_style
+    if mode == 'add':
+        pass
+    elif mode == 'edit':
+        pass
+    elif mode == 'view':
+        card_1 = card_2 = card_3 = card_4 = editable_disabled_style
+        card_class = "mb-4 view-mode-section"
 
-    return[card_1, card_2, card_3, card_4]
+    return[card_1, card_2, card_3, card_4, card_class, card_class, card_class, card_class]
 
 
 @app.callback(
@@ -811,10 +854,11 @@ def inventory_tracker_disabled(search):
     [
         Input('item_image', 'contents'),
         Input('item_image', 'filename'),
-        Input('url', 'search'),
-    ]
+        Input('inventory_eval_toload', 'modified_timestamp'),
+    ],
+    [State('inventory_current_mode', 'data')]
 )
-def update_image_preview(contents, filename, search):
+def update_image_preview(contents, filename, to_load_ts, current_mode):
     # 1) New upload: show instantly
     if contents:
         # If list, pick first
@@ -823,11 +867,8 @@ def update_image_preview(contents, filename, search):
         return contents
 
     # 2) No new upload → maybe in view/edit mode?
-    if filename and search:
-        # Extract mode from URL
-        parsed = urlparse(search)
-        mode = parse_qs(parsed.query).get('mode', [None])[0]
-        if mode in ('view', 'edit'):
+    if filename and current_mode:
+        if current_mode in ('view', 'edit'):
             # If multiple filenames, pick first
             fname = filename[0] if isinstance(filename, list) else filename
             # Build the relative assets path (same logic you used in display callback)

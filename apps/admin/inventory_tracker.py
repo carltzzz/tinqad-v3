@@ -170,16 +170,9 @@ def staffprofiles_loaduserlist(pathname, name_filter, po_no_filter):
                 )
             )
 
-            df["View"] = df["ID"].apply(
+            df["Open"] = df["ID"].apply(
                 lambda x: html.Div(
-                    dbc.Button('View', href=f'inventory_tracker_management?mode=view&id={x}', size='sm', color='warning'),
-                    style={'text-align': 'center'}
-                )
-            )
-            
-            df["Edit"] = df["ID"].apply(
-                lambda x: html.Div(
-                    dbc.Button('Edit', href=f'inventory_tracker_management?mode=edit&id={x}', size='sm', color='danger'),
+                    dbc.Button('Open', href=f'inventory_tracker_management?mode=view&id={x}', size='sm', color='primary'),
                     style={'text-align': 'center'}
                 )
             )
@@ -187,7 +180,7 @@ def staffprofiles_loaduserlist(pathname, name_filter, po_no_filter):
                     "QA Property No.(Initial)", "QA Property No. (Updated)", "Description","Supplier",
                     "PO Number", "Unit Cost (₱)",
                     "Staff Responsible", "Assigned To",
-                    "View", "Edit" ]]
+                    "Open" ]]
             
             table = dbc.Table.from_dataframe(df, striped=True, bordered=True, hover=True, size='sm')
             return [table]
