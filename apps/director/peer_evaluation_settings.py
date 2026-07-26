@@ -501,14 +501,14 @@ card8 = dbc.Card(
                     dbc.Col(html.H5("CURRENT PEER EVALUATION PERIOD", className="card-title", style={"color": "white"}), width=8),
                     dbc.Col(
                         [
-                            dbc.Select(
+                            dbc.Input(
                                 id='current_period',
                                 placeholder="No period selected",
                                 disabled = True,
-                                options=[],
+                                style={"textAlign": "center"}
                             ),
                         ],
-                        width=3,
+                        width=4,
                         className="d-grid gap-2 d-md-flex justify-content-md-end",
                     )
                 ],
@@ -520,39 +520,6 @@ card8 = dbc.Card(
     ],
     className="mb-2"
 )
-
-@app.callback(
-    [
-        Output('current_period', 'options'),
-    ],
-    [
-        Input('url', 'pathname'),
-        Input('refresh_store', 'data')
-    ],
-)
-
-def populate_current_period(pathname, refresh_data):
-    if pathname == '/peer_evaluation_settings':
-        sql = """
-            SELECT
-			'From ' ||
-                to_char(lower(period_details), 'Mon DD, YYYY') ||
-                ' to ' ||
-                to_char(upper(period_details) - INTERVAL '1 day', 'Mon DD, YYYY')
-                AS label,
-                period_id   AS value
-            FROM director.evaluation_periods
-            WHERE active_status = TRUE
-            AND period_del_ind = FALSE
-        """
-        values = []
-        cols = ['label', 'value']
-        df = db.querydatafromdatabase(sql, values, cols)
-        current_periods = df.to_dict('records')
-        return [current_periods]
-    
-    else:
-        raise PreventUpdate
     
 @app.callback(
     [
@@ -568,25 +535,30 @@ def populate_current_period(pathname, refresh_data):
     if pathname == '/peer_evaluation_settings':
         sql = """
             SELECT
-			    period_id AS active_period
+			    'From ' ||
+                to_char(lower(period_details), 'Mon DD, YYYY') ||
+                ' to ' ||
+                to_char(upper(period_details) - INTERVAL '1 day', 'Mon DD, YYYY')
+                AS label,
+                period_id AS active_period
             FROM director.evaluation_periods
             WHERE active_status = TRUE
             AND 
             period_del_ind = FALSE
         """
         values = []
-        cols = ['active_period']
+        cols = ['label', 'active_period']
         df = db.querydatafromdatabase(sql, values, cols)
         
         if df.empty:
             return [None]
-
+        
+        period_label = df['label'][0]
         active_period = df['active_period'][0]
-        return [active_period]
+        return [period_label]
     
     else:
         raise PreventUpdate
-
 
 
 card9 = dbc.Card(
@@ -797,7 +769,7 @@ layout = html.Div(
                     ),   
                     dbc.Modal(
                         [
-                            dbc.ModalHeader(html.H3("Please specify the dates for the new evaluation period"), close_button=False, className="bg-primary"),
+                            dbc.ModalHeader(html.H3("Please specify the dates fort the new evaluation period"), close_button=False, className="bg-primary"),
                             dbc.ModalBody(
                                 [
                                     dbc.Row(
