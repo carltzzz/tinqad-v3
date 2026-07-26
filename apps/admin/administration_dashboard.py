@@ -123,7 +123,11 @@ def charts_alloc(mextype):
         custom_colors = ['#D37157', '#39B54A', '#F8B237',]
 
         total_budget = pie_df['main_expense_budget'][0]
+<<<<<<< HEAD
         total_spent = pie_df['total_spent'][0] 
+=======
+        total_spent = pie_df['total_spent'][0]
+>>>>>>> 9250c46bed5c554a862ab624ce172dfec102358c
         total_diff = pie_df['total_diff'][0]
 
         if total_diff < 0:
@@ -141,7 +145,11 @@ def charts_alloc(mextype):
         )])
         pie_fig.update_traces(textinfo='percent+label')  # Show percentage and label on pie chart
         pie_fig.update_layout(
+<<<<<<< HEAD
             title=f"{get_year_range()}\n Budget: ₱{total_budget}",  # Title with month and year
+=======
+            title=f"{get_year_range()}\nBudget: ₱{total_budget}",  # Title with month and year
+>>>>>>> 9250c46bed5c554a862ab624ce172dfec102358c
             title_font=dict(size=18),
             legend=dict(title_font=dict(size=12), orientation='h', yanchor='bottom', y=1.02, xanchor='right', x=1)
         )
