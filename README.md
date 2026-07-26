@@ -169,10 +169,15 @@ The application connects to a PostgreSQL database named `TINQAD_Database` with t
 |---|---|
 | `maindashboard` | Users, offices, announcements, alerts, team messages |
 | `adminteam` | Expenses, inventory |
-| `kmteam` | SDG submissions, ranking bodies |
 | `public` | Municipalities, provinces, colleges, degree programs |
+| `director` | Peer evaluation forms, details |
+| `qaofficers` | training details, training types |
+| `eqateam` | NOT USED FOR THIS VERSION |
+| `iqateam` | NOT USED FOR THIS VERSION |
+| `kmteam` |  NOT USED FOR THIS VERSION |
 
-SQL migration scripts in `/migrations` must be run manually against the database.
+
+SQL migration scripts in `/migrations` must be run manually against the database. Full list of database columns and tables can be viewed on pgAdmin.
 
 ---
 
